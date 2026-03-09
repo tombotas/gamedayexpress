@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GameDay Express — Your Sports Portal</title>
 
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DTHGH6C7GR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DTHGH6C7GR');
+</script>
+
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#e8341a">
@@ -450,6 +459,8 @@
   <a href="#stats">📊 Stats &amp; Research</a>
   <a href="#coaching">🏅 Coaching</a>
   <a href="#podcasts">🎙 Podcasts</a>
+  <a href="#beat-writers">📡 Beat Writers</a>
+  <a href="#simulation">🎮 Sim Games</a>
 </div>
 
 <!-- TICKER -->
@@ -499,6 +510,9 @@
   <span class="feat-chip" onclick="filterChip(this,'waiver')">Waiver</span>
   <span class="feat-chip" onclick="filterChip(this,'golf')">Golf</span>
   <span class="feat-chip" onclick="filterChip(this,'outdoor')">Outdoor</span>
+  <span class="feat-chip" onclick="filterChip(this,'simulation')">Sim Games</span>
+  <span class="feat-chip" onclick="filterChip(this,'beat writers')">Beat Writers</span>
+  <span class="feat-chip" onclick="filterChip(this,'historical')">History</span>
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
@@ -763,8 +777,32 @@
       <div class="link-item"><div class="link-dot"></div><a href="https://drivelinebaseball.com" target="_blank">Driveline Baseball</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.hoopcoachs.com" target="_blank">HoopCoach</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.nays.org" target="_blank">Natl Alliance for Youth Sports</a></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://www.dominatethediamond.com" target="_blank">Dominate The Diamond</a><span class="link-tag tag-new">New</span></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://www.gorout.com/youth-baseball-drills" target="_blank">GoRout Youth Baseball Drills</a><span class="link-tag tag-new">New</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.dominatethediamond.com" target="_blank">Dominate The Diamond</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.gorout.com/youth-baseball-drills" target="_blank">GoRout Youth Baseball Drills</a></div>
+    </div>
+  </div>
+
+  <!-- BEAT WRITERS & TEAM NEWS -->
+  <div class="card" data-color="red" data-tags="beat writers team news local reporters transactions nfl nba mlb nhl insider">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon icon-red">📡</div>
+      <div class="card-title">Team News &amp; Beat Writers</div>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://theathletic.com/nfl/" target="_blank">The Athletic — NFL</a><span class="link-tag tag-top">Top</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://theathletic.com/mlb/" target="_blank">The Athletic — MLB</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://theathletic.com/nba/" target="_blank">The Athletic — NBA</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.mlbtraderumors.com" target="_blank">MLB Trade Rumors</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://profootballtalk.nbcsports.com/transactions/" target="_blank">PFT Transactions</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://hoopshype.com/rumors/" target="_blank">HoopsHype Rumors</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nhl.com/news" target="_blank">NHL News &amp; Transactions</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.sbnation.com/nfl" target="_blank">SB Nation NFL Teams</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.sbnation.com/mlb" target="_blank">SB Nation MLB Teams</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.sbnation.com/nba" target="_blank">SB Nation NBA Teams</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.espn.com/nfl/transactions" target="_blank">ESPN NFL Transactions</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.espn.com/mlb/transactions" target="_blank">ESPN MLB Transactions</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://twitter.com/search?q=beat+writers+nfl" target="_blank">X/Twitter Beat Writers</a></div>
     </div>
   </div>
 
@@ -931,6 +969,70 @@
       <div class="link-item"><div class="link-dot"></div><a href="https://www.reddit.com/r/baseball/" target="_blank">r/Baseball</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/forums/" target="_blank">RotoWire Forums</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://discord.gg/fantasyfootball" target="_blank">Discord — Fantasy Sports</a></div>
+    </div>
+  </div>
+
+  <!-- SPORTS SIMULATION — DIGITAL -->
+  <div class="card" data-color="purple" data-tags="simulation sim games baseball football basketball hockey ootp strat apba digital">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon icon-purple">🎮</div>
+      <div class="card-title">Sports Simulation — Digital</div>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.ootpdevelopments.com" target="_blank">Out of the Park Baseball (OOTP)</a><span class="link-tag tag-top">Top</span></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Deep baseball management sim with real historical players &amp; leagues</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.ootpdevelopments.com/franchise-hockey-manager/" target="_blank">Franchise Hockey Manager</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>From the OOTP developers — deep NHL sim</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.footballmanager.com" target="_blank">Football Manager (Soccer)</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>The world's most popular sports management sim</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.wolverinestudios.com" target="_blank">Front Office Football / Draft Day Sports</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Deep NFL and multi-sport management sims</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.sportsmogul.com" target="_blank">Baseball Mogul / Sports Mogul</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.reddit.com/r/OOTP/" target="_blank">r/OOTP Community</a></div>
+    </div>
+  </div>
+
+  <!-- SPORTS SIMULATION — TABLETOP -->
+  <div class="card" data-color="teal" data-tags="simulation tabletop board game strat apba baseball football basketball hockey dice cards replay">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon icon-teal">🎲</div>
+      <div class="card-title">Sports Simulation — Tabletop</div>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.strat-o-matic.com" target="_blank">Strat-O-Matic</a><span class="link-tag tag-top">Top</span></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Legendary card &amp; dice baseball sim since the 1960s — also football &amp; basketball</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.apbagames.com" target="_blank">APBA Games</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Classic statistical baseball board game with a long replay community</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.pursueThePennant.com" target="_blank">Pursue the Pennant</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Baseball replay and simulation board game</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.actionpcsports.com" target="_blank">Action! PC Sports</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Baseball, football &amp; basketball sims popular in replay leagues</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.reddit.com/r/StratOMatic/" target="_blank">r/StratOMatic Community</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.reddit.com/r/tabletopsports/" target="_blank">r/TabletopSports Community</a></div>
+    </div>
+  </div>
+
+  <!-- HISTORICAL REPLAY & SIM RESEARCH -->
+  <div class="card" data-color="blue" data-tags="historical replay simulation research retrosheet lahman sabr baseball history stats">
+    <div class="card-header" onclick="toggleCard(this)">
+      <div class="card-icon icon-blue">📜</div>
+      <div class="card-title">Historical Replay &amp; Research</div>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.retrosheet.org" target="_blank">Retrosheet</a><span class="link-tag tag-top">Top</span></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Play-by-play data for virtually every MLB game ever played</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.seanlahman.com" target="_blank">Lahman Baseball Database</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>The definitive free historical baseball statistics database</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sabr.org" target="_blank">SABR — Society for American Baseball Research</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>The gold standard for baseball history and analytics research</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.baseball-reference.com/friv/careers.shtml" target="_blank">Baseball Reference Historic Stats</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.stathead.com" target="_blank">Stathead (Historical Search)</a></div>
+      <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Advanced historical player and team stat search across all major sports</em></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.baseball-almanac.com" target="_blank">Baseball Almanac</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.thebaseballcube.com" target="_blank">The Baseball Cube</a></div>
     </div>
   </div>
 
