@@ -2,8 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GameDay Express — Your Sports Portal</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e8341a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GameDay">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- SEO / Share -->
+<meta name="description" content="Your shortcut to sports, fantasy, betting and stats. A curated sports portal.">
+<meta property="og:title" content="GameDay Express">
+<meta property="og:description" content="Your shortcut to sports, fantasy, betting and stats.">
+<meta property="og:type" content="website">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -1032,6 +1048,15 @@
   window.addEventListener('scroll', ()=>{
     document.getElementById('scroll-top').classList.toggle('visible', window.scrollY>400);
   });
+
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('GameDay Express: Service Worker registered'))
+        .catch(err => console.log('SW registration failed:', err));
+    });
+  }
 </script>
 </body>
 </html>
