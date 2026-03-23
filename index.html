@@ -157,6 +157,67 @@
   #nav a.active { color: #fff; border-bottom-color: var(--accent); }
 
   /* ── TICKER ── */
+  /* ── ROLLING TICKER ── */
+  #news-ticker {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+  }
+  #ticker-label {
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0 10px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    z-index: 2;
+  }
+  #ticker-track-wrap {
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+  #ticker-track {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: ticker-scroll 60s linear infinite;
+    will-change: transform;
+  }
+  #news-ticker:hover #ticker-track { animation-play-state: paused; }
+  #ticker-track a {
+    color: var(--text);
+    font-size: 12px;
+    text-decoration: none;
+    padding: 0 28px 0 0;
+    transition: color 0.15s;
+  }
+  #ticker-track a:hover { color: #fff; }
+  #ticker-track .ticker-sep {
+    color: var(--accent);
+    padding-right: 28px;
+    font-size: 10px;
+    opacity: 0.6;
+  }
+  @keyframes ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── STATUS TICKER (date bar) ── */
   #ticker {
     background: var(--surface2);
     border-bottom: 1px solid var(--border);
@@ -583,7 +644,18 @@
   <a href="#sportsbiz">📰 Sports Biz</a>
 </div>
 
-<!-- TICKER -->
+<!-- ROLLING NEWS TICKER -->
+<div id="news-ticker">
+  <div id="ticker-label">📡 Headlines</div>
+  <div id="ticker-track-wrap">
+    <div id="ticker-track">
+      <span class="ticker-sep">◆</span>
+      <a href="https://www.espn.com" target="_blank">Loading latest sports headlines…</a>
+    </div>
+  </div>
+</div>
+
+<!-- DATE / STATUS BAR -->
 <div id="ticker">
   <span><strong id="ticker-date">GameDay Express</strong></span>
   <span class="ticker-item"><span class="live-dot"></span> Updated daily</span>
@@ -1580,6 +1652,55 @@
   // Initial render
   renderPins();
 
+</script>
+
+<!-- ROLLING TICKER RSS SCRIPT -->
+<script>
+(function() {
+  const FEED_URL = 'https://www.espn.com/espn/rss/news/rss.xml';
+  const API_URL  = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(FEED_URL) + '&count=20';
+
+  const FALLBACK = [
+    { title: '⚾ MLB regular season underway', link: 'https://www.espn.com/mlb/' },
+    { title: '🏀 NBA playoff race heating up', link: 'https://www.espn.com/nba/' },
+    { title: '🏒 NHL stretch run in progress',  link: 'https://www.espn.com/nhl/' },
+    { title: '⛳ PGA Tour in full swing',        link: 'https://www.espn.com/golf/' },
+    { title: '🏈 NFL Draft approaching',         link: 'https://www.espn.com/nfl/' },
+    { title: '🏎 F1 season underway',            link: 'https://www.espn.com/f1/' },
+    { title: '⚽ MLS season in progress',        link: 'https://www.espn.com/soccer/' },
+    { title: '🎾 ATP & WTA Tour events live',    link: 'https://www.espn.com/tennis/' },
+  ];
+
+  function buildTrack(items) {
+    const track = document.getElementById('ticker-track');
+    if (!track) return;
+
+    // Double the items so the loop is seamless
+    const doubled = [...items, ...items];
+    track.innerHTML = doubled.map(item =>
+      `<span class="ticker-sep">◆</span><a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>`
+    ).join('');
+  }
+
+  function loadFeed() {
+    fetch(API_URL)
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'ok' && data.items && data.items.length) {
+          const items = data.items.slice(0, 16).map(item => ({
+            title: item.title,
+            link:  item.link
+          }));
+          buildTrack(items);
+        } else {
+          buildTrack(FALLBACK);
+        }
+      })
+      .catch(() => buildTrack(FALLBACK));
+  }
+
+  document.addEventListener('DOMContentLoaded', loadFeed);
+})();
 </script>
 
 <!-- CLICK TRACKING -->
