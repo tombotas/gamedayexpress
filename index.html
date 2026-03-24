@@ -156,6 +156,17 @@
   #nav a:hover { color: #fff; text-decoration: none; border-bottom-color: var(--accent3); }
   #nav a.active { color: #fff; border-bottom-color: var(--accent); }
 
+  .ad-banner {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 16px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
   /* ── TICKER ── */
   /* ── ROLLING TICKER ── */
   #news-ticker {
@@ -508,6 +519,7 @@
   .tag-free   { background: rgba(45,206,107,.15); color: var(--green); }
   .tag-top    { background: rgba(248,166,35,.15);  color: var(--accent2); }
   .tag-new    { background: rgba(30,144,212,.15);  color: var(--accent3); }
+  .tag-bonus  { background: rgba(45,206,107,.15); color: var(--green); }
   .tag-sub    { background: rgba(140,92,246,.15);  color: var(--purple); }
 
   /* Card accent colors */
@@ -571,6 +583,45 @@
     grid-column: 1/-1;
   }
 
+  .newsletter-signup {
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .newsletter-signup h4 {
+    color: var(--accent2);
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .newsletter-form {
+    display: flex;
+    gap: 8px;
+  }
+  .newsletter-form input {
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+    outline: none;
+    flex: 1;
+  }
+  .newsletter-form button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 3px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
   /* ── FOOTER ── */
   #footer {
     border-top: 1px solid var(--border);
@@ -626,6 +677,7 @@
   <a href="#fantasy-basketball">🏀 Fantasy Basketball</a>
   <a href="#dfs">💰 DFS</a>
   <a href="#betting">🎰 Betting</a>
+  <a href="#shop">🛍️ Shop</a>
   <a href="#stats">📊 Stats &amp; Research</a>
   <a href="#coaching">🏅 Coaching</a>
   <a href="#podcasts">🎙 Podcasts</a>
@@ -643,6 +695,8 @@
   <a href="#minors">🧢 Minor Leagues</a>
   <a href="#sportsbiz">📰 Sports Biz</a>
 </div>
+
+<div class="ad-banner">Sponsor: Get 20% off at Fanatics with code GAMEDAY26</div>
 
 <!-- ROLLING NEWS TICKER -->
 <div id="news-ticker">
@@ -704,6 +758,7 @@
   <span class="feat-chip" onclick="filterChip(this,'fantasy')">Fantasy</span>
   <span class="feat-chip" onclick="filterChip(this,'dfs')">DFS</span>
   <span class="feat-chip" onclick="filterChip(this,'betting')">Betting</span>
+  <span class="feat-chip" onclick="filterChip(this,'shop')">Shop</span>
   <span class="feat-chip" onclick="filterChip(this,'stats')">Stats</span>
   <span class="feat-chip" onclick="filterChip(this,'news')">News</span>
   <span class="feat-chip" onclick="filterChip(this,'coaching')">Coaching</span>
@@ -954,8 +1009,8 @@
     </div>
     <div class="card-links">
       <div class="link-item"><div class="link-dot"></div><a href="https://sportsbook.draftkings.com" target="_blank">DraftKings</a><span class="link-tag tag-top">TOP</span></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://sports.betmgm.com" target="_blank">BetMGM</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a><span class="link-tag tag-bonus">PROMO</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sports.betmgm.com" target="_blank">BetMGM</a><span class="link-tag tag-bonus">OFFER</span></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.caesars.com/sportsbook-and-casino" target="_blank">Caesars</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://betrivers.com" target="_blank">BetRivers</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.espnbet.com" target="_blank">ESPN BET</a></div>
@@ -1276,6 +1331,36 @@
     </div>
   </div>
 
+  <!-- ═══ SHOP & TICKETS ═══ -->
+  <div class="zone-divider">
+    <span class="zone-label">🛍️ SHOP & TICKETS</span>
+  </div>
+  <div class="card" id="shop" data-color="teal" data-tags="shop tickets fan gear apparel fanatics stubhub seatgeek vivid seats ticketmaster">
+    <div class="card-header">
+      <div class="card-icon icon-teal">🏷️</div>
+      <div class="card-title">Fan Gear & Apparel</div>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.fanatics.com" target="_blank">Fanatics</a><span class="link-tag tag-top">TOP</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nflshop.com" target="_blank">NFL Shop</a><span class="link-tag tag-bonus">OFFER</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.mlbshop.com" target="_blank">MLB Shop</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nbastore.com" target="_blank">NBA Store</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nhlshop.com" target="_blank">NHL Shop</a></div>
+    </div>
+  </div>
+  <div class="card" data-color="orange" data-tags="tickets stubhub seatgeek vivid seats ticketmaster travel">
+    <div class="card-header">
+      <div class="card-icon icon-orange">🎟️</div>
+      <div class="card-title">Tickets & Events</div>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.stubhub.com" target="_blank">StubHub</a><span class="link-tag tag-top">TOP</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.seatgeek.com" target="_blank">SeatGeek</a><span class="link-tag tag-bonus">PROMO</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.vividseats.com" target="_blank">Vivid Seats</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.ticketmaster.com" target="_blank">Ticketmaster</a></div>
+    </div>
+  </div>
+
   <!-- ═══ SPORTS & LEAGUES ═══ -->
   <div class="zone-divider">
     <span class="zone-label">🌍 SPORTS & LEAGUES</span>
@@ -1512,6 +1597,14 @@
 
 <!-- FOOTER -->
 <div id="footer">
+  <div class="newsletter-signup">
+    <h4>📬 GameDay Daily</h4>
+    <p style="font-size: 10px; margin-bottom: 4px;">The best sports links, delivered to your inbox daily.</p>
+    <form class="newsletter-form" onsubmit="alert('Thanks for signing up!'); return false;">
+      <input type="email" placeholder="your@email.com" required>
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
   <span>© 2026 GameDay Express — A curated sports portal. All linked sites are property of their respective owners.</span>
   <span>No live data · No accounts · No tracking</span>
   <span><a href="/cdn-cgi/l/email-protection#c0a7a1ada5a4a1b9a5b8b0b2a5b3b380a7ada1a9aceea3afadffb3b5a2aaa5a3b4fd82b2afaba5aee08ca9aeabe092a5b0afb2b4" style="
