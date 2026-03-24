@@ -6,7 +6,7 @@
 // version number below by 1 (v2, v3, v4 etc.)
 // That's all you ever need to do.
 // ─────────────────────────────────────────────
-const CACHE_VERSION = 'gamedayexpress-v20';
+const CACHE_VERSION = 'gamedayexpress-v21';
 const OFFLINE_PAGE  = '/gamedayexpress/index.html';
 
 // Install: cache the core page immediately
@@ -16,7 +16,11 @@ self.addEventListener('install', event => {
       return cache.addAll([
         '/gamedayexpress/',
         '/gamedayexpress/index.html',
-        '/gamedayexpress/manifest.json'
+        '/gamedayexpress/manifest.json',
+        '/gamedayexpress/style.css',
+        '/gamedayexpress/main.js',
+        '/gamedayexpress/ticker.js',
+        '/gamedayexpress/tracking.js'
       ]);
     })
   );
