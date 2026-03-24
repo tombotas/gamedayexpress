@@ -9,7 +9,7 @@
     q = q.toLowerCase().trim();
     let anyVisible = false;
     document.querySelectorAll('.card').forEach(card => {
-      const tags  = (card.dataset.tags||''). toLowerCase();
+      const tags  = (card.dataset.tags||'').toLowerCase();
       const title = card.querySelector('.card-title').textContent.toLowerCase();
       card.querySelectorAll('.link-item').forEach(item => {
         const a = item.querySelector('a');
@@ -33,10 +33,14 @@
   searchEl.addEventListener('input', ()=>runFilter(searchEl.value));
   clearBtn.addEventListener('click', ()=>{ searchEl.value=''; runFilter(''); });
 
-  function filterChip(el, tag) {
-    document.querySelectorAll('.feat-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
-    runFilter(tag);
+  function filterQuickHits(cat) {
+    document.querySelectorAll('#qh-defaults .quick-chip').forEach(chip => {
+      if (cat === 'all' || chip.classList.contains('qh-' + cat)) {
+        chip.style.display = '';
+      } else {
+        chip.style.display = 'none';
+      }
+    });
   }
 
   // Scroll to top button
