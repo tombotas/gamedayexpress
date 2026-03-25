@@ -601,8 +601,13 @@
     #logo { font-size: 22px; }
     
     #search-wrap {
-      width: 100%;
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      left: 10px;
+      width: auto;
       margin-left: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     #search { width: 100%; }
 
