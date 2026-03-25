@@ -52,6 +52,31 @@
     });
   }
 
+  // Mobile Dropdown Handling (Toggle on click)
+  document.querySelectorAll('.dropdown').forEach(dropdown => {
+    dropdown.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768) {
+        const content = dropdown.querySelector('.dropdown-content');
+        const isOpen = content.style.display === 'grid' || content.style.display === 'flex';
+        
+        // Close all other dropdowns
+        document.querySelectorAll('.dropdown-content').forEach(c => c.style.display = 'none');
+        
+        if (!isOpen) {
+          content.style.display = content.classList.contains('qh-grid') || content.classList.contains('browse-grid') ? 'grid' : 'flex';
+        }
+        e.stopPropagation();
+      }
+    });
+  });
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', () => {
+    if (window.innerWidth <= 768) {
+      document.querySelectorAll('.dropdown-content').forEach(c => c.style.display = 'none');
+    }
+  });
+
   // Scroll to top button
   window.addEventListener('scroll', () => {
     document.getElementById('scroll-top').style.display = window.scrollY > 400 ? 'block' : 'none';
