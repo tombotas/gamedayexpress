@@ -32,7 +32,8 @@
 <meta property="og:type" content="website">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 <!-- Build Trigger: 2026-03-24 -->
 </head>
@@ -40,41 +41,18 @@
 
 <!-- HEADER -->
 <div id="header">
-  <div>
-    <div id="logo">GAME<span>DAY</span> EXPRESS</div>
-    <div id="tagline">Your shortcut to sports, fantasy, betting &amp; stats</div>
+  <div class="header-top">
+    <div>
+      <div id="logo">GAME<span>DAY</span> EXPRESS</div>
+      <div id="tagline">Your shortcut to sports, fantasy, betting &amp; stats</div>
+    </div>
+    <div id="search-wrap">
+      <input id="search" type="text" placeholder="Filter links... (e.g. rankings, NBA, DFS)" autocomplete="off">
+      <button id="clear-btn">✕ Clear</button>
+    </div>
   </div>
-  <div id="search-wrap">
-    <input id="search" type="text" placeholder="Filter links... (e.g. rankings, NBA, DFS)" autocomplete="off">
-    <button id="clear-btn">✕ Clear</button>
-  </div>
-<!-- NAV -->
-<div id="nav">
-  <a href="#" class="active">🏠 Home</a>
-  <a href="#fantasy-baseball">⚾ Fantasy Baseball</a>
-  <a href="#fantasy-football">🏈 Fantasy Football</a>
-  <a href="#fantasy-basketball">🏀 Fantasy Basketball</a>
-  <a href="#dfs">💰 DFS</a>
-  <a href="#betting">🎰 Betting</a>
-  <a href="#shop">🛍️ Shop</a>
-  <a href="#stats">📊 Stats &amp; Research</a>
-  <a href="#coaching">🏅 Coaching</a>
-  <a href="#podcasts">🎙 Podcasts</a>
-  <a href="#beat-writers">📡 Beat Writers</a>
-  <a href="#simulation">🎮 Sim Games</a>
-  <a href="#rules">📖 Rules</a>
-  <a href="#officials">🟡 Officials</a>
-  <a href="#recruiting">🔭 Recruiting</a>
-  <a href="#tennis">🎾 Tennis/Pickleball</a>
-  <a href="#racing">🏎 Racing</a>
-  <a href="#contracts">💵 Contracts</a>
-  <a href="#weather">🌦 Weather</a>
-  <a href="#lineups">📋 Lineups</a>
-  <a href="#analytics">🔬 Analytics</a>
-  <a href="#minors">🧢 Minor Leagues</a>
-  <a href="#sportsbiz">📰 Sports Biz</a>
-</div>
- <!-- DATE / STATUS BAR (Moved) -->
+
+<!-- DATE / STATUS BAR (Moved) -->
   
   
 <div id="ticker">
@@ -86,12 +64,8 @@
     <span>⚽ MLS season begins</span>
     <span>🏈 NFL Free Agency</span>
   </div>
-</div> 
 
-
-
-
- <!-- ROLLING NEWS TICKER (Moved) -->
+  <!-- ROLLING NEWS TICKER (Pinned) -->
   <div id="news-ticker">
     <div id="ticker-label">📡 Headlines</div>
     <div id="ticker-track-wrap">
@@ -102,90 +76,140 @@
     </div>
   </div>
 
- 
-
-
-
-<div class="ad-banner">Sponsor: Get 20% off at Fanatics with code GAMEDAY26</div>
-
-<!-- ① QUICK HITS -->
-<div id="quick-hits">
-  <div id="quick-hits-label">
-    ⚡ Quick Hits
-    <span id="qh-subtitle">— hover any link below and click 📌 to pin it here</span>
+<!-- NAV -->
+<div id="nav">
+  <a href="#" class="active">🏠 Home</a>
+  
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">🏆 Fantasy & DFS ▼</a>
+    <div class="dropdown-content align-left">
+      <a href="#fantasy-baseball">⚾ Fantasy Baseball</a>
+      <a href="#fantasy-football">🏈 Fantasy Football</a>
+      <a href="#fantasy-basketball">🏀 Fantasy Basketball</a>
+      <a href="#dfs">💰 DFS</a>
+    </div>
   </div>
-  <div id="quick-hits-links">
-    <span id="qh-empty" style="display:none;font-size:12px;color:var(--text-dim);padding:4px 8px;font-style:italic;">No pins yet — hover any link and click 📌 to add it here</span>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">📊 Betting & Data ▼</a>
+    <div class="dropdown-content align-left">
+      <a href="#betting">🎰 Betting</a>
+      <a href="#stats">📊 Stats & Research</a>
+      <a href="#analytics">🔬 Analytics</a>
+      <a href="#contracts">💵 Contracts</a>
+      <a href="#weather">🌦 Weather</a>
+      <a href="#lineups">📋 Lineups</a>
+    </div>
   </div>
-  <div id="qh-defaults-label">
-    ⚡ Default Quick Hits
-    <select id="qh-filter" onchange="filterQuickHits(this.value)" style="margin-left: 10px; background: #222; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px 5px; font-size: 11px;">
-      <option value="all">All Sports</option>
-      <option value="baseball">Baseball</option>
-      <option value="football">Football</option>
-      <option value="basketball">Basketball</option>
-      <option value="hockey">Hockey</option>
-      <option value="betting">Betting</option>
-    </select>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">🎙 Media & Biz ▼</a>
+    <div class="dropdown-content">
+      <a href="#podcasts">🎙 Podcasts</a>
+      <a href="#beat-writers">📡 Beat Writers</a>
+      <a href="#sportsbiz">📰 Sports Biz</a>
+      <a href="#shop">🛍️ Shop</a>
+    </div>
   </div>
-  <div id="qh-defaults">
-    <a class="quick-chip qh-baseball qh-all" href="https://www.espn.com" target="_blank">ESPN</a>
-    <a class="quick-chip qh-baseball qh-all" href="https://www.fangraphs.com" target="_blank">FanGraphs</a>
-    <a class="quick-chip qh-football qh-baseball qh-all" href="https://www.fantasypros.com" target="_blank">FantasyPros</a>
-    <a class="quick-chip qh-baseball qh-football qh-basketball qh-all" href="https://www.rotowire.com" target="_blank">RotoWire</a>
-    <a class="quick-chip qh-betting qh-all" href="https://sportsbook.draftkings.com" target="_blank">DraftKings</a>
-    <a class="quick-chip qh-betting qh-all" href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a>
-    <a class="quick-chip qh-baseball qh-all" href="https://www.baseball-reference.com" target="_blank">Baseball Ref</a>
-    <a class="quick-chip qh-football qh-all" href="https://www.pro-football-reference.com/" target="_blank">PFR</a>
-    <a class="quick-chip qh-betting qh-all" href="https://www.actionnetwork.com" target="_blank">Action Network</a>
-    <a class="quick-chip qh-football qh-basketball qh-all" href="https://sleeper.com" target="_blank">Sleeper</a>
-    <a class="quick-chip qh-baseball qh-all" href="https://baseballsavant.mlb.com" target="_blank">Baseball Savant</a>
-    <a class="quick-chip qh-baseball qh-all" href="https://www.mlbtraderumors.com" target="_blank">MLB Trade Rumors</a>
-    <a class="quick-chip qh-football qh-basketball qh-baseball qh-hockey qh-all" href="https://www.spotrac.com" target="_blank">Spotrac</a>
-    <a class="quick-chip qh-basketball qh-football qh-baseball qh-all" href="https://www.statmuse.com" target="_blank">StatMuse</a>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">🏅 Dev & Rules ▼</a>
+    <div class="dropdown-content">
+      <a href="#coaching">🏅 Coaching</a>
+      <a href="#recruiting">🔭 Recruiting</a>
+      <a href="#rules">📖 Rules</a>
+      <a href="#officials">🟡 Officials</a>
+      <a href="#minors">🧢 Minor Leagues</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">➕ More ▼</a>
+    <div class="dropdown-content">
+      <a href="#simulation">🎮 Sim Games</a>
+      <a href="#tennis">🎾 Tennis/Pickleball</a>
+      <a href="#racing">🏎 Racing</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">⚡ Quick Hits ▼</a>
+    <div class="dropdown-content qh-grid">
+      <a href="https://www.espn.com" target="_blank">ESPN</a>
+      <a href="https://www.fangraphs.com" target="_blank">FanGraphs</a>
+      <a href="https://www.fantasypros.com" target="_blank">FantasyPros</a>
+      <a href="https://www.rotowire.com" target="_blank">RotoWire</a>
+      <a href="https://sportsbook.draftkings.com" target="_blank">DraftKings</a>
+      <a href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a>
+      <a href="https://www.baseball-reference.com" target="_blank">Baseball Ref</a>
+      <a href="https://www.pro-football-reference.com/" target="_blank">PFR</a>
+      <a href="https://www.actionnetwork.com" target="_blank">Action Network</a>
+      <a href="https://sleeper.com" target="_blank">Sleeper</a>
+      <a href="https://baseballsavant.mlb.com" target="_blank">Baseball Savant</a>
+      <a href="https://www.mlbtraderumors.com" target="_blank">MLB Trade Rumors</a>
+      <a href="https://www.spotrac.com" target="_blank">Spotrac</a>
+      <a href="https://www.statmuse.com" target="_blank">StatMuse</a>
+    </div>
   </div>
 </div>
 
+	<div class="ad-banner">Sponsor: Get 20% off at Fanatics with code GAMEDAY26</div>
+
+<!-- ① QUICK HITS -->
+	<div id="quick-hits">
+		<div id="quick-hits-label">
+    📌 Pinned Links
+			<span id="qh-subtitle">— hover any link below and click 📌 to pin it here</span>
+		</div>
+	<div id="quick-hits-links">
+		<span id="qh-empty" style="display:none;font-size:12px;color:var(--text-dim);padding:4px 8px;font-style:italic;">No pins yet — hover any link and click 📌 to add it here</span>
+	</div>
+</div>
+
 <!-- FILTER DROPDOWN -->
-<div id="featured" style="padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;">
-  <span style="font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;">🔍 Browse Category:</span>
-  <select id="category-filter" onchange="runFilter(this.value)" style="background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright); padding: 5px 12px; border-radius: 3px; font-family: 'Barlow', sans-serif; font-size: 12px; outline: none; flex: 1; max-width: 300px;">
-    <option value="">All Sports & Categories</option>
-    <option value="baseball">Baseball</option>
-    <option value="football">Football</option>
-    <option value="basketball">Basketball</option>
-    <option value="hockey">Hockey</option>
-    <option value="fantasy">Fantasy</option>
-    <option value="dfs">DFS</option>
-    <option value="betting">Betting</option>
-    <option value="shop">Shop</option>
-    <option value="stats">Stats</option>
-    <option value="news">News</option>
-    <option value="coaching">Coaching</option>
-    <option value="rankings">Rankings</option>
-    <option value="waiver">Waiver</option>
-    <option value="golf">Golf</option>
-    <option value="outdoor">Outdoor</option>
-    <option value="simulation">Sim Games</option>
-    <option value="beat writers">Beat Writers</option>
-    <option value="historical">History</option>
-    <option value="rules">Rules</option>
-    <option value="officials">Officials</option>
-    <option value="recruiting">Recruiting</option>
-    <option value="conferences">Conferences</option>
-    <option value="tennis">Tennis</option>
-    <option value="pickleball">Pickleball</option>
-    <option value="motorsports">Racing</option>
-    <option value="boxing">Boxing</option>
-    <option value="mma">MMA</option>
-    <option value="contracts">Contracts</option>
-    <option value="weather">Weather</option>
-    <option value="lineups">Lineups</option>
-    <option value="analytics">Analytics</option>
-    <option value="replay">Replay</option>
-    <option value="minor leagues">Minor Leagues</option>
-    <option value="business">Sports Biz</option>
-  </select>
+<div id="featured" style="padding: 10px 24px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
+  <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">🔍 Browse Category:</span>
+  
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn" id="active-category">All Categories ▼</a>
+    <div class="dropdown-content browse-grid">
+      <a href="javascript:void(0)" onclick="runFilter('')">All Categories</a>
+      <a href="javascript:void(0)" onclick="runFilter('baseball')">Baseball</a>
+      <a href="javascript:void(0)" onclick="runFilter('football')">Football</a>
+      <a href="javascript:void(0)" onclick="runFilter('basketball')">Basketball</a>
+      <a href="javascript:void(0)" onclick="runFilter('hockey')">Hockey</a>
+      <a href="javascript:void(0)" onclick="runFilter('fantasy')">Fantasy</a>
+      <a href="javascript:void(0)" onclick="runFilter('dfs')">DFS</a>
+      <a href="javascript:void(0)" onclick="runFilter('betting')">Betting</a>
+      <a href="javascript:void(0)" onclick="runFilter('shop')">Shop</a>
+      <a href="javascript:void(0)" onclick="runFilter('stats')">Stats</a>
+      <a href="javascript:void(0)" onclick="runFilter('news')">News</a>
+      <a href="javascript:void(0)" onclick="runFilter('coaching')">Coaching</a>
+      <a href="javascript:void(0)" onclick="runFilter('rankings')">Rankings</a>
+      <a href="javascript:void(0)" onclick="runFilter('waiver')">Waiver</a>
+      <a href="javascript:void(0)" onclick="runFilter('golf')">Golf</a>
+      <a href="javascript:void(0)" onclick="runFilter('outdoor')">Outdoor</a>
+      <a href="javascript:void(0)" onclick="runFilter('simulation')">Sim Games</a>
+      <a href="javascript:void(0)" onclick="runFilter('beat writers')">Beat Writers</a>
+      <a href="javascript:void(0)" onclick="runFilter('historical')">History</a>
+      <a href="javascript:void(0)" onclick="runFilter('rules')">Rules</a>
+      <a href="javascript:void(0)" onclick="runFilter('officials')">Officials</a>
+      <a href="javascript:void(0)" onclick="runFilter('recruiting')">Recruiting</a>
+      <a href="javascript:void(0)" onclick="runFilter('conferences')">Conferences</a>
+      <a href="javascript:void(0)" onclick="runFilter('tennis')">Tennis</a>
+      <a href="javascript:void(0)" onclick="runFilter('pickleball')">Pickleball</a>
+      <a href="javascript:void(0)" onclick="runFilter('motorsports')">Racing</a>
+      <a href="javascript:void(0)" onclick="runFilter('boxing')">Boxing</a>
+      <a href="javascript:void(0)" onclick="runFilter('mma')">MMA</a>
+      <a href="javascript:void(0)" onclick="runFilter('contracts')">Contracts</a>
+      <a href="javascript:void(0)" onclick="runFilter('weather')">Weather</a>
+      <a href="javascript:void(0)" onclick="runFilter('lineups')">Lineups</a>
+      <a href="javascript:void(0)" onclick="runFilter('analytics')">Analytics</a>
+      <a href="javascript:void(0)" onclick="runFilter('replay')">Replay</a>
+      <a href="javascript:void(0)" onclick="runFilter('minor leagues')">Minor Leagues</a>
+      <a href="javascript:void(0)" onclick="runFilter('business')">Sports Biz</a>
+    </div>
+  </div>
 </div>
 
 <!-- MAIN GRID -->

@@ -6,7 +6,16 @@
   const clearBtn = document.getElementById('clear-btn');
 
   function runFilter(q) {
-    q = q.toLowerCase().trim();
+    const activeBtn = document.getElementById('active-category');
+    if (activeBtn && q !== undefined) {
+      // Check if we are passing a category vs a search term
+      const isSearch = document.activeElement === searchEl;
+      if (!isSearch) {
+        activeBtn.textContent = (q === '' ? 'All Categories' : q.charAt(0).toUpperCase() + q.slice(1)) + ' ▼';
+      }
+    }
+
+    q = (q || '').toLowerCase().trim();
     let anyVisible = false;
     document.querySelectorAll('.card').forEach(card => {
       const tags  = (card.dataset.tags||'').toLowerCase();
