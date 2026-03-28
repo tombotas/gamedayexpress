@@ -785,6 +785,15 @@
     background: var(--surface);
   }
 
+  .site-counter {
+    margin-top: 8px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+  .site-counter:hover {
+    opacity: 1;
+  }
+
   .newsletter-signup {
     padding: 32px;
     background: var(--surface2);
