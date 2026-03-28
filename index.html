@@ -32,704 +32,193 @@
 <meta property="og:type" content="website">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0d0f12;
-    --surface: #13161b;
-    --surface2: #1a1e25;
-    --border: #252a33;
-    --border-bright: #2e3540;
-    --text: #d4d8df;
-    --text-dim: #7a8394;
-    --text-bright: #eef0f3;
-    --accent: #e8341a;
-    --accent2: #f5a623;
-    --accent3: #1e90d4;
-    --green: #2dce6b;
-    --purple: #8c5cf6;
-    --teal: #0fb8a9;
-    --red: #e8341a;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Barlow', sans-serif;
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  a { color: var(--accent3); text-decoration: none; transition: color 0.15s; }
-  a:hover { color: #fff; text-decoration: underline; }
-
-  /* ── HEADER ── */
-  #header {
-    background: linear-gradient(135deg, #0a0c0f 0%, #131820 100%);
-    border-bottom: 2px solid var(--accent);
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  #logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    font-size: 26px;
-    letter-spacing: -0.5px;
-    color: #fff;
-    white-space: nowrap;
-  }
-  #logo span { color: var(--accent); }
-
-  #tagline {
-    color: var(--text-dim);
-    font-size: 11px;
-    letter-spacing: 0.5px;
-  }
-
-  #search-wrap {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  #search {
-    background: var(--surface2);
-    border: 1px solid var(--border-bright);
-    color: var(--text);
-    padding: 6px 10px;
-    font-size: 12px;
-    font-family: 'Barlow', sans-serif;
-    width: 220px;
-    border-radius: 3px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  #search:focus { border-color: var(--accent3); }
-
-  #clear-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    padding: 6px 10px;
-    font-size: 11px;
-    cursor: pointer;
-    border-radius: 3px;
-    font-family: 'Barlow', sans-serif;
-    transition: all 0.15s;
-  }
-  #clear-btn:hover { background: var(--border); color: #fff; }
-
-  /* ── NAV ── */
-  #nav {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 0 16px;
-    display: flex;
-    gap: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  #nav::-webkit-scrollbar { display: none; }
-
-  #nav a {
-    color: var(--text-dim);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
-    padding: 8px 12px;
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    display: block;
-    transition: all 0.15s;
-  }
-  #nav a:hover { color: #fff; text-decoration: none; border-bottom-color: var(--accent3); }
-  #nav a.active { color: #fff; border-bottom-color: var(--accent); }
-
-  /* ── TICKER ── */
-  /* ── ROLLING TICKER ── */
-  #news-ticker {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    height: 32px;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
-  }
-  #ticker-label {
-    background: var(--accent);
-    color: #fff;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 0 10px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-    z-index: 2;
-  }
-  #ticker-track-wrap {
-    flex: 1;
-    overflow: hidden;
-    height: 100%;
-    display: flex;
-    align-items: center;
-  }
-  #ticker-track {
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
-    animation: ticker-scroll 60s linear infinite;
-    will-change: transform;
-  }
-  #news-ticker:hover #ticker-track { animation-play-state: paused; }
-  #ticker-track a {
-    color: var(--text);
-    font-size: 12px;
-    text-decoration: none;
-    padding: 0 28px 0 0;
-    transition: color 0.15s;
-  }
-  #ticker-track a:hover { color: #fff; }
-  #ticker-track .ticker-sep {
-    color: var(--accent);
-    padding-right: 28px;
-    font-size: 10px;
-    opacity: 0.6;
-  }
-  @keyframes ticker-scroll {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-
-  /* ── STATUS TICKER (date bar) ── */
-  #ticker {
-    background: var(--surface2);
-    border-bottom: 1px solid var(--border);
-    padding: 5px 16px;
-    font-size: 11px;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  #ticker strong { color: var(--accent2); font-weight: 600; }
-  .ticker-item { display: flex; align-items: center; gap: 6px; }
-  .live-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-  /* ── QUICK HITS ── */
-  #quick-hits {
-    background: var(--surface);
-    border-bottom: 2px solid var(--border-bright);
-    padding: 10px 16px;
-  }
-  #quick-hits-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--accent2);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  #quick-hits-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  #qh-subtitle {
-    font-size: 10px;
-    font-weight: 400;
-    text-transform: none;
-    color: var(--text-dim);
-    letter-spacing: 0;
-  }
-  #quick-hits-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    min-height: 0;
-    margin-bottom: 4px;
-  }
-  #qh-defaults-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin: 8px 0 5px;
-    border-top: 1px solid var(--border);
-    padding-top: 8px;
-  }
-  #qh-defaults {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .quick-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border-bright);
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 5px 13px;
-    border-radius: 3px;
-    transition: all 0.15s;
-    white-space: nowrap;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .quick-chip:hover {
-    background: var(--accent3);
-    border-color: var(--accent3);
-    color: #fff;
-    text-decoration: none;
-  }
-  /* Pinned chip in My Quick Hits */
-  .pinned-chip {
-    background: rgba(232,52,26,0.15);
-    border: 1px solid var(--accent);
-    color: var(--text-bright);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 5px 10px 5px 13px;
-    border-radius: 3px;
-    white-space: nowrap;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .pinned-chip a {
-    color: var(--text-bright);
-    text-decoration: none;
-  }
-  .pinned-chip a:hover { color: var(--accent2); }
-  .unpin-btn {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    cursor: pointer;
-    font-size: 11px;
-    padding: 0;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-  .unpin-btn:hover { color: var(--accent); }
-  /* Pin button on link items */
-  .link-item { position: relative; }
-  .pin-btn {
-    display: none;
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 12px;
-    color: var(--text-dim);
-    padding: 2px 4px;
-    border-radius: 3px;
-    transition: all 0.15s;
-    line-height: 1;
-  }
-  .link-item:hover .pin-btn { display: inline-block; }
-  .pin-btn:hover { color: var(--accent2); background: rgba(245,166,35,0.15); }
-  .pin-btn.pinned { color: var(--accent2); display: inline-block; }
-
-  /* ── FILTER CHIPS ── */
-  #featured {
-    padding: 8px 16px;
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg);
-  }
-  .feat-chip {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
-  .feat-chip:hover, .feat-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  /* ── SECTION DIVIDER ── */
-  .section-divider {
-    padding: 16px 16px 6px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .section-divider-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    white-space: nowrap;
-  }
-  .section-divider-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .section-divider.primary .section-divider-label { color: var(--text-bright); }
-  .section-divider.primary .section-divider-line { background: var(--border-bright); }
-
-  /* ── MAIN GRID ── */
-  .grid {
-    padding: 0 16px 12px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    max-width: 1400px;
-  }
-
-  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 800px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 480px)  { .grid { grid-template-columns: 1fr; } }
-
-  /* ── CARD ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    transition: border-color 0.2s;
-  }
-  .card:hover { border-color: var(--border-bright); }
-
-  .card-header {
-    padding: 10px 12px 9px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    user-select: none;
-    background: rgba(255,255,255,0.03);
-  }
-
-  .card-icon {
-    width: 22px; height: 22px;
-    border-radius: 3px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    flex-shrink: 0;
-  }
-
-  .card-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 800;
-    font-size: 16px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: #ffffff;
-    flex: 1;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  }
-
-  .card-links { padding: 6px 0; flex: 1; }
-
-  .link-item {
-    padding: 4px 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.1s;
-  }
-  .link-item:hover { background: var(--surface2); }
-
-  .link-item a {
-    font-size: 12.5px;
-    font-weight: 500;
-    color: var(--text);
-    flex: 1;
-  }
-  .link-item a:hover { color: #fff; text-decoration: none; }
-
-  .link-dot {
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--border-bright);
-    flex-shrink: 0;
-  }
-
-  .link-tag {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 1px 4px;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
-  .tag-free   { background: rgba(45,206,107,.15); color: var(--green); }
-  .tag-top    { background: rgba(248,166,35,.15);  color: var(--accent2); }
-  .tag-new    { background: rgba(30,144,212,.15);  color: var(--accent3); }
-  .tag-sub    { background: rgba(140,92,246,.15);  color: var(--purple); }
-
-  /* Card accent colors */
-  .card[data-color="red"]    { border-top-color: var(--accent); }
-  .card[data-color="blue"]   { border-top-color: var(--accent3); }
-  .card[data-color="green"]  { border-top-color: var(--green); }
-  .card[data-color="orange"] { border-top-color: var(--accent2); }
-  .card[data-color="purple"] { border-top-color: var(--purple); }
-  .card[data-color="teal"]   { border-top-color: var(--teal); }
-
-  .icon-red    { background: rgba(232,52,26,.2);   color: var(--accent); }
-  .icon-blue   { background: rgba(30,144,212,.2);  color: var(--accent3); }
-  .icon-green  { background: rgba(45,206,107,.2);  color: var(--green); }
-  .icon-orange { background: rgba(245,166,35,.2);  color: var(--accent2); }
-  .icon-purple { background: rgba(140,92,246,.2);  color: var(--purple); }
-  .icon-teal   { background: rgba(15,184,169,.2);  color: var(--teal); }
-
-  /* ── COLLAPSED ── */
-  .card-links.collapsed { display: none; }
-  .toggle-arrow { font-size: 10px; color: var(--text-dim); }
-
-  /* ── ZONE DIVIDERS ── */
-  .zone-divider {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 28px 0 10px;
-    margin-top: 16px;
-  }
-  .zone-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--text-bright);
-    white-space: nowrap;
-    padding: 5px 16px;
-    border: 1px solid rgba(232,52,26,0.5);
-    border-radius: 4px;
-    background: rgba(232,52,26,0.1);
-    text-shadow: 0 0 20px rgba(232,52,26,0.4);
-  }
-  .zone-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, rgba(232,52,26,0.4), transparent);
-  }
-
-  /* ── HIGHLIGHT ── */
-  .highlight { background: rgba(248,166,35,.25); border-radius: 2px; padding: 0 1px; }
-
-  /* ── NO RESULTS ── */
-  #no-results {
-    display: none;
-    padding: 40px 16px;
-    color: var(--text-dim);
-    font-size: 14px;
-    grid-column: 1/-1;
-  }
-
-  /* ── FOOTER ── */
-  #footer {
-    border-top: 1px solid var(--border);
-    padding: 12px 16px;
-    color: var(--text-dim);
-    font-size: 11px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  /* ── SCROLL TOP ── */
-  #scroll-top {
-    position: fixed;
-    bottom: 20px; right: 20px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    width: 36px; height: 36px;
-    border-radius: 3px;
-    font-size: 16px;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-  }
-  #scroll-top.visible { display: flex; }
-</style>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+<!-- Build Trigger: 2026-03-24 -->
 </head>
 <body>
 
 <!-- HEADER -->
 <div id="header">
-  <div>
-    <div id="logo">GAME<span>DAY</span> EXPRESS</div>
-    <div id="tagline">Your shortcut to sports, fantasy, betting &amp; stats</div>
+  <div class="header-top">
+   
+    <img src="Gemini_Generated_Image_ec9z0iec9z0iec9z.png" alt="A descriptive alternative text for the banner" style="width:100%;">
+
+	
+	<div id="search-wrap">
+      <input id="search" type="text" placeholder="Filter links... (e.g. rankings, NBA, DFS)" autocomplete="off">
+      <button id="clear-btn">✕ Clear</button>
+    </div>
+	
+	<div>
+      <div id="logo">GAME<span>DAY</span> EXPRESS</div>
+      <div id="tagline">Your shortcut to sports, fantasy, betting &amp; stats</div>
+    </div>
+    <div id="search-wrap">
+      <input id="search" type="text" placeholder="Filter links... (e.g. rankings, NBA, DFS)" autocomplete="off">
+      <button id="clear-btn">✕ Clear</button>
+    </div>
   </div>
-  <div id="search-wrap">
-    <input id="search" type="text" placeholder="Filter links... (e.g. rankings, NBA, DFS)" autocomplete="off">
-    <button id="clear-btn">✕ Clear</button>
+
+<!-- DATE / STATUS BAR (Moved) -->
+  
+  
+<div id="ticker">
+    <span><strong id="ticker-date">GameDay Express</strong></span>
+    <span class="ticker-item"><span class="live-dot"></span> Updated daily</span>
+    <span>⚾ MLB Spring Training</span>
+    <span>🏀 NBA regular season</span>
+    <span>🏒 NHL regular season</span>
+    <span>⚽ MLS season begins</span>
+    <span>🏈 NFL Free Agency</span>
   </div>
-</div>
+
+  <!-- ROLLING NEWS TICKER (Pinned) -->
+  <div id="news-ticker">
+    <div id="ticker-label">📡 Headlines</div>
+    <div id="ticker-track-wrap">
+      <div id="ticker-track">
+        <span class="ticker-sep">◆</span>
+        <a href="https://www.espn.com" target="_blank">Loading latest sports headlines…</a>
+      </div>
+    </div>
+  </div>
 
 <!-- NAV -->
 <div id="nav">
   <a href="#" class="active">🏠 Home</a>
-  <a href="#fantasy-baseball">⚾ Fantasy Baseball</a>
-  <a href="#fantasy-football">🏈 Fantasy Football</a>
-  <a href="#fantasy-basketball">🏀 Fantasy Basketball</a>
-  <a href="#dfs">💰 DFS</a>
-  <a href="#betting">🎰 Betting</a>
-  <a href="#stats">📊 Stats &amp; Research</a>
-  <a href="#coaching">🏅 Coaching</a>
-  <a href="#podcasts">🎙 Podcasts</a>
-  <a href="#beat-writers">📡 Beat Writers</a>
-  <a href="#simulation">🎮 Sim Games</a>
-  <a href="#rules">📖 Rules</a>
-  <a href="#officials">🟡 Officials</a>
-  <a href="#recruiting">🔭 Recruiting</a>
-  <a href="#tennis">🎾 Tennis/Pickleball</a>
-  <a href="#racing">🏎 Racing</a>
-  <a href="#contracts">💵 Contracts</a>
-  <a href="#weather">🌦 Weather</a>
-  <a href="#lineups">📋 Lineups</a>
-  <a href="#analytics">🔬 Analytics</a>
-  <a href="#minors">🧢 Minor Leagues</a>
-  <a href="#sportsbiz">📰 Sports Biz</a>
-</div>
+  
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">🏆 Fantasy & DFS ▼</a>
+    <div class="dropdown-content align-left">
+      <a href="#fantasy-baseball">⚾ Fantasy Baseball</a>
+      <a href="#fantasy-football">🏈 Fantasy Football</a>
+      <a href="#fantasy-basketball">🏀 Fantasy Basketball</a>
+      <a href="#dfs">💰 DFS</a>
+    </div>
+  </div>
 
-<!-- ROLLING NEWS TICKER -->
-<div id="news-ticker">
-  <div id="ticker-label">📡 Headlines</div>
-  <div id="ticker-track-wrap">
-    <div id="ticker-track">
-      <span class="ticker-sep">◆</span>
-      <a href="https://www.espn.com" target="_blank">Loading latest sports headlines…</a>
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">📊 Betting & Data ▼</a>
+    <div class="dropdown-content align-left">
+      <a href="#betting">🎰 Betting</a>
+      <a href="#stats">📊 Stats & Research</a>
+      <a href="#analytics">🔬 Analytics</a>
+      <a href="#contracts">💵 Contracts</a>
+      <a href="#weather">🌦 Weather</a>
+      <a href="#lineups">📋 Lineups</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">🎙 Media & Biz ▼</a>
+    <div class="dropdown-content">
+      <a href="#podcasts">🎙 Podcasts</a>
+      <a href="#beat-writers">📡 Beat Writers</a>
+      <a href="#sportsbiz">📰 Sports Biz</a>
+      <a href="#shop">🛍️ Shop</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">🏅 Dev & Rules ▼</a>
+    <div class="dropdown-content">
+      <a href="#coaching">🏅 Coaching</a>
+      <a href="#recruiting">🔭 Recruiting</a>
+      <a href="#rules">📖 Rules</a>
+      <a href="#officials">🟡 Officials</a>
+      <a href="#minors">🧢 Minor Leagues</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">➕ More ▼</a>
+    <div class="dropdown-content">
+      <a href="#simulation">🎮 Sim Games</a>
+      <a href="#tennis">🎾 Tennis/Pickleball</a>
+      <a href="#racing">🏎 Racing</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn">⚡ Quick Hits ▼</a>
+    <div class="dropdown-content qh-grid">
+      <a href="https://www.espn.com" target="_blank">ESPN</a>
+      <a href="https://www.fangraphs.com" target="_blank">FanGraphs</a>
+      <a href="https://www.fantasypros.com" target="_blank">FantasyPros</a>
+      <a href="https://www.rotowire.com" target="_blank">RotoWire</a>
+      <a href="https://sportsbook.draftkings.com" target="_blank">DraftKings</a>
+      <a href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a>
+      <a href="https://www.baseball-reference.com" target="_blank">Baseball Ref</a>
+      <a href="https://www.pro-football-reference.com/" target="_blank">PFR</a>
+      <a href="https://www.actionnetwork.com" target="_blank">Action Network</a>
+      <a href="https://sleeper.com" target="_blank">Sleeper</a>
+      <a href="https://baseballsavant.mlb.com" target="_blank">Baseball Savant</a>
+      <a href="https://www.mlbtraderumors.com" target="_blank">MLB Trade Rumors</a>
+      <a href="https://www.spotrac.com" target="_blank">Spotrac</a>
+      <a href="https://www.statmuse.com" target="_blank">StatMuse</a>
     </div>
   </div>
 </div>
 
-<!-- DATE / STATUS BAR -->
-<div id="ticker">
-  <span><strong id="ticker-date">GameDay Express</strong></span>
-  <span class="ticker-item"><span class="live-dot"></span> Updated daily</span>
-  <span>⚾ MLB Spring Training</span>
-  <span>🏀 NBA regular season</span>
-  <span>🏒 NHL regular season</span>
-  <span>⚽ MLS season begins</span>
-  <span>🏈 NFL Free Agency</span>
-</div>
+	<div class="ad-banner">Sponsor: Get 20% off at Fanatics with code GAMEDAY26</div>
 
 <!-- ① QUICK HITS -->
-<div id="quick-hits">
-  <div id="quick-hits-label">
-    ⚡ Quick Hits
-    <span id="qh-subtitle">— hover any link below and click 📌 to pin it here</span>
-  </div>
-  <div id="quick-hits-links">
-    <span id="qh-empty" style="display:none;font-size:12px;color:var(--text-dim);padding:4px 8px;font-style:italic;">No pins yet — hover any link and click 📌 to add it here</span>
-  </div>
-  <div id="qh-defaults-label">⚡ Default Quick Hits</div>
-  <div id="qh-defaults">
-    <a class="quick-chip" href="https://www.espn.com" target="_blank">ESPN</a>
-    <a class="quick-chip" href="https://www.fangraphs.com" target="_blank">FanGraphs</a>
-    <a class="quick-chip" href="https://www.fantasypros.com" target="_blank">FantasyPros</a>
-    <a class="quick-chip" href="https://www.rotowire.com" target="_blank">RotoWire</a>
-    <a class="quick-chip" href="https://sportsbook.draftkings.com" target="_blank">DraftKings</a>
-    <a class="quick-chip" href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a>
-    <a class="quick-chip" href="https://www.baseball-reference.com" target="_blank">Baseball Ref</a>
-    <a class="quick-chip" href="https://www.pro-football-reference.com/" target="_blank">PFR</a>
-    <a class="quick-chip" href="https://www.actionnetwork.com" target="_blank">Action Network</a>
-    <a class="quick-chip" href="https://sleeper.com" target="_blank">Sleeper</a>
-    <a class="quick-chip" href="https://baseballsavant.mlb.com" target="_blank">Baseball Savant</a>
-    <a class="quick-chip" href="https://www.mlbtraderumors.com" target="_blank">MLB Trade Rumors</a>
-    <a class="quick-chip" href="https://www.spotrac.com" target="_blank">Spotrac</a>
-    <a class="quick-chip" href="https://www.statmuse.com" target="_blank">StatMuse</a>
-  </div>
+	<div id="quick-hits">
+		<div id="quick-hits-label">
+    📌 Pinned Links
+			<span id="qh-subtitle">— hover any link below and click 📌 to pin it here</span>
+		</div>
+	<div id="quick-hits-links">
+		<span id="qh-empty" style="display:none;font-size:12px;color:var(--text-dim);padding:4px 8px;font-style:italic;">No pins yet — hover any link and click 📌 to add it here</span>
+	</div>
 </div>
 
-<!-- FILTER CHIPS -->
-<div id="featured">
-  <span class="feat-chip active" onclick="filterChip(this,'')">All</span>
-  <span class="feat-chip" onclick="filterChip(this,'baseball')">Baseball</span>
-  <span class="feat-chip" onclick="filterChip(this,'football')">Football</span>
-  <span class="feat-chip" onclick="filterChip(this,'basketball')">Basketball</span>
-  <span class="feat-chip" onclick="filterChip(this,'hockey')">Hockey</span>
-  <span class="feat-chip" onclick="filterChip(this,'fantasy')">Fantasy</span>
-  <span class="feat-chip" onclick="filterChip(this,'dfs')">DFS</span>
-  <span class="feat-chip" onclick="filterChip(this,'betting')">Betting</span>
-  <span class="feat-chip" onclick="filterChip(this,'stats')">Stats</span>
-  <span class="feat-chip" onclick="filterChip(this,'news')">News</span>
-  <span class="feat-chip" onclick="filterChip(this,'coaching')">Coaching</span>
-  <span class="feat-chip" onclick="filterChip(this,'rankings')">Rankings</span>
-  <span class="feat-chip" onclick="filterChip(this,'waiver')">Waiver</span>
-  <span class="feat-chip" onclick="filterChip(this,'golf')">Golf</span>
-  <span class="feat-chip" onclick="filterChip(this,'outdoor')">Outdoor</span>
-  <span class="feat-chip" onclick="filterChip(this,'simulation')">Sim Games</span>
-  <span class="feat-chip" onclick="filterChip(this,'beat writers')">Beat Writers</span>
-  <span class="feat-chip" onclick="filterChip(this,'historical')">History</span>
-  <span class="feat-chip" onclick="filterChip(this,'rules')">Rules</span>
-  <span class="feat-chip" onclick="filterChip(this,'officials')">Officials</span>
-  <span class="feat-chip" onclick="filterChip(this,'recruiting')">Recruiting</span>
-  <span class="feat-chip" onclick="filterChip(this,'conferences')">Conferences</span>
-  <span class="feat-chip" onclick="filterChip(this,'tennis')">Tennis</span>
-  <span class="feat-chip" onclick="filterChip(this,'pickleball')">Pickleball</span>
-  <span class="feat-chip" onclick="filterChip(this,'motorsports')">Racing</span>
-  <span class="feat-chip" onclick="filterChip(this,'boxing')">Boxing</span>
-  <span class="feat-chip" onclick="filterChip(this,'mma')">MMA</span>
-  <span class="feat-chip" onclick="filterChip(this,'contracts')">Contracts</span>
-  <span class="feat-chip" onclick="filterChip(this,'weather')">Weather</span>
-  <span class="feat-chip" onclick="filterChip(this,'lineups')">Lineups</span>
-  <span class="feat-chip" onclick="filterChip(this,'analytics')">Analytics</span>
-  <span class="feat-chip" onclick="filterChip(this,'replay')">Replay</span>
-  <span class="feat-chip" onclick="filterChip(this,'minor leagues')">Minor Leagues</span>
-  <span class="feat-chip" onclick="filterChip(this,'business')">Sports Biz</span>
+<!-- FILTER DROPDOWN -->
+<div id="featured" style="padding: 10px 24px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;">
+  <span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">🔍 Browse Category:</span>
+  
+  <div class="dropdown">
+    <a href="javascript:void(0)" class="dropbtn" id="active-category">All Categories ▼</a>
+    <div class="dropdown-content browse-grid">
+      <a href="javascript:void(0)" onclick="runFilter('')">All Categories</a>
+      <a href="javascript:void(0)" onclick="runFilter('baseball')">Baseball</a>
+      <a href="javascript:void(0)" onclick="runFilter('football')">Football</a>
+      <a href="javascript:void(0)" onclick="runFilter('basketball')">Basketball</a>
+      <a href="javascript:void(0)" onclick="runFilter('hockey')">Hockey</a>
+      <a href="javascript:void(0)" onclick="runFilter('fantasy')">Fantasy</a>
+      <a href="javascript:void(0)" onclick="runFilter('dfs')">DFS</a>
+      <a href="javascript:void(0)" onclick="runFilter('betting')">Betting</a>
+      <a href="javascript:void(0)" onclick="runFilter('shop')">Shop</a>
+      <a href="javascript:void(0)" onclick="runFilter('stats')">Stats</a>
+      <a href="javascript:void(0)" onclick="runFilter('news')">News</a>
+      <a href="javascript:void(0)" onclick="runFilter('coaching')">Coaching</a>
+      <a href="javascript:void(0)" onclick="runFilter('rankings')">Rankings</a>
+      <a href="javascript:void(0)" onclick="runFilter('waiver')">Waiver</a>
+      <a href="javascript:void(0)" onclick="runFilter('golf')">Golf</a>
+      <a href="javascript:void(0)" onclick="runFilter('outdoor')">Outdoor</a>
+      <a href="javascript:void(0)" onclick="runFilter('simulation')">Sim Games</a>
+      <a href="javascript:void(0)" onclick="runFilter('beat writers')">Beat Writers</a>
+      <a href="javascript:void(0)" onclick="runFilter('historical')">History</a>
+      <a href="javascript:void(0)" onclick="runFilter('rules')">Rules</a>
+      <a href="javascript:void(0)" onclick="runFilter('officials')">Officials</a>
+      <a href="javascript:void(0)" onclick="runFilter('recruiting')">Recruiting</a>
+      <a href="javascript:void(0)" onclick="runFilter('conferences')">Conferences</a>
+      <a href="javascript:void(0)" onclick="runFilter('tennis')">Tennis</a>
+      <a href="javascript:void(0)" onclick="runFilter('pickleball')">Pickleball</a>
+      <a href="javascript:void(0)" onclick="runFilter('motorsports')">Racing</a>
+      <a href="javascript:void(0)" onclick="runFilter('boxing')">Boxing</a>
+      <a href="javascript:void(0)" onclick="runFilter('mma')">MMA</a>
+      <a href="javascript:void(0)" onclick="runFilter('contracts')">Contracts</a>
+      <a href="javascript:void(0)" onclick="runFilter('weather')">Weather</a>
+      <a href="javascript:void(0)" onclick="runFilter('lineups')">Lineups</a>
+      <a href="javascript:void(0)" onclick="runFilter('analytics')">Analytics</a>
+      <a href="javascript:void(0)" onclick="runFilter('replay')">Replay</a>
+      <a href="javascript:void(0)" onclick="runFilter('minor leagues')">Minor Leagues</a>
+      <a href="javascript:void(0)" onclick="runFilter('business')">Sports Biz</a>
+    </div>
+  </div>
 </div>
 
 <!-- MAIN GRID -->
@@ -768,15 +257,15 @@
       <div class="card-title">Waiver Wire & Player News</div>
     </div>
     <div class="card-links">
-      <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/news" target="_blank">RotoWire Player News</a><span class="link-tag tag-top">TOP</span></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://www.fantasypros.com/nfl/waiver-wire-advice/" target="_blank">FantasyPros Waiver Wire</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/football/news.php" target="_blank">RotoWire Player News</a><span class="link-tag tag-top">TOP</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.fantasypros.com/nfl/waiver-wire/" target="_blank">FantasyPros Waiver Wire</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/baseball/" target="_blank">RotoWire Baseball News</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/football/" target="_blank">RotoWire Football News</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.mlbtraderumors.com" target="_blank">MLB Trade Rumors</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.pitcherlist.com/" target="_blank">Pitcher List News</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.underdogfantasy.com/news" target="_blank">Underdog News</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.cbssports.com/fantasy/football/add-drop/" target="_blank">CBS Waiver Wire</a></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://sleeper.app/research/news" target="_blank">Sleeper News Feed</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sleeper.com/topic/nfl" target="_blank">Sleeper News Feed</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://profootballtalk.nbcsports.com/transactions/" target="_blank">PFT Transactions</a></div>
     </div>
   </div>
@@ -805,7 +294,7 @@
       <div class="card-title">Game Day Tools</div>
     </div>
     <div class="card-links">
-      <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/injuries" target="_blank">RotoWire Injuries</a><span class="link-tag tag-top">TOP</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/football/injuries.php" target="_blank">RotoWire Injuries</a><span class="link-tag tag-top">TOP</span></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/baseball/daily-lineups.php" target="_blank">RotoWire MLB Lineups</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://lineups.com" target="_blank">Lineups.com</a></div>
       <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>Daily lineups, depth charts, and matchups for all major sports</em></div>
@@ -815,7 +304,7 @@
       <div class="link-item"><div class="link-dot"></div><a href="https://www.dailyfaceoff.com/starting-goalies/" target="_blank">DailyFaceoff NHL Goalies</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.dailyfaceoff.com/lines" target="_blank">DailyFaceoff NHL Line Combos</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.baseballpress.com/lineups" target="_blank">Baseball Press Lineups</a></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/baseball/starting-pitchers/" target="_blank">RotoWire Starting Pitchers</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/baseball/daily-lineups.php" target="_blank">RotoWire Starting Pitchers</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.rotogrinders.com/live-feed/weather" target="_blank">RotoGrinders Weather Edge</a></div>
       <div class="link-item" style="padding-left:20px;font-size:11px;color:var(--text-dim)"><em>DFS-focused weather tool for NFL and MLB game conditions</em></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.nflweather.com" target="_blank">NFLWeather.com</a></div>
@@ -937,7 +426,7 @@
       <div class="link-item"><div class="link-dot"></div><a href="https://www.fantasypros.com/mlb/adp/overall.php" target="_blank">FantasyPros MLB ADP</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://nfc.shgn.com/adp/baseball" target="_blank">NFBC ADP</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.rotowire.com/baseball/auction-calculator/" target="_blank">RotoWire Auction Calc</a></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://sleeper.app/draft" target="_blank">Sleeper Draft</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sleeper.com/draft" target="_blank">Sleeper Draft</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.draftsharks.com" target="_blank">Draft Sharks Room</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.bestball10s.com" target="_blank">Best Ball 10s</a></div>
     </div>
@@ -954,8 +443,8 @@
     </div>
     <div class="card-links">
       <div class="link-item"><div class="link-dot"></div><a href="https://sportsbook.draftkings.com" target="_blank">DraftKings</a><span class="link-tag tag-top">TOP</span></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a></div>
-      <div class="link-item"><div class="link-dot"></div><a href="https://sports.betmgm.com" target="_blank">BetMGM</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sportsbook.fanduel.com" target="_blank">FanDuel</a><span class="link-tag tag-bonus">PROMO</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://sports.betmgm.com" target="_blank">BetMGM</a><span class="link-tag tag-bonus">OFFER</span></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.caesars.com/sportsbook-and-casino" target="_blank">Caesars</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://betrivers.com" target="_blank">BetRivers</a></div>
       <div class="link-item"><div class="link-dot"></div><a href="https://www.espnbet.com" target="_blank">ESPN BET</a></div>
@@ -1276,6 +765,36 @@
     </div>
   </div>
 
+  <!-- ═══ SHOP & TICKETS ═══ -->
+  <div class="zone-divider">
+    <span class="zone-label">🛍️ SHOP & TICKETS</span>
+  </div>
+  <div class="card" id="shop" data-color="teal" data-tags="shop tickets fan gear apparel fanatics stubhub seatgeek vivid seats ticketmaster">
+    <div class="card-header">
+      <div class="card-icon icon-teal">🏷️</div>
+      <div class="card-title">Fan Gear & Apparel</div>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.fanatics.com" target="_blank">Fanatics</a><span class="link-tag tag-top">TOP</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nflshop.com" target="_blank">NFL Shop</a><span class="link-tag tag-bonus">OFFER</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.mlbshop.com" target="_blank">MLB Shop</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nbastore.com" target="_blank">NBA Store</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.nhlshop.com" target="_blank">NHL Shop</a></div>
+    </div>
+  </div>
+  <div class="card" data-color="orange" data-tags="tickets stubhub seatgeek vivid seats ticketmaster travel">
+    <div class="card-header">
+      <div class="card-icon icon-orange">🎟️</div>
+      <div class="card-title">Tickets & Events</div>
+    </div>
+    <div class="card-links">
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.stubhub.com" target="_blank">StubHub</a><span class="link-tag tag-top">TOP</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.seatgeek.com" target="_blank">SeatGeek</a><span class="link-tag tag-bonus">PROMO</span></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.vividseats.com" target="_blank">Vivid Seats</a></div>
+      <div class="link-item"><div class="link-dot"></div><a href="https://www.ticketmaster.com" target="_blank">Ticketmaster</a></div>
+    </div>
+  </div>
+
   <!-- ═══ SPORTS & LEAGUES ═══ -->
   <div class="zone-divider">
     <span class="zone-label">🌍 SPORTS & LEAGUES</span>
@@ -1512,6 +1031,14 @@
 
 <!-- FOOTER -->
 <div id="footer">
+  <div class="newsletter-signup">
+    <h4>📬 GameDay Daily</h4>
+    <p style="font-size: 10px; margin-bottom: 4px;">The best sports links, delivered to your inbox daily.</p>
+    <form class="newsletter-form" onsubmit="alert('Thanks for signing up!'); return false;">
+      <input type="email" placeholder="your@email.com" required>
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
   <span>© 2026 GameDay Express — A curated sports portal. All linked sites are property of their respective owners.</span>
   <span>No live data · No accounts · No tracking</span>
   <span><a href="/cdn-cgi/l/email-protection#c0a7a1ada5a4a1b9a5b8b0b2a5b3b380a7ada1a9aceea3afadffb3b5a2aaa5a3b4fd82b2afaba5aee08ca9aeabe092a5b0afb2b4" style="
@@ -1530,272 +1057,12 @@
 
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  const d = new Date();
-  document.getElementById('ticker-date').textContent =
-    'GameDay Express — ' + d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-
-  const searchEl = document.getElementById('search');
-  const clearBtn = document.getElementById('clear-btn');
-
-  function runFilter(q) {
-    q = q.toLowerCase().trim();
-    let anyVisible = false;
-    document.querySelectorAll('.card').forEach(card => {
-      const tags  = (card.dataset.tags||''). toLowerCase();
-      const title = card.querySelector('.card-title').textContent.toLowerCase();
-      card.querySelectorAll('.link-item').forEach(item => {
-        const a = item.querySelector('a');
-        if (!a) return;
-        const raw = a.textContent;
-        if (!q) { a.innerHTML = raw; item.style.display = ''; }
-        else if (raw.toLowerCase().includes(q)) {
-          a.innerHTML = raw.replace(new RegExp(q,'gi'), m=>`<span class="highlight">${m}</span>`);
-          item.style.display = '';
-        } else { a.innerHTML = raw; item.style.display = 'none'; }
-      });
-      const anyLink = !q || Array.from(card.querySelectorAll('.link-item')).some(i=>i.style.display!=='none');
-      const matchCard = !q || tags.includes(q) || title.includes(q);
-      const show = anyLink || matchCard;
-      card.style.display = show ? '' : 'none';
-      if (show) anyVisible = true;
-    });
-    document.getElementById('no-results').style.display = anyVisible ? 'none' : 'block';
-  }
-
-  searchEl.addEventListener('input', ()=>runFilter(searchEl.value));
-  clearBtn.addEventListener('click', ()=>{ searchEl.value=''; runFilter(''); });
-
-  function filterChip(el, tag) {
-    document.querySelectorAll('.feat-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
-    runFilter(tag);
-  }
-
-  // Scroll to top button
-  window.addEventListener('scroll', () => {
-    document.getElementById('scroll-top').style.display = window.scrollY > 400 ? 'block' : 'none';
-  });
-
-  // ── PERSONALIZED QUICK HITS ──────────────────────────────
-  const PINS_KEY = 'gde_pins_v1';
-
-  function loadPins() {
-    try { return JSON.parse(localStorage.getItem(PINS_KEY)) || []; }
-    catch { return []; }
-  }
-  function savePins(pins) {
-    try { localStorage.setItem(PINS_KEY, JSON.stringify(pins)); } catch {}
-  }
-
-  function renderPins() {
-    const pins = loadPins();
-    const container = document.getElementById('quick-hits-links');
-    const empty = document.getElementById('qh-empty');
-    container.querySelectorAll('.pinned-chip').forEach(el => el.remove());
-    if (pins.length === 0) {
-      empty.style.display = 'inline-block';
-    } else {
-      empty.style.display = 'none';
-      pins.forEach(pin => {
-        const chip = document.createElement('span');
-        chip.className = 'pinned-chip';
-        chip.innerHTML = `<a href="${pin.url}" target="_blank">${pin.name}</a><button class="unpin-btn" title="Unpin" onclick="unpin('${pin.url}')">✕</button>`;
-        container.appendChild(chip);
-      });
-    }
-    // Update pin button states across all link items
-    document.querySelectorAll('.pin-btn').forEach(btn => {
-      const url = btn.dataset.url;
-      const isPinned = pins.some(p => p.url === url);
-      btn.textContent = isPinned ? '📌' : '📌';
-      btn.classList.toggle('pinned', isPinned);
-      btn.title = isPinned ? 'Unpin' : 'Pin to Quick Hits';
-    });
-  }
-
-  function togglePin(url, name) {
-    let pins = loadPins();
-    const idx = pins.findIndex(p => p.url === url);
-    if (idx > -1) {
-      pins.splice(idx, 1);
-    } else {
-      pins.push({ url, name });
-    }
-    savePins(pins);
-    renderPins();
-  }
-
-  function unpin(url) {
-    let pins = loadPins().filter(p => p.url !== url);
-    savePins(pins);
-    renderPins();
-  }
-
-  // Add pin buttons to every link item
-  document.querySelectorAll('.link-item').forEach(item => {
-    const a = item.querySelector('a');
-    if (!a) return;
-    const btn = document.createElement('button');
-    btn.className = 'pin-btn';
-    btn.textContent = '📌';
-    btn.title = 'Pin to Quick Hits';
-    btn.dataset.url = a.href;
-    btn.onclick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      togglePin(a.href, a.textContent.trim());
-    };
-    item.appendChild(btn);
-  });
-
-  // Initial render
-  renderPins();
-
-</script>
+<script src="main.js"></script>
 
 <!-- ROLLING TICKER RSS SCRIPT -->
-<script>
-(function() {
-
-  // ── CONFIG ──────────────────────────────────────────────────────────────
-  const RSS2JSON = 'https://api.rss2json.com/v1/api.json?count=8&rss_url=';
-
-  // Sport-labelled RSS feeds pulled in parallel
-  const FEEDS = [
-    { emoji: '⚾', label: 'MLB',    url: 'https://www.espn.com/espn/rss/mlb/news'          },
-    { emoji: '🏈', label: 'NFL',    url: 'https://www.espn.com/espn/rss/nfl/news'          },
-    { emoji: '🏀', label: 'NBA',    url: 'https://www.espn.com/espn/rss/nba/news'          },
-    { emoji: '🏒', label: 'NHL',    url: 'https://www.espn.com/espn/rss/nhl/news'          },
-    { emoji: '🎓', label: 'NCAAF',  url: 'https://www.espn.com/espn/rss/ncf/news'          },
-    { emoji: '🏀', label: 'NCAAB',  url: 'https://www.espn.com/espn/rss/ncb/news'          },
-    { emoji: '⛳', label: 'Golf',   url: 'https://www.espn.com/espn/rss/golf/news'         },
-    { emoji: '⚽', label: 'Soccer', url: 'https://www.espn.com/espn/rss/soccer/news'       },
-    { emoji: '🏎', label: 'F1',     url: 'https://www.espn.com/espn/rss/rpm/news'          },
-    { emoji: '📰', label: 'MLB',    url: 'https://www.mlbtraderumors.com/feed'             },
-  ];
-
-  // TheSportsDB league IDs for "today's events" — free tier, no key needed
-  const TSDB_LEAGUES = [
-    { id: '4391', emoji: '🏈', name: 'NFL'  },
-    { id: '4387', emoji: '🏀', name: 'NBA'  },
-    { id: '4424', emoji: '⚾', name: 'MLB'  },
-    { id: '4380', emoji: '🏒', name: 'NHL'  },
-    { id: '4346', emoji: '⚽', name: 'MLS'  },
-  ];
-
-  const FALLBACK = [
-    { title: '⚾ MLB — Latest trade rumors & roster moves', link: 'https://www.mlbtraderumors.com' },
-    { title: '🏀 NBA — Playoff race updates',              link: 'https://www.espn.com/nba/'      },
-    { title: '🏒 NHL — Stretch run standings',             link: 'https://www.espn.com/nhl/'      },
-    { title: '🏈 NFL — Draft news & free agency',         link: 'https://www.espn.com/nfl/'      },
-    { title: '⛳ PGA Tour — Leaderboard updates',          link: 'https://www.espn.com/golf/'     },
-    { title: '🏎 F1 — Race weekend news',                 link: 'https://www.espn.com/f1/'       },
-    { title: '⚽ MLS — Match results & standings',         link: 'https://www.espn.com/soccer/'   },
-    { title: '🎓 College sports — Recruiting & transfers', link: 'https://www.espn.com/college-sports/' },
-  ];
-
-  // ── HELPERS ─────────────────────────────────────────────────────────────
-  function shuffle(arr) {
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  function buildTrack(items) {
-    const track = document.getElementById('ticker-track');
-    if (!track || !items.length) return;
-    const doubled = [...items, ...items];
-    track.innerHTML = doubled.map(item =>
-      `<span class="ticker-sep">◆</span><a href="${item.link}" target="_blank" rel="noopener">${item.title}</a>`
-    ).join('');
-    // Adjust speed based on content length — more items = faster scroll
-    const speed = Math.max(40, Math.min(90, items.length * 4));
-    document.getElementById('ticker-track').style.animationDuration = speed + 's';
-  }
-
-  // ── FETCH SINGLE RSS FEED ────────────────────────────────────────────────
-  function fetchFeed(feedCfg) {
-    const apiUrl = RSS2JSON + encodeURIComponent(feedCfg.url);
-    return fetch(apiUrl)
-      .then(r => r.json())
-      .then(data => {
-        if (data.status === 'ok' && data.items && data.items.length) {
-          return data.items.slice(0, 3).map(item => ({
-            title: `${feedCfg.emoji} ${feedCfg.label}: ${item.title.substring(0, 80)}${item.title.length > 80 ? '…' : ''}`,
-            link: item.link
-          }));
-        }
-        return [];
-      })
-      .catch(() => []);
-  }
-
-  // ── FETCH TODAY'S EVENTS FROM SPORTSDB ──────────────────────────────────
-  function fetchTodayEvents() {
-    const today = new Date().toISOString().split('T')[0];
-    const calls = TSDB_LEAGUES.map(league => {
-      const url = `https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${today}&l=${league.id}`;
-      return fetch(url)
-        .then(r => r.json())
-        .then(data => {
-          if (!data.events) return [];
-          return data.events.slice(0, 3).map(ev => {
-            const time = ev.strTime ? ev.strTime.substring(0, 5) + ' ET' : 'Today';
-            return {
-              title: `${league.emoji} ${league.name}: ${ev.strHomeTeam} vs ${ev.strAwayTeam} — ${time}`,
-              link: `https://www.thesportsdb.com/event/${ev.idEvent}`
-            };
-          });
-        })
-        .catch(() => []);
-    });
-    return Promise.all(calls).then(results => results.flat());
-  }
-
-  // ── MAIN LOADER ──────────────────────────────────────────────────────────
-  function loadTicker() {
-    const feedPromises = FEEDS.map(f => fetchFeed(f));
-    const eventsPromise = fetchTodayEvents();
-
-    Promise.all([...feedPromises, eventsPromise])
-      .then(results => {
-        const events  = results[results.length - 1];   // last result = events
-        const stories = results.slice(0, -1).flat();    // everything else = RSS stories
-
-        // Interleave: start with today's events (most useful), then stories
-        let combined = [];
-        if (events.length)  combined = combined.concat(events);
-        if (stories.length) combined = combined.concat(shuffle(stories));
-
-        if (combined.length >= 4) {
-          buildTrack(combined);
-        } else {
-          buildTrack(FALLBACK);
-        }
-      })
-      .catch(() => buildTrack(FALLBACK));
-  }
-
-  document.addEventListener('DOMContentLoaded', loadTicker);
-})();
-</script>
+<script src="ticker.js"></script>
 
 <!-- CLICK TRACKING -->
-<script>
-window.addEventListener('load', function() {
-  document.querySelectorAll('a').forEach(function(link) {
-    link.addEventListener('click', function() {
-      gtag('event', 'link_click', {
-        event_category: 'outbound',
-        event_label: this.href,
-        link_text: this.textContent.trim()
-      });
-    });
-  });
-});
-</script>
+<script src="tracking.js"></script>
 </body>
 </html>
