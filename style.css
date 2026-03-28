@@ -39,18 +39,19 @@
   .banner-container {
     position: relative;
     width: 100%;
-    max-height: 400px;
+    height: 400px; /* Fixed height for consistency */
     overflow: hidden;
     background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .banner-image {
     width: 100%;
-    height: 400px;
+    height: 100%;
     display: block;
-    object-fit: cover;
-    
-	object-fit: contain;
+    object-fit: contain; /* Ensure the whole image is visible without cropping */
   }
 
   .overlay-element {
@@ -67,16 +68,16 @@
 
   .overlay-element h1 {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: clamp(24px, 5vw, 48px);
+    font-size: clamp(20px, 4vw, 36px);
     font-weight: 800;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     letter-spacing: -0.02em;
     text-shadow: 0 4px 12px rgba(0,0,0,0.5);
   }
 
   .overlay-element p {
-    font-size: clamp(14px, 2vw, 18px);
-    margin-bottom: 24px;
+    font-size: clamp(12px, 1.5vw, 16px);
+    margin-bottom: 16px;
     color: rgba(255, 255, 255, 0.9);
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
   }
@@ -85,8 +86,8 @@
     background: var(--accent);
     color: #fff;
     border: none;
-    padding: 12px 28px;
-    font-size: 14px;
+    padding: 10px 24px;
+    font-size: 13px;
     font-weight: 700;
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -102,20 +103,20 @@
   /* ── SEARCH BAR POSITIONING ── */
   #search-wrap {
     position: fixed;
-    top: 20px;
-    right: 24px;
+    top: 12px;
+    right: 16px;
     z-index: 1000;
     display: flex;
     align-items: center;
-    gap: 12px;
-    background: rgba(22, 22, 22, 0.8);
+    gap: 8px;
+    background: rgba(22, 22, 22, 0.85);
     backdrop-filter: var(--glass);
     -webkit-backdrop-filter: var(--glass);
-    padding: 4px 4px 4px 12px;
+    padding: 3px 3px 3px 10px;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-bright);
     transition: all 0.3s ease;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   }
   
   #search-wrap:focus-within {
@@ -128,10 +129,10 @@
     background: transparent;
     border: none;
     color: var(--text);
-    padding: 8px 0;
-    font-size: 14px;
+    padding: 6px 0;
+    font-size: 13px;
     font-family: 'Inter', sans-serif;
-    width: 240px;
+    width: 200px;
     outline: none;
   }
 
@@ -139,8 +140,8 @@
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text-dim);
-    padding: 6px 12px;
-    font-size: 11px;
+    padding: 4px 10px;
+    font-size: 10px;
     font-weight: 600;
     cursor: pointer;
     border-radius: var(--radius-sm);
@@ -155,7 +156,7 @@
     backdrop-filter: var(--glass);
     -webkit-backdrop-filter: var(--glass);
     border-bottom: 1px solid var(--border);
-    padding: 20px 0 0;
+    padding: 12px 0 0;
     display: flex;
     flex-direction: column;
     position: sticky;
@@ -164,10 +165,10 @@
   }
 
   .header-top {
-    padding: 0 24px 20px;
+    padding: 0 20px 12px;
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 24px;
     flex-wrap: wrap;
   }
   
@@ -179,7 +180,7 @@
   #logo {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 800;
-    font-size: 28px;
+    font-size: 22px;
     letter-spacing: -0.03em;
     color: #fff;
     white-space: nowrap;
@@ -189,7 +190,7 @@
 
   #tagline {
     color: var(--text-dim);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.02em;
     margin-top: -2px;
@@ -199,9 +200,9 @@
   #nav {
     background: rgba(15, 15, 15, 0.5);
     border-bottom: 1px solid var(--border);
-    padding: 0 24px;
+    padding: 0 20px;
     display: flex;
-    gap: 8px;
+    gap: 4px;
     /* Removed overflow-x: auto to allow dropdowns to show */
     position: relative;
     z-index: 101;
@@ -209,11 +210,11 @@
 
   #nav a, .dropbtn {
     color: var(--text-dim);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 16px 12px;
+    padding: 12px 10px;
     border-bottom: 2px solid transparent;
     white-space: nowrap;
     display: block;
@@ -603,14 +604,41 @@
     
     #search-wrap {
       position: fixed;
-      top: 10px;
-      right: 10px;
-      left: 10px;
+      top: 12px; /* Matched to desktop for consistency */
+      right: 8px;
+      left: 8px;
       width: auto;
       margin-left: 0;
+      padding: 0 2px 0 8px;
+      border-radius: var(--radius-sm);
+      height: 34px;
+      background: rgba(15, 15, 15, 0.95);
+      z-index: 1100; /* Above everything */
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: left 0.3s ease;
     }
-    #search { width: 100%; }
+    /* When sticky logo is visible, push search bar right on mobile */
+    body.sticky-active #search-wrap {
+      left: 184px; /* Room for 168px logo + 4px left margin + 12px gap */
+    }
+
+    #search { width: 100%; font-size: 12px; }
+    #clear-btn { padding: 4px 8px; font-size: 9px; }
+
+    /* Fix Mobile Banner */
+    .banner-container, .banner-image {
+      height: auto !important;
+      max-height: none !important;
+      aspect-ratio: 640 / 272;
+    }
+    .banner-image {
+      width: 100%;
+      object-fit: contain;
+    }
+
+    #header {
+      padding-top: 40px; /* Room for fixed search/logo */
+    }
 
     #nav {
       padding: 0 16px;
@@ -660,6 +688,7 @@
     padding: 24px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: dense;
     gap: 20px;
     max-width: 1600px;
     margin: 0 auto;
@@ -679,97 +708,21 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
     position: relative;
-  }
-  .card:hover { 
-    border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.5);
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: var(--border-bright);
-    transition: background 0.3s;
-  }
-  .card:hover::before {
-    background: var(--accent);
-  }
-
-  .card-header {
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    user-select: none;
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .card-icon {
-    width: 32px; height: 32px;
-    border-radius: var(--radius-sm);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-  }
-
-  .card-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    letter-spacing: -0.01em;
-    color: #ffffff;
-    flex: 1;
-  }
-
-  .card-links { padding: 12px 0; flex: 1; }
-
-  .link-item {
-    padding: 6px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.2s;
-  }
-  .link-item:hover { background: rgba(255, 255, 255, 0.03); }
-
-  .link-item a {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    flex: 1;
-  }
-  .link-item a:hover { color: var(--accent); }
-
-  .link-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--border-bright);
-    flex-shrink: 0;
-    opacity: 0.5;
-  }
-
-  .link-tag {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    padding: 2px 6px;
-    border-radius: 4px;
-    text-transform: uppercase;
+    /* Allow cards to span 1 row by default */
+    grid-row: span 1;
   }
   
-  /* Zone Dividers */
+  /* Important or larger cards can span more rows if needed */
+  .card:nth-child(even) { grid-row: span 1; } 
+
+  /* ── ZONE DIVIDER ── */
   .zone-divider {
-    grid-column: 1 / -1;
+    grid-column: 1 / -1; /* Always take full width to group sections */
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 40px 0 20px;
+    padding: 24px 0 8px;
+    margin-top: 12px;
   }
   .zone-label {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -903,3 +856,133 @@
   }
   #scroll-top:hover { transform: translateY(-4px); }
   #scroll-top.visible { display: flex; }
+
+  /* ── ONBOARDING MODAL ── */
+  #onboarding-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #onboarding-overlay.visible { display: flex; }
+
+  .onboarding-card {
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+    width: 100%;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 32px 64px rgba(0,0,0,0.8);
+  }
+
+  .onboarding-card h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .onboarding-card p {
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .interest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .interest-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .interest-btn:hover { border-color: var(--accent); }
+  .interest-btn.selected {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .save-prefs-btn {
+    background: #fff;
+    color: #000;
+    border: none;
+    padding: 14px 0;
+    width: 100%;
+    border-radius: var(--radius-md);
+    font-weight: 800;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .save-prefs-btn:hover { transform: scale(1.02); background: var(--accent2); color: #fff; }
+
+  /* ── SETTINGS BUTTON ── */
+  #personalize-trigger {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.2s;
+  }
+  #personalize-trigger:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  /* ── STICKY LOGO ── */
+#sticky-logo {
+  position: fixed;
+  top: 12px;
+  left: 10px; /* Moved to 10px from left edge */
+  height: 34px;
+  width: 160px; /* Wider for full logo */
+  z-index: 1001;
+  background: transparent; /* Transparent background */
+  border: none; /* No border for cleaner look */
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+#sticky-logo.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+#sticky-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ensure full logo is visible */
+}
+
+ 100%;
+    object-fit: cover;
+  }
