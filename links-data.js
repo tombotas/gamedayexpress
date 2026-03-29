@@ -110,6 +110,7 @@ const GDE_LINKS = [
       { name: "NFBC", url: "https://www.nfbc.com" },
       { name: "BaseballHQ", url: "https://www.baseballhq.com" },
       { name: "RotoBaller Baseball", url: "https://www.rotoballer.com/baseball" }
+      { name: "Closer Monkey", url: "https://www.closermonkey.com" }
     ]
   },
   {
