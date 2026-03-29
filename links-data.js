@@ -109,7 +109,7 @@ const GDE_LINKS = [
       { name: "Baseball Savant / Statcast", url: "https://baseballsavant.mlb.com" },
       { name: "NFBC", url: "https://www.nfbc.com" },
       { name: "BaseballHQ", url: "https://www.baseballhq.com" },
-      { name: "RotoBaller Baseball", url: "https://www.rotoballer.com/baseball" }
+      { name: "RotoBaller Baseball", url: "https://www.rotoballer.com/baseball" }, 
       { name: "Closer Monkey", url: "https://www.closermonkey.com" }
     ]
   },
