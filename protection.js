@@ -12,7 +12,8 @@
     const AUTHORIZED_DOMAINS = [
         'localhost',
         '127.0.0.1',
-        'wallsmd70.github.io' // Add your production domain here
+        'wallsmd70.github.io',
+        'gamedayxpress.com' // New production domain
     ];
 
     const currentHost = window.location.hostname;
@@ -25,7 +26,7 @@
             <div style="background:#050505; color:white; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; text-align:center; padding:20px;">
                 <h1 style="color:#3b82f6;">GameDay Express — System Lockdown</h1>
                 <p>This source code is unauthorized for use on this domain.</p>
-                <p>Please visit the official site at <a href="https://wallsmd70.github.io/gamedayexpress/" style="color:#3b82f6;">GameDay Express</a></p>
+                <p>Please visit the official site at <a href="https://gamedayxpress.com/" style="color:#3b82f6;">GameDay Express</a></p>
             </div>
         `;
         throw new Error("Unauthorized Domain");
