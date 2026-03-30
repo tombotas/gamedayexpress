@@ -584,7 +584,7 @@ const GDE_LINKS = [
       { name: "Southern Conference", url: "https://www.socon.org" },
       { name: "Big South", url: "https://www.bignorthernconference.com" },
       { name: "Patriot League", url: "https://www.patriotleague.org" },
-      { name: "Ivy League", url: "https://www.ivy-league.com" }
+      { name: "Ivy League", url: "https://www.ivyleague.com" }
     ]
   },
   {
