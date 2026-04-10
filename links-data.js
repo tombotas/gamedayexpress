@@ -611,10 +611,9 @@ const GDE_LINKS = [
     color: "green",
     tags: "golf pga tour golf digest golf channel espn golf golfnow usga liv fantasy",
 links: [
-  { name: "PGA Tour", url: "https://www.pgatour.com", top: true },
-  { name: "The Masters", url: "https://www.masters.com", desc: "Official site — tee times, leaderboard, history, and tickets" },
-  { name: "Golf.com", url: "https://www.golf.com" },
-
+      { name: "PGA Tour", url: "https://www.pgatour.com", top: true },
+      { name: "The Masters", url: "https://www.masters.com", desc: "Official site — tee times, leaderboard, history, and tickets" },
+      { name: "Golf.com", url: "https://www.golf.com" },
       { name: "Golf Digest", url: "https://www.golfdigest.com/" },
       { name: "Golf Channel", url: "https://www.golfchannel.com" },
       { name: "ESPN Golf", url: "https://www.espn.com/golf/" },
