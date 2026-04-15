@@ -107,6 +107,9 @@ const GDE_LINKS = [
       { name: "CBS Fantasy Baseball", url: "https://www.cbssports.com/fantasy/baseball/" },
       { name: "Fantrax Baseball", url: "https://www.fantrax.com/fantasy/baseball" },
       { name: "Baseball Savant / Statcast", url: "https://baseballsavant.mlb.com" },
+      { name: "Fantasy Alarm", url: "https://fantasyalarm.com" },
+      { name: "The Dynasty Dugout", url: "https://thedynastydugout.com" },
+      { name: "FS Roundup", url: "https://fsroundup.com" },
       { name: "NFBC", url: "https://www.nfbc.com" },
       { name: "BaseballHQ", url: "https://www.baseballhq.com" },
       { name: "RotoBaller Baseball", url: "https://www.rotoballer.com/baseball" }, 
@@ -397,6 +400,7 @@ const GDE_LINKS = [
       { name: "Perfect Game (Baseball/Softball)", url: "https://www.perfectgame.org", desc: "Largest youth baseball scouting and showcase organization" },
       { name: "Prep Baseball Report", url: "https://www.prepbaseballreport.com" },
       { name: "Prospects Live", url: "https://www.prospectslive.com" },
+      { name: "Prospect361", url: "https://www.prospect361.com" },
       { name: "Elite Prospects (Hockey)", url: "https://www.eliteprospects.com", desc: "The definitive hockey prospect and player database" },
       { name: "Transfermarkt (Soccer Prospects)", url: "https://www.transfermarkt.com" }
     ]
