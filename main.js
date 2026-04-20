@@ -95,14 +95,29 @@
       return tagMatch || titleMatch || linkMatch;
     });
 
+  function getZoneIcon(zone) {
+  const icons = {
+    'CORE': '⚡',
+    'FANTASY': '🏆',
+    'BETTING': '🎰',
+    'DATA & RESEARCH': '🔬',
+    'MEDIA': '📡',
+    'DEVELOPMENT': '🎓',
+    'SHOP & TICKETS': '🎟️',
+    'SPORTS & LEAGUES': '🌍',
+    'SIMULATION': '🎮'
+  };
+  return icons[zone] || '▸';
+}
+    
     visibleCategories.forEach(cat => {
       // Add Zone Divider if it changes
       if (cat.zone !== currentZone) {
         currentZone = cat.zone;
-        const div = document.createElement('div');
-        div.className = 'zone-divider';
-        div.innerHTML = `<span class="zone-label">${currentZone}</span>`;
-        primaryGrid.appendChild(div);
+      const div = document.createElement('div');
+      div.className = 'zone-divider';
+      div.innerHTML = `<span class="zone-label">${getZoneIcon(currentZone)} ${currentZone}</span>`;
+      primaryGrid.appendChild(div);
       }
 
       // Build Card
