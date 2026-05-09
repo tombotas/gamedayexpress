@@ -722,6 +722,7 @@ links: [
       { name: "Franchise Hockey Manager", url: "https://www.ootpdevelopments.com/franchise-hockey-manager/", desc: "Deep hockey sim by the OOTP team" },
       { name: "Football Manager", url: "https://www.footballmanager.com", desc: "The world's most popular soccer management sim" },
       { name: "Draft Day Sports / FOF", url: "https://www.wolverinestudios.com", desc: "NFL and multi-sport franchise simulations" },
+      { name: "Pennant Chase", url: "https://www.pennantchase.com" },
       { name: "Baseball Mogul", url: "https://www.sportsmogul.com" },
       { name: "r/OOTP", url: "https://www.reddit.com/r/OOTP/" }
     ]
