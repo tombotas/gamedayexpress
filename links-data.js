@@ -1,4 +1,25 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// GameDay Express — Link Data
+// ─────────────────────────────────────────────────────────────────────────────
+// AFFILIATE LINK INSTRUCTIONS:
+// When you join an affiliate program, add your tracking URL to affiliateUrl.
+// The site will automatically use affiliateUrl when present, falling back to url.
+// Never delete url — it's the fallback and the source of truth.
+//
+// Fields:
+//   url          — plain link, always present, used as fallback
+//   affiliateUrl — your affiliate tracking link (add when approved)
+//   monetized    — true when affiliateUrl is live and approved
+//   network      — affiliate network name (Impact, CJ, Rakuten, direct, etc.)
+//
+// FTC DISCLOSURE REMINDER:
+// When any monetized: true link is live, ensure the footer contains visible
+// disclosure text, e.g.: "GameDay Express may earn a commission from
+// qualifying purchases or sign-ups through some links on this site."
+// ─────────────────────────────────────────────────────────────────────────────
+
 const GDE_LINKS = [
+
   // ═══ CORE ═══
   {
     zone: "CORE",
@@ -101,18 +122,22 @@ const GDE_LINKS = [
       { name: "Pitcher List", url: "https://www.pitcherlist.com" },
       { name: "Razzball", url: "https://razzball.com" },
       { name: "RotoWire Baseball", url: "https://www.rotowire.com/baseball/" },
-      { name: "FantasyPros MLB", url: "https://www.fantasypros.com/mlb/" },
+      {
+        name: "FantasyPros MLB",
+        url: "https://www.fantasypros.com/mlb/",
+        affiliateUrl: "REPLACE_WITH_FANTASYPROS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct",
+        desc: "Apply at fantasypros.com/affiliates"
+      },
       { name: "ESPN Fantasy Baseball", url: "https://fantasy.espn.com/baseball/" },
       { name: "Yahoo Fantasy Baseball", url: "https://baseball.fantasysports.yahoo.com" },
       { name: "CBS Fantasy Baseball", url: "https://www.cbssports.com/fantasy/baseball/" },
       { name: "Fantrax Baseball", url: "https://www.fantrax.com/fantasy/baseball" },
       { name: "Baseball Savant / Statcast", url: "https://baseballsavant.mlb.com" },
-      { name: "Fantasy Alarm", url: "https://fantasyalarm.com" },
-      { name: "The Dynasty Dugout", url: "https://thedynastydugout.com" },
-      { name: "FS Roundup", url: "https://fsroundup.com" },
       { name: "NFBC", url: "https://www.nfbc.com" },
       { name: "BaseballHQ", url: "https://www.baseballhq.com" },
-      { name: "RotoBaller Baseball", url: "https://www.rotoballer.com/baseball" }, 
+      { name: "RotoBaller Baseball", url: "https://www.rotoballer.com/baseball" },
       { name: "Closer Monkey", url: "https://www.closermonkey.com" }
     ]
   },
@@ -123,7 +148,14 @@ const GDE_LINKS = [
     color: "red",
     tags: "fantasy football nfl rankings projections waiver sleeper yahoo espn footballguys pff",
     links: [
-      { name: "FantasyPros NFL", url: "https://www.fantasypros.com/nfl/", top: true },
+      {
+        name: "FantasyPros NFL",
+        url: "https://www.fantasypros.com/nfl/",
+        affiliateUrl: "REPLACE_WITH_FANTASYPROS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct",
+        top: true
+      },
       { name: "RotoWire Football", url: "https://www.rotowire.com/football/" },
       { name: "FootballGuys", url: "https://www.footballguys.com" },
       { name: "Pro Football Focus", url: "https://www.pff.com" },
@@ -143,7 +175,14 @@ const GDE_LINKS = [
     color: "blue",
     tags: "fantasy basketball nba rankings rotowire fantasypros hashtag basketball realgm",
     links: [
-      { name: "FantasyPros NBA", url: "https://www.fantasypros.com/nba/", top: true },
+      {
+        name: "FantasyPros NBA",
+        url: "https://www.fantasypros.com/nba/",
+        affiliateUrl: "REPLACE_WITH_FANTASYPROS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct",
+        top: true
+      },
       { name: "RotoWire Basketball", url: "https://www.rotowire.com/basketball/" },
       { name: "Hashtag Basketball", url: "https://hashtagbasketball.com" },
       { name: "Yahoo Fantasy Basketball", url: "https://basketball.fantasysports.yahoo.com" },
@@ -162,7 +201,14 @@ const GDE_LINKS = [
     color: "teal",
     tags: "fantasy hockey nhl rankings rotowire fantasypros daily faceoff left wing lock",
     links: [
-      { name: "FantasyPros NHL", url: "https://www.fantasypros.com/nhl/", top: true },
+      {
+        name: "FantasyPros NHL",
+        url: "https://www.fantasypros.com/nhl/",
+        affiliateUrl: "REPLACE_WITH_FANTASYPROS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct",
+        top: true
+      },
       { name: "RotoWire Hockey", url: "https://www.rotowire.com/hockey/" },
       { name: "Daily Faceoff", url: "https://www.dailyfaceoff.com" },
       { name: "Left Wing Lock", url: "https://leftwinglock.com" },
@@ -179,8 +225,21 @@ const GDE_LINKS = [
     color: "green",
     tags: "dfs daily fantasy draftkings fanduel underdog rotogrinders stokastic prizepicks props",
     links: [
-      { name: "DraftKings", url: "https://sportsbook.draftkings.com", top: true },
-      { name: "FanDuel", url: "https://www.fanduel.com" },
+      {
+        name: "DraftKings",
+        url: "https://sportsbook.draftkings.com",
+        affiliateUrl: "REPLACE_WITH_DRAFTKINGS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — contact partners.draftkings.com",
+        top: true
+      },
+      {
+        name: "FanDuel",
+        url: "https://www.fanduel.com",
+        affiliateUrl: "REPLACE_WITH_FANDUEL_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — apply at fanduel.com/affiliates"
+      },
       { name: "Underdog Fantasy", url: "https://www.underdogfantasy.com" },
       { name: "RotoGrinders", url: "https://www.rotogrinders.com" },
       { name: "Establish The Run", url: "https://establishtherun.com" },
@@ -198,7 +257,14 @@ const GDE_LINKS = [
     color: "purple",
     tags: "draft tools adp auction calculator sleeper nfbc fantasypros bestball",
     links: [
-      { name: "FantasyPros NFL ADP", url: "https://www.fantasypros.com/nfl/adp/overall.php", top: true },
+      {
+        name: "FantasyPros NFL ADP",
+        url: "https://www.fantasypros.com/nfl/adp/overall.php",
+        affiliateUrl: "REPLACE_WITH_FANTASYPROS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct",
+        top: true
+      },
       { name: "FantasyPros MLB ADP", url: "https://www.fantasypros.com/mlb/adp/overall.php" },
       { name: "NFBC ADP", url: "https://nfc.shgn.com/adp/baseball" },
       { name: "RotoWire Auction Calc", url: "https://www.rotowire.com/baseball/auction-calculator/" },
@@ -216,10 +282,37 @@ const GDE_LINKS = [
     color: "red",
     tags: "sportsbooks betting draftkings fanduel betmgm caesars betrivers espnbet fanatics",
     links: [
-      { name: "DraftKings", url: "https://sportsbook.draftkings.com", top: true },
-      { name: "FanDuel", url: "https://sportsbook.fanduel.com", tag: "PROMO" },
-      { name: "BetMGM", url: "https://sports.betmgm.com", tag: "OFFER" },
-      { name: "Caesars", url: "https://www.caesars.com/sportsbook-and-casino" },
+      {
+        name: "DraftKings",
+        url: "https://sportsbook.draftkings.com",
+        affiliateUrl: "REPLACE_WITH_DRAFTKINGS_SPORTSBOOK_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — partners.draftkings.com",
+        top: true
+      },
+      {
+        name: "FanDuel",
+        url: "https://sportsbook.fanduel.com",
+        affiliateUrl: "REPLACE_WITH_FANDUEL_SPORTSBOOK_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — fanduel.com/affiliates",
+        tag: "PROMO"
+      },
+      {
+        name: "BetMGM",
+        url: "https://sports.betmgm.com",
+        affiliateUrl: "REPLACE_WITH_BETMGM_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — betmgmpartners.com",
+        tag: "OFFER"
+      },
+      {
+        name: "Caesars",
+        url: "https://www.caesars.com/sportsbook-and-casino",
+        affiliateUrl: "REPLACE_WITH_CAESARS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — contact Caesars affiliate team"
+      },
       { name: "BetRivers", url: "https://betrivers.com" },
       { name: "ESPN BET", url: "https://www.espnbet.com" },
       { name: "Fanatics Sportsbook", url: "https://www.fanatics.com/sportsbook" }
@@ -279,7 +372,7 @@ const GDE_LINKS = [
     links: [
       { name: "Spotrac", url: "https://www.spotrac.com", top: true, desc: "Multi-sport contracts, salaries, cap space, and transactions" },
       { name: "OverTheCap (NFL)", url: "https://overthecap.com", desc: "The deepest NFL cap, contracts, and dead money resource" },
-      { name: "PuckPedia (NHL)", url: "https://www.puckpedia.com", desc: "NHL salary cap tracking, contracts, LTIR — preferred by many analysts" },
+      { name: "PuckPedia (NHL)", url: "https://www.puckpedia.com", desc: "NHL salary cap tracking, contracts, LTIR" },
       { name: "HoopsHype Salaries (NBA)", url: "https://hoopshype.com/salaries/" },
       { name: "Basketball Reference Contracts", url: "https://www.basketball-reference.com/contracts/" },
       { name: "Baseball Reference Contracts", url: "https://www.baseball-reference.com/friv/current-contracts.shtml" },
@@ -400,7 +493,6 @@ const GDE_LINKS = [
       { name: "Perfect Game (Baseball/Softball)", url: "https://www.perfectgame.org", desc: "Largest youth baseball scouting and showcase organization" },
       { name: "Prep Baseball Report", url: "https://www.prepbaseballreport.com" },
       { name: "Prospects Live", url: "https://www.prospectslive.com" },
-      { name: "Prospect361", url: "https://www.prospect361.com" },
       { name: "Elite Prospects (Hockey)", url: "https://www.eliteprospects.com", desc: "The definitive hockey prospect and player database" },
       { name: "Transfermarkt (Soccer Prospects)", url: "https://www.transfermarkt.com" }
     ]
@@ -420,11 +512,32 @@ const GDE_LINKS = [
       { name: "USATT Officials / Certification", url: "https://www.teamusa.org/USA-Table-Tennis/Officiate" },
       { name: "USA Pickleball Officials", url: "https://www.usapickleball.org/play/officials/" },
       { name: "NFHS Officials Association", url: "https://www.nfhs.org/resources/officials/" },
-      { name: "UmpireBible", url: "https://www.umpirebible.com", desc: "Rules education & mechanics for baseball umpires — batting, base running, interference & more" },
-      { name: "Umpire Empire (Forums)", url: "https://www.umpire-empire.com", desc: "Active community with 60k+ posts — includes \"Ask the Umpire\" Q&A forum" },
-      { name: "Ump-Attire (Gear & Uniforms)", url: "https://www.ump-attire.com", desc: "Baseball/softball umpire equipment and uniforms" },
-      { name: "Official Sports International", url: "https://www.officialsports.com", desc: "Multi-sport officials uniforms and apparel — NFHS apparel partner" },
-      { name: "The Referee Store", url: "https://www.refereestore.com", desc: "Soccer, football, basketball & baseball officials gear — uniforms, whistles, flags & more" }
+      { name: "UmpireBible", url: "https://www.umpirebible.com", desc: "Rules education & mechanics for baseball umpires" },
+      { name: "Umpire Empire (Forums)", url: "https://www.umpire-empire.com", desc: "Active community — includes Ask the Umpire Q&A forum" },
+      {
+        name: "Ump-Attire (Gear & Uniforms)",
+        url: "https://www.ump-attire.com",
+        affiliateUrl: "REPLACE_WITH_UMP_ATTIRE_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — contact ump-attire.com directly",
+        desc: "Baseball/softball umpire equipment and uniforms"
+      },
+      {
+        name: "Official Sports International",
+        url: "https://www.officialsports.com",
+        affiliateUrl: "REPLACE_WITH_OFFICIAL_SPORTS_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — contact officialsports.com directly",
+        desc: "Multi-sport officials uniforms and apparel"
+      },
+      {
+        name: "The Referee Store",
+        url: "https://www.refereestore.com",
+        affiliateUrl: "REPLACE_WITH_REFEREE_STORE_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — contact refereestore.com directly",
+        desc: "Soccer, football, basketball & baseball officials gear"
+      }
     ]
   },
   {
@@ -435,8 +548,8 @@ const GDE_LINKS = [
     tags: "rules rulebooks officiating replay review mlb nfl nba nhl ncaa nfhs pickleball tennis fia formula 1 little league video",
     links: [
       { name: "MLB Official Baseball Rules", url: "https://www.mlb.com/glossary/rules", top: true, desc: "Official MLB rulebook" },
-      { name: "NFL Official Rulebook", url: "https://operations.nfl.com/the-rules/nfl-rulebook/", desc: "NFL Football Operations rules hub plus yearly rule changes" },
-      { name: "NBA Official Rulebook", url: "https://official.nba.com/rulebook/", desc: "NBA rules hub including video rulebook interpretations" },
+      { name: "NFL Official Rulebook", url: "https://operations.nfl.com/the-rules/nfl-rulebook/", desc: "NFL Football Operations rules hub" },
+      { name: "NBA Official Rulebook", url: "https://official.nba.com/rulebook/" },
       { name: "NHL Official Rulebook", url: "https://www.nhl.com/info/nhl-rulebook" },
       { name: "NFHS Rules Books (HS Sports)", url: "https://www.nfhs.org/activities-sports/sports/" },
       { name: "Little League Official Rules", url: "https://www.littleleague.org/playing-rules/" },
@@ -449,7 +562,7 @@ const GDE_LINKS = [
       { name: "NBA Video Rulebook", url: "https://official.nba.com/rulebook/" },
       { name: "MLB Replay Review", url: "https://www.mlb.com/video/topic/replay-review" },
       { name: "NHL Situation Room", url: "https://www.nhl.com/fans/nhl-situation-room" },
-      { name: "MLB Umpire Scorecards", url: "https://umpscorecards.com", desc: "Grades every MLB umpire's strike zone accuracy — a hidden gem" }
+      { name: "MLB Umpire Scorecards", url: "https://umpscorecards.com", desc: "Grades every MLB umpire's strike zone accuracy" }
     ]
   },
   {
@@ -459,19 +572,19 @@ const GDE_LINKS = [
     color: "green",
     tags: "minor leagues player development milb g league ahl echl chl usl mls next pro f2 indy nxt nascar xfinity baseball basketball hockey soccer racing pipeline",
     links: [
-      { name: "Minor League Baseball (MiLB)", url: "https://www.milb.com", top: true, desc: "Official hub for all affiliated MiLB — Triple-A through Single-A" },
+      { name: "Minor League Baseball (MiLB)", url: "https://www.milb.com", top: true, desc: "Official hub for all affiliated MiLB" },
       { name: "Triple-A Baseball", url: "https://www.milb.com/teams?level=AAA" },
       { name: "Double-A Baseball", url: "https://www.milb.com/teams?level=AA" },
       { name: "Atlantic League (Independent)", url: "https://www.atlanticleague.com" },
       { name: "Frontier League (Independent)", url: "https://www.frontierleague.com" },
       { name: "American Association (Ind.)", url: "https://www.americanassociationbaseball.com" },
-      { name: "NBA G League", url: "https://gleague.nba.com", desc: "Official NBA development league — call-up tracker and rosters" },
+      { name: "NBA G League", url: "https://gleague.nba.com", desc: "Official NBA development league" },
       { name: "EuroLeague", url: "https://www.euroleague.net" },
       { name: "AHL — American Hockey League", url: "https://theahl.com", desc: "Primary NHL development league" },
       { name: "ECHL", url: "https://www.echl.com" },
-      { name: "CHL — Canadian Hockey League", url: "https://www.chl.ca", desc: "Umbrella for OHL, WHL, and QMJHL junior leagues" },
+      { name: "CHL — Canadian Hockey League", url: "https://www.chl.ca", desc: "OHL, WHL, and QMJHL junior leagues" },
       { name: "MLS NEXT Pro", url: "https://www.mlsnextpro.com" },
-      { name: "USL Championship", url: "https://www.uslchampionship.com", desc: "USL second and third division — full league structure explained" },
+      { name: "USL Championship", url: "https://www.uslchampionship.com" },
       { name: "FIA Formula 2", url: "https://www.fiaformula2.com" },
       { name: "Indy NXT", url: "https://www.indynxt.com" },
       { name: "NASCAR Xfinity Series", url: "https://www.nascar.com/xfinity-series/" },
@@ -483,16 +596,16 @@ const GDE_LINKS = [
     category: "Sports Business & Media",
     icon: "📰",
     color: "blue",
-    tags: "sports business media journalism front office sbj sportico athletic defector awful announcing nil industry",
+    tags: "sports business media journalism front office sbj sportico athletic defector awful announcing nil industry sportsbiz",
     links: [
       { name: "Sports Business Journal", url: "https://www.sportsbusinessjournal.com", top: true, desc: "The industry bible for sports business, deals, and media rights" },
-      { name: "Front Office Sports", url: "https://frontofficesports.com", desc: "Daily sports business news — media rights, sponsorships, finance" },
-      { name: "Sportico", url: "https://www.sportico.com", desc: "Sports finance and valuation — team values, contracts, market analysis" },
+      { name: "Front Office Sports", url: "https://frontofficesports.com", desc: "Daily sports business news" },
+      { name: "Sportico", url: "https://www.sportico.com", desc: "Sports finance and valuation" },
       { name: "The Athletic", url: "https://theathletic.com" },
-      { name: "Defector", url: "https://defector.com", desc: "Independently owned sports journalism — long-form and sharp" },
+      { name: "Defector", url: "https://defector.com", desc: "Independently owned sports journalism" },
       { name: "Awful Announcing", url: "https://awfulannouncing.com", desc: "Sports media criticism and broadcast industry coverage" },
       { name: "On3 NIL", url: "https://www.on3.com/nil/", desc: "NIL valuations, deal tracker, and college athlete brand rankings" },
-      { name: "Athletic Director U", url: "https://www.athleticdirectoru.com", desc: "College athletics administration, NIL, and industry news" }
+      { name: "Athletic Director U", url: "https://www.athleticdirectoru.com", desc: "College athletics administration and NIL news" }
     ]
   },
 
@@ -504,11 +617,44 @@ const GDE_LINKS = [
     color: "teal",
     tags: "shop tickets fan gear apparel fanatics stubhub seatgeek vivid seats ticketmaster",
     links: [
-      { name: "Fanatics", url: "https://www.fanatics.com", top: true },
-      { name: "NFL Shop", url: "https://www.nflshop.com", tag: "OFFER" },
-      { name: "MLB Shop", url: "https://www.mlbshop.com" },
-      { name: "NBA Store", url: "https://www.nbastore.com" },
-      { name: "NHL Shop", url: "https://www.nhlshop.com" }
+      {
+        name: "Fanatics",
+        url: "https://www.fanatics.com",
+        affiliateUrl: "REPLACE_WITH_FANATICS_AFFILIATE_URL",
+        monetized: false,
+        network: "Impact — apply at fanatics.com/affiliates",
+        top: true,
+        desc: "The largest licensed sports merchandise retailer"
+      },
+      {
+        name: "NFL Shop",
+        url: "https://www.nflshop.com",
+        affiliateUrl: "REPLACE_WITH_NFL_SHOP_AFFILIATE_URL",
+        monetized: false,
+        network: "Fanatics affiliate program covers NFL Shop",
+        tag: "OFFER"
+      },
+      {
+        name: "MLB Shop",
+        url: "https://www.mlbshop.com",
+        affiliateUrl: "REPLACE_WITH_MLB_SHOP_AFFILIATE_URL",
+        monetized: false,
+        network: "Fanatics affiliate program covers MLB Shop"
+      },
+      {
+        name: "NBA Store",
+        url: "https://www.nbastore.com",
+        affiliateUrl: "REPLACE_WITH_NBA_STORE_AFFILIATE_URL",
+        monetized: false,
+        network: "Fanatics affiliate program covers NBA Store"
+      },
+      {
+        name: "NHL Shop",
+        url: "https://www.nhlshop.com",
+        affiliateUrl: "REPLACE_WITH_NHL_SHOP_AFFILIATE_URL",
+        monetized: false,
+        network: "Fanatics affiliate program covers NHL Shop"
+      }
     ]
   },
   {
@@ -518,10 +664,37 @@ const GDE_LINKS = [
     color: "orange",
     tags: "tickets stubhub seatgeek vivid seats ticketmaster travel",
     links: [
-      { name: "StubHub", url: "https://www.stubhub.com", top: true },
-      { name: "SeatGeek", url: "https://www.seatgeek.com", tag: "PROMO" },
-      { name: "Vivid Seats", url: "https://www.vividseats.com" },
-      { name: "Ticketmaster", url: "https://www.ticketmaster.com" }
+      {
+        name: "StubHub",
+        url: "https://www.stubhub.com",
+        affiliateUrl: "REPLACE_WITH_STUBHUB_AFFILIATE_URL",
+        monetized: false,
+        network: "CJ Affiliate or direct — stubhub.com/affiliates",
+        top: true
+      },
+      {
+        name: "SeatGeek",
+        url: "https://www.seatgeek.com",
+        affiliateUrl: "REPLACE_WITH_SEATGEEK_AFFILIATE_URL",
+        monetized: false,
+        network: "Impact — apply at seatgeek.com/partner",
+        tag: "PROMO",
+        desc: "Avg. $11 per sale — one of the best ticket affiliate payouts"
+      },
+      {
+        name: "Vivid Seats",
+        url: "https://www.vividseats.com",
+        affiliateUrl: "REPLACE_WITH_VIVID_SEATS_AFFILIATE_URL",
+        monetized: false,
+        network: "CJ or direct — vividseats.com/affiliates"
+      },
+      {
+        name: "Ticketmaster",
+        url: "https://www.ticketmaster.com",
+        affiliateUrl: "REPLACE_WITH_TICKETMASTER_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — ticketmaster partner portal"
+      }
     ]
   },
 
@@ -569,7 +742,7 @@ const GDE_LINKS = [
     category: "NCAA & College Conferences",
     icon: "🏛",
     color: "purple",
-    tags: "college conferences ncaa sec big ten acc big 12 pac 12 big east american athletic sun belt mac mountain west conference usa cusa wac missouri valley",
+    tags: "college conferences ncaa sec big ten acc big 12 big east american athletic sun belt mac mountain west conference usa cusa wac missouri valley",
     links: [
       { name: "NCAA.com", url: "https://www.ncaa.com", top: true },
       { name: "NCAA.org (Governance)", url: "https://www.ncaa.org" },
@@ -586,7 +759,7 @@ const GDE_LINKS = [
       { name: "Missouri Valley Conference", url: "https://www.mvc-sports.com" },
       { name: "WAC (Western Athletic)", url: "https://www.wac.org" },
       { name: "Southern Conference", url: "https://www.socon.org" },
-      { name: "Big South", url: "https://www.bignorthernconference.com" },
+      { name: "Big South", url: "https://bigsouthsports.com" },
       { name: "Patriot League", url: "https://www.patriotleague.org" },
       { name: "Ivy League", url: "https://www.ivyleague.com" }
     ]
@@ -613,15 +786,22 @@ const GDE_LINKS = [
     category: "Golf",
     icon: "⛳",
     color: "green",
-    tags: "golf pga tour golf digest golf channel espn golf golfnow usga liv fantasy",
-links: [
+    tags: "golf pga tour golf digest golf channel espn golf golfnow usga liv fantasy masters",
+    links: [
       { name: "PGA Tour", url: "https://www.pgatour.com", top: true },
-      { name: "The Masters", url: "https://www.masters.com", desc: "Official site — tee times, leaderboard, history, and tickets" },
+      { name: "The Masters", url: "https://www.masters.com", desc: "Official site — tee times, leaderboard, history, and Augusta history" },
       { name: "Golf.com", url: "https://www.golf.com" },
       { name: "Golf Digest", url: "https://www.golfdigest.com/" },
       { name: "Golf Channel", url: "https://www.golfchannel.com" },
       { name: "ESPN Golf", url: "https://www.espn.com/golf/" },
-      { name: "GolfNow (Tee Times)", url: "https://www.golfnow.com" },
+      {
+        name: "GolfNow (Tee Times)",
+        url: "https://www.golfnow.com",
+        affiliateUrl: "REPLACE_WITH_GOLFNOW_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — golfnow.com/affiliate-program",
+        desc: "Tee time booking — has a public affiliate program"
+      },
       { name: "USGA", url: "https://www.usga.org/content/usga/home-page.html" },
       { name: "LIV Golf", url: "https://www.livgolf.com" },
       { name: "DP World Tour", url: "https://www.dpwtour.com" },
@@ -642,7 +822,13 @@ links: [
       { name: "Tennis Abstract (Stats)", url: "https://www.tennisabstract.com" },
       { name: "Tennis.com (News & Instruction)", url: "https://www.tennis.com" },
       { name: "USA Pickleball", url: "https://www.usapickleball.org", desc: "Official governing body — rules, events, instruction, ratings" },
-      { name: "Pickleball Central (Gear)", url: "https://www.pickleballcentral.com" },
+      {
+        name: "Pickleball Central (Gear)",
+        url: "https://www.pickleballcentral.com",
+        affiliateUrl: "REPLACE_WITH_PICKLEBALL_CENTRAL_AFFILIATE_URL",
+        monetized: false,
+        network: "direct — contact pickleballcentral.com"
+      },
       { name: "PPA Tour (Pro Pickleball)", url: "https://www.ppatour.com" },
       { name: "USATT — Table Tennis", url: "https://www.teamusa.org/USA-Table-Tennis", desc: "Rules, rankings, officials certification, and events" },
       { name: "ITTF (International Table Tennis)", url: "https://www.ittf.com" },
@@ -684,7 +870,7 @@ links: [
       { name: "Tapology", url: "https://www.tapology.com", desc: "MMA event listings, fighter rankings, and community picks" },
       { name: "MMA Junkie", url: "https://www.mmajunkie.com" },
       { name: "MMA Mania", url: "https://www.mmamania.com" },
-      { name: "BoxRec", url: "https://www.boxrec.com", desc: "The definitive boxing records database — every pro fight ever" },
+      { name: "BoxRec", url: "https://www.boxrec.com", desc: "The definitive boxing records database" },
       { name: "Ring Magazine", url: "https://www.ringmagazine.com", desc: "The Bible of Boxing since 1922" },
       { name: "Boxing Scene", url: "https://www.boxingscene.com" },
       { name: "Boxing News Online", url: "https://www.boxingnewsonline.net" }
@@ -722,7 +908,6 @@ links: [
       { name: "Franchise Hockey Manager", url: "https://www.ootpdevelopments.com/franchise-hockey-manager/", desc: "Deep hockey sim by the OOTP team" },
       { name: "Football Manager", url: "https://www.footballmanager.com", desc: "The world's most popular soccer management sim" },
       { name: "Draft Day Sports / FOF", url: "https://www.wolverinestudios.com", desc: "NFL and multi-sport franchise simulations" },
-      { name: "Pennant Chase", url: "https://www.pennantchase.com" },
       { name: "Baseball Mogul", url: "https://www.sportsmogul.com" },
       { name: "r/OOTP", url: "https://www.reddit.com/r/OOTP/" }
     ]
@@ -741,4 +926,5 @@ links: [
       { name: "r/TabletopSports", url: "https://www.reddit.com/r/tabletopsports/" }
     ]
   }
+
 ];
