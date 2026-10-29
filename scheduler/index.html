@@ -637,7 +637,7 @@ function W(){const sp=SPORTS[(typeof cfg!=='undefined'&&cfg&&cfg.sport)]||SPORTS
 function wt(x){const w=W();return String(x).replace(/\{(\w+)\}/g,(m,k)=>w[k]!=null?w[k]:m);}
 // ===== Guided setup =====
 const STEPS=[
-  {id:'league',title:'League name',q:'What is the name of your league?',help:'This name appears at the top of every schedule and update you send.'},
+  {id:'league',title:'League name',q:'What is the name of your league / tournament?',help:'This name appears at the top of every schedule and update you send.'},
   {id:'season',title:'Season dates',q:'When does your season run?',help:'Pick the first and last day games can be played. Then add any stretch with no games.'},
   {id:'levels',title:'Levels',q:'How many levels does your league have?',help:'Use the names your league uses, for example 8U, 10U, 12U, Varsity, Single A or Majors.'},
   {id:'teams',title:'Teams',q:'How many teams are in each level, and what are they called?',help:'Team names must be different across the whole league, so the schedule never mixes up two teams.'},
