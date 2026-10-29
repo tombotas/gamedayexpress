@@ -193,6 +193,7 @@ td.hot{color:var(--warn);font-weight:700}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--surface)}
 .opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
 .opt input{margin-top:4px;accent-color:var(--accent)}
+.optlink{text-decoration:none;color:inherit}.optlink input{pointer-events:none}.optlink:hover{border-color:var(--accent)}
 .opt .k{font-size:12px;color:var(--muted)}
 .ppitem{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
 .ppitem .title{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
@@ -296,6 +297,18 @@ table.seedt td.sd{font-family:var(--display);font-size:20px;font-weight:700;widt
 .champ{display:flex;align-items:center;gap:12px;border:2px solid var(--accent);border-radius:8px;padding:12px 16px;background:var(--accent-soft)}
 .champ .big{font-family:var(--display);font-size:26px;font-weight:800}
 .ruleslist{margin:0;padding-left:22px;font-size:14px;color:var(--muted)}
+.rulesbox{display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:14px}
+.tblist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tbrow{display:flex;align-items:center;gap:10px;padding:6px 10px;border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
+.tbrow:last-child{border-bottom:0}
+.tbrow.off{background:var(--surface-2)}.tbrow.off .tbchk span{color:var(--muted)}
+.tbn{font-family:var(--display);font-weight:700;font-size:18px;width:22px;text-align:right;color:var(--accent);flex:none}
+.tbchk{display:flex;align-items:center;gap:8px;flex:1 1 260px;min-width:0;font-size:14px;cursor:pointer}
+.tbchk input{accent-color:var(--accent);margin:0}
+.tbrow select{width:auto;font-size:13px;padding:4px 6px}
+.tbmv{display:flex;gap:4px;margin-left:auto}.tbmv .btn{padding:2px 9px}
+.btn:disabled{opacity:.4;cursor:default}
+.rsets{display:flex;flex-direction:column;gap:8px}
 .ruleslist li{margin:2px 0}
 .tiebox{display:flex;flex-direction:column;gap:8px;border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:0 6px 6px 0}
 </style>
@@ -364,10 +377,10 @@ function tBuildGames(T){
 }
 
 // ---- Scheduling across shared fields ----
-function tSlot(T,g){const age=T.ages.find(a=>a.id===g.age);return (age.len||100)+(age.turn||20)+(tIsLong(g)?(T.rules.longExtra||0):0);}
+function tSlot(T,g){const age=T.ages.find(a=>a.id===g.age);return (age.len||100)+(age.turn||20)+(tIsLong(g)?(tRules(T).longExtra||0):0);}
 function tFieldsFor(T,ageId){const f=T.fields.filter(f=>!f.ages||!f.ages.length||f.ages.includes(ageId));return f;}
 function tScheduleDay(T,list,date,from,to){
-  const rest=T.rules.rest!=null?T.rules.rest:60;
+  const rest=tRules(T).rest;
   const fFree={};T.fields.forEach(f=>fFree[f.id]=from);
   const tFree={};const byId={};list.forEach(g=>byId[g.id]=g);
   const ageUse={};const left=new Set(list.map(g=>g.id));const unplaced=[];
@@ -404,80 +417,111 @@ function tNumber(games){
 
 // ---- Results ----
 function tFinal(g){return !!g.ff||(g.sa!=null&&g.sa!==''&&g.sh!=null&&g.sh!=='');}
-// Average runs a team scored in its other final, non-forfeit pool games (PG forfeit rule)
+// ---- Rules (defaults; the director can change, reorder and save them) ----
+const TB_CATALOG={
+  rec:{label:'Pool play record',short:'Record'},
+  h2h2:{label:'Two teams tied: head to head',short:'Head to head'},
+  h2h3:{label:'Three teams tied: a team that beat both others goes first',short:'Beat both'},
+  ra:{label:'Fewest runs allowed',short:'Fewest runs allowed'},
+  rs:{label:'Most runs scored',short:'Most runs scored'},
+  ra1:{label:'Fewest runs allowed, not counting the game with the most allowed',short:'Runs allowed without their worst game'},
+  ra2:{label:'Fewest runs allowed, not counting the two games with the most allowed',short:'Runs allowed without their two worst games'},
+  inn:{label:'Runs scored inning by inning, starting with the first pool game',short:'Runs inning by inning'},
+  poolwin:{label:'Pool finish: pool winners first, then second-place teams, and so on',short:'Pool finish'},
+  rd:{label:'Run differential, capped per game',short:'Run differential'},
+  rapi:{label:'Fewest runs allowed per defensive inning',short:'Runs allowed per inning'},
+  rspi:{label:'Most runs scored per offensive inning',short:'Runs scored per inning'}};
+function tRulesDefault(){return {rest:60,longExtra:30,sameOrg:true,tie:'half',ff:'avg',home:'seed',rdCap:8,innings:7,
+  tb:['rec','h2h2','h2h3','ra','rs','ra1','ra2','inn','poolwin','rd','rapi','rspi'].map((k,i)=>({k,on:i<8}))};}
+function tRules(T){const d=tRulesDefault();const r=Object.assign(d,T.rules||{});
+  const have=new Set((r.tb||[]).map(x=>x.k));r.tb=(r.tb||[]).filter(x=>TB_CATALOG[x.k]);for(const x of d.tb)if(!have.has(x.k))r.tb.push({k:x.k,on:false});
+  T.rules=r;return r;}
+// Average runs a team scored in its other final, non-forfeit pool games
 function tAvgRuns(T,team,exceptId){let n=0,r=0;for(const g of T.games){if(g.phase!=='pool'||g.id===exceptId||g.ff||!tFinal(g))continue;if(g.home===team){n++;r+=+g.sh;}else if(g.away===team){n++;r+=+g.sa;}}return n?Math.round(r/n*10)/10:0;}
 function tRuns(T,g,home,away){ // {h,a} runs, applying forfeit scoring
-  if(g.ff==='home')return {h:0,a:tAvgRuns(T,away,g.id)};
-  if(g.ff==='away')return {h:tAvgRuns(T,home,g.id),a:0};
+  const R=tRules(T);const win=t=>R.ff==='avg'?tAvgRuns(T,t,g.id):(+R.ff||0);
+  if(g.ff==='home')return {h:0,a:win(away)};
+  if(g.ff==='away')return {h:win(home),a:0};
   return {h:+g.sh,a:+g.sa};
 }
+function tInnings(T,g){if(g.inn)return +g.inn;if(g.ls){const n=Math.max((g.ls.a||[]).filter(v=>v!==''&&v!=null).length,(g.ls.h||[]).filter(v=>v!==''&&v!=null).length);if(n)return n;}return tRules(T).innings||7;}
 
-// ---- Standings and PG seeding / tiebreakers ----
+// ---- Standings and seeding / tiebreakers ----
 function tStats(T,ageId){
+  const R=tRules(T);const cap=R.rdCap||0;
   const age=T.ages.find(a=>a.id===ageId);const S={};
-  for(const t of age.teams.filter(t=>t.name.trim()))S[t.id]={id:t.id,gp:0,w:0,l:0,t:0,rs:0,ra:0,games:[],sched:0};
+  for(const t of age.teams.filter(t=>t.name.trim()))S[t.id]={id:t.id,gp:0,w:0,l:0,t:0,rs:0,ra:0,rd:0,inn:0,games:[],sched:0};
   const pg=T.games.filter(g=>g.age===ageId&&g.phase==='pool').sort((a,b)=>(a.time==null?1e9:a.time)-(b.time==null?1e9:b.time));
   for(const g of pg){if(S[g.home])S[g.home].sched++;if(S[g.away])S[g.away].sched++;if(!tFinal(g))continue;
-    const r=tRuns(T,g,g.home,g.away);
+    const r=tRuns(T,g,g.home,g.away);const inn=tInnings(T,g);
     for(const [me,op,mine,theirs,side] of [[g.home,g.away,r.h,r.a,'h'],[g.away,g.home,r.a,r.h,'a']]){const s=S[me];if(!s)continue;
-      s.gp++;s.rs+=mine;s.ra+=theirs;if(mine>theirs)s.w++;else if(mine<theirs)s.l++;else s.t++;
+      s.gp++;s.rs+=mine;s.ra+=theirs;s.inn+=inn;let d=mine-theirs;if(cap)d=Math.max(-cap,Math.min(cap,d));s.rd+=d;
+      if(mine>theirs)s.w++;else if(mine<theirs)s.l++;else s.t++;
       s.games.push({g,op,rs:mine,ra:theirs,side});}}
-  for(const s of Object.values(S)){s.pts=s.w+s.t/2;s.pct=s.gp?s.pts/s.gp:0;s.rs=Math.round(s.rs*10)/10;s.ra=Math.round(s.ra*10)/10;}
+  for(const s of Object.values(S)){
+    s.pts=R.tie==='points'?2*s.w+s.t:R.tie==='loss'?s.w:s.w+s.t/2;
+    s.pct=R.tie==='points'?s.pts:(s.gp?s.pts/s.gp:0);
+    s.rs=Math.round(s.rs*10)/10;s.ra=Math.round(s.ra*10)/10;s.rd=Math.round(s.rd*10)/10;
+    s.rapi=s.inn?Math.round(s.ra/s.inn*1000)/1000:0;s.rspi=s.inn?Math.round(s.rs/s.inn*1000)/1000:0;}
   return S;
 }
 function tH2H(S,a,b){let n=0;for(const x of S[a].games){if(x.op!==b)continue;if(x.rs>x.ra)n++;else if(x.rs<x.ra)n--;}return n;}
-function tPlayed(S,a,b){return S[a].games.some(x=>x.op===b);}
 function tRaMinus(S,t,k){const v=S[t].games.map(x=>x.ra).sort((a,b)=>b-a);return Math.round((v.slice(k).reduce((p,c)=>p+c,0))*10)/10;}
 function tInningSeq(T,S,t){const seq=[];for(const x of S[t].games){const g=x.g;if(g.ff)return null;const ls=g.ls&&g.ls[x.side];if(!ls||!ls.length||ls.every(v=>v===''||v==null))return null;ls.forEach(v=>seq.push(+v||0));}return seq;}
 const tPct=p=>p.toFixed(3).replace(/^0/,'');
+const tOrd=n=>n+(n%100>=11&&n%100<=13?'th':['th','st','nd','rd'][n%10]||'th');
 
 function tRank(T,ageId){
-  const S=tStats(T,ageId);const names={};const age=T.ages.find(a=>a.id===ageId);age.teams.forEach(t=>names[t.id]=t.name);
+  const R=tRules(T);const S=tStats(T,ageId);const names={};const age=T.ages.find(a=>a.id===ageId);age.teams.forEach(t=>names[t.id]=t.name);
   const nm=id=>names[id]||'?';const manual=(T.tieOrder||{})[ageId]||[];
-  const why={};const need=[];// need: groups needing line scores / a coin flip
-  function brk(ids,label){
-    if(ids.length<=1)return ids;
-    if(ids.every(t=>S[t].gp===0))return ids;
-    const [a,b]=ids;
-    if(ids.length===2){const h=tH2H(S,a,b);if(h){const w=h>0?a:b,l=h>0?b:a;why[w]=`Beat ${nm(l)} head to head (rule 2)`;why[l]=why[l]||`Lost to ${nm(w)} head to head (rule 2)`;return [w,l];}}
-    if(ids.length===3){const sw=ids.find(t=>ids.every(o=>o===t||tH2H(S,t,o)>0));
-      if(sw){why[sw]=`Beat both ${ids.filter(o=>o!==sw).map(nm).join(' and ')} (rule 3)`;return [sw,...brk(ids.filter(o=>o!==sw))];}}
-    const crit=[
-      {r:4,k:'fewest runs allowed',v:t=>-S[t].ra,s:t=>S[t].ra},
-      {r:5,k:'most runs scored',v:t=>S[t].rs,s:t=>S[t].rs},
-      {r:6,k:'fewest runs allowed not counting their worst game',v:t=>-tRaMinus(S,t,1),s:t=>tRaMinus(S,t,1)},
-      {r:7,k:'fewest runs allowed not counting their two worst games',v:t=>-tRaMinus(S,t,2),s:t=>tRaMinus(S,t,2)}];
-    for(const c of crit){const vals=ids.map(c.v);const top=Math.max(...vals);if(vals.every(v=>v===top))continue;
-      const lead=ids.filter(t=>c.v(t)===top),rest=ids.filter(t=>c.v(t)!==top);
-      const others=ids.filter(t=>!lead.includes(t));
-      lead.forEach(t=>{why[t]=`${c.k[0].toUpperCase()+c.k.slice(1)}: ${c.s(t)} (rule ${c.r})`;});
-      rest.forEach(t=>{why[t]=`${c.k[0].toUpperCase()+c.k.slice(1)}: ${c.s(t)} (rule ${c.r})`;});
-      return [...brk(lead),...brk(rest)];}
-    // rule 8: runs inning by inning
-    const seqs=ids.map(t=>tInningSeq(T,S,t));
-    if(seqs.every(Boolean)){const L=Math.max(...seqs.map(s=>s.length));const cum=ids.map(()=>0);
-      for(let i=0;i<L;i++){ids.forEach((t,j)=>cum[j]+=seqs[j][i]||0);const top=Math.max(...cum);if(!cum.every(v=>v===top)){
-        const lead=ids.filter((t,j)=>cum[j]===top),rest=ids.filter((t,j)=>cum[j]!==top);
-        lead.forEach(t=>why[t]=`Tied through rule 7; more runs inning by inning, ahead after inning ${i+1} of pool play (rule 8)`);
-        rest.forEach(t=>why[t]=`Fewer runs inning by inning (rule 8)`);
-        return [...brk(lead),...brk(rest)];}}}
-    // still tied: director's coin flip order, if set
-    const missing=!seqs.every(Boolean);
-    const decided=ids.every(t=>manual.includes(t));
-    need.push({ids:ids.slice(),missing,decided});
-    const sorted=ids.slice().sort((x,y)=>{const ix=manual.indexOf(x),iy=manual.indexOf(y);return (ix<0?999:ix)-(iy<0?999:iy);});
-    sorted.forEach(t=>why[t]=decided?'Still tied after rule 8; placed by coin flip':`Still tied${missing?'; rule 8 needs line scores':' after rule 8'}`);
-    return sorted;
+  const keys=R.tb.filter(x=>x.on).map(x=>x.k);
+  const pools=tPools(age);const poolOf={};pools.forEach((p,i)=>p.forEach(t=>poolOf[t]=i));
+  const place={};
+  function run(ids,ks,why,need){
+    const num=k=>ks.indexOf(k)+1;
+    const VAL={rec:t=>S[t].pct,ra:t=>-S[t].ra,rs:t=>S[t].rs,ra1:t=>-tRaMinus(S,t,1),ra2:t=>-tRaMinus(S,t,2),
+      poolwin:t=>-(place[t]||99),rd:t=>S[t].rd,rapi:t=>-S[t].rapi,rspi:t=>S[t].rspi};
+    const SHOW={ra:t=>S[t].ra,rs:t=>S[t].rs,ra1:t=>tRaMinus(S,t,1),ra2:t=>tRaMinus(S,t,2),poolwin:t=>`${tOrd(place[t]||0)} in Pool ${'ABCDEFGHIJKL'[poolOf[t]]}`,
+      rd:t=>(S[t].rd>0?'+':'')+S[t].rd,rapi:t=>S[t].rapi.toFixed(2),rspi:t=>S[t].rspi.toFixed(2)};
+    function brk(ids){
+      if(ids.length<=1)return ids;
+      if(ids.every(t=>S[t].gp===0))return ids;
+      let missing=false;
+      for(const k of ks){
+        if(k==='h2h2'){if(ids.length!==2)continue;const [a,b]=ids;const h=tH2H(S,a,b);if(!h)continue;const w=h>0?a:b,l=h>0?b:a;
+          why[w]=`Beat ${nm(l)} head to head (rule ${num(k)})`;why[l]=`Lost to ${nm(w)} head to head (rule ${num(k)})`;return [w,l];}
+        if(k==='h2h3'){if(ids.length!==3)continue;const sw=ids.find(t=>ids.every(o=>o===t||tH2H(S,t,o)>0));if(!sw)continue;
+          why[sw]=`Beat both ${ids.filter(o=>o!==sw).map(nm).join(' and ')} (rule ${num(k)})`;return [sw,...brk(ids.filter(o=>o!==sw))];}
+        if(k==='inn'){const seqs=ids.map(t=>tInningSeq(T,S,t));if(!seqs.every(Boolean)){missing=true;continue;}
+          const L=Math.max(...seqs.map(s=>s.length));const cum=ids.map(()=>0);
+          for(let i=0;i<L;i++){ids.forEach((t,j)=>cum[j]+=seqs[j][i]||0);const top=Math.max(...cum);if(!cum.every(v=>v===top)){
+            const lead=ids.filter((t,j)=>cum[j]===top),rest=ids.filter((t,j)=>cum[j]!==top);
+            lead.forEach(t=>why[t]=`More runs inning by inning, ahead after inning ${i+1} of pool play (rule ${num(k)})`);
+            rest.forEach(t=>why[t]=`Fewer runs inning by inning (rule ${num(k)})`);
+            return [...brk(lead),...brk(rest)];}}
+          continue;}
+        const f=VAL[k];if(!f)continue;const vals=ids.map(f);if(vals.every(v=>v===vals[0]))continue;
+        const distinct=[...new Set(vals)].sort((x,y)=>y-x);const groups=distinct.map(v=>ids.filter(t=>f(t)===v));
+        if(k!=='rec')ids.forEach(t=>why[t]=`${TB_CATALOG[k].short}: ${SHOW[k](t)} (rule ${num(k)})`);
+        return groups.flatMap(g=>brk(g));
+      }
+      const decided=ids.every(t=>manual.includes(t));
+      need.push({ids:ids.slice(),missing,decided});
+      const sorted=ids.slice().sort((x,y)=>{const ix=manual.indexOf(x),iy=manual.indexOf(y);return (ix<0?999:ix)-(iy<0?999:iy);});
+      sorted.forEach(t=>why[t]=decided?'Still tied after every tiebreaker; placed by coin flip':`Still tied${missing?'; the inning-by-inning rule needs line scores':' after every tiebreaker'}`);
+      return sorted;
+    }
+    return brk(ids);
   }
-  const ids=Object.keys(S).sort((a,b)=>S[b].pct-S[a].pct);
-  const out=[];let i=0;
-  while(i<ids.length){let j=i;while(j<ids.length&&S[ids[j]].pct===S[ids[i]].pct)j++;out.push(...brk(ids.slice(i,j)));i=j;}
-  return {order:out,S,why,need};
+  if(keys.includes('poolwin')){const ks=keys.filter(k=>k!=='poolwin');for(const p of pools){const o=run(p,ks,{},[]);o.forEach((t,i)=>place[t]=i+1);}}
+  const why={},need=[];
+  const order=run(Object.keys(S),keys,why,need);
+  return {order,S,why,need,place};
 }
 
 // Same-organization rule: no first-round matchup between teams of one organization (brackets of 8+)
 function tFixOrgs(T,age,order){
-  const N=order.length;const notes=[];if(N<8||!T.rules.sameOrg)return {order,notes};
+  const N=order.length;const notes=[];if(N<8||!tRules(T).sameOrg)return {order,notes};
   const org=id=>((age.teams.find(t=>t.id===id)||{}).org||'').trim().toLowerCase();
   const pairs=tBracketGames(age,N).filter(g=>g.round===1).map(g=>[g.ra.seed,g.rb.seed]);
   const bad=o=>pairs.filter(([a,b])=>org(o[a-1])&&org(o[a-1])===org(o[b-1]));
@@ -496,7 +540,7 @@ function tTeamOfRef(T,g,ref){if(ref.seed)return tSeedTeam(T,g.age,ref.seed);cons
 function tSides(T,g){ // {home,away} team ids (or null) for any game
   if(g.phase==='pool')return {home:g.home,away:g.away};
   const x=tTeamOfRef(T,g,g.ra),y=tTeamOfRef(T,g,g.rb);
-  if(x&&y){const sx=tSeedOf(T,g.age,x),sy=tSeedOf(T,g.age,y);return sx<sy?{home:x,away:y}:{home:y,away:x};}
+  if(x&&y){if(tRules(T).home==='flip')return g.homeSide==='b'?{home:y,away:x}:{home:x,away:y};const sx=tSeedOf(T,g.age,x),sy=tSeedOf(T,g.age,y);return sx<sy?{home:x,away:y}:{home:y,away:x};}
   return {home:x,away:y};
 }
 function tWinner(T,g){if(!tFinal(g))return null;const s=tSides(T,g);if(!s.home||!s.away)return null;const r=tRuns(T,g,s.home,s.away);if(r.h===r.a)return null;return r.h>r.a?s.home:s.away;}
@@ -512,7 +556,7 @@ function tCheck(T){
   for(const g of T.games.filter(g=>g.phase==='bracket'&&g.time!=null))for(const r of [g.ra,g.rb])if(r.w){const f=T.games.find(x=>x.id===r.w);if(f&&f.time!=null&&f.time+tSlot(T,f)>g.time)out.push(`Game ${g.num} starts before Game ${f.num} (its feeder) is due to finish`);}
   return out;
 }
-//module.exports={tSchedule,tRank,tStats,tPoolPairs,tPools,tBracketGames,tSeedOrder,tFixOrgs,tSides,tWinner,tCheck,tFinal,tRoundName,tSlot,tAddDays};
+//module.exports={tRules,tRulesDefault,tSchedule,tRank,tStats,tPoolPairs,tPools,tBracketGames,tSeedOrder,tFixOrgs,tSides,tWinner,tCheck,tFinal,tRoundName,tSlot,tAddDays};
 
 
 // ===== Page shell =====
@@ -546,9 +590,15 @@ let T=null,tab='setup',fAge='all',fDay='all',lsOpen=null,mvOpen=null,confirmBuil
 let dDraft={};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let uid=0;const newId=p=>p+Date.now().toString(36)+(++uid);
-function blankT(){return {name:'',day1:'',day2:'',times:{d1:{from:480,to:1200},d2:{from:480,to:1140}},rules:{rest:60,longExtra:30,sameOrg:true},fields:[],ages:[],games:[],seeds:{},tieOrder:{},built:false,stale:false,unplaced:[]};}
+function blankT(){return {name:'',day1:'',day2:'',times:{d1:{from:480,to:1200},d2:{from:480,to:1140}},rules:tRulesDefault(),fields:[],ages:[],games:[],seeds:{},tieOrder:{},built:false,stale:false,unplaced:[]};}
 function save(){try{localStorage.setItem(KEY_T,JSON.stringify(T));}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY_T)||'null');if(s&&s.ages){T=Object.assign(blankT(),s);return true;}}catch(e){}return false;}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY_T)||'null');if(s&&s.ages){T=Object.assign(blankT(),s);tRules(T);return true;}}catch(e){}return false;}
+const KEY_RS='gdxTRuleSets1';
+function ruleSets(){try{return JSON.parse(localStorage.getItem(KEY_RS)||'{}')||{};}catch(e){return {};}}
+function saveRuleSets(o){try{localStorage.setItem(KEY_RS,JSON.stringify(o));return true;}catch(e){toast('This browser blocked saving rule sets.');return false;}}
+const RULE_FIELDS=['tb','tie','ff','home','rdCap','innings','sameOrg'];
+function pickRules(r){const o={};RULE_FIELDS.forEach(k=>o[k]=JSON.parse(JSON.stringify(r[k])));return o;}
+let rsName='';
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>el.hidden=true,2600);}
 async function copyText(t){try{await navigator.clipboard.writeText(t);return true;}catch(e){toast('Copy blocked here. Select the text and copy it.');return false;}}
 const ageOf=id=>T.ages.find(a=>a.id===id)||{name:'?',teams:[]};
@@ -601,7 +651,7 @@ function setupErrors(){const e=[];
   return e;}
 function renderSetup(){
   let h='';
-  if(!T.ages.length&&!T.name)h+=`<section class="card sharecard"><h2>Start a tournament</h2><p class="lead">Set up a two-day weekend: pool play on day one, then a seeded bracket on day two using the Perfect Game seeding and tiebreaker rules. Every team makes the bracket.</p><div class="row"><button class="btn primary" data-act="sample">Load a sample tournament</button><span class="sub">or fill in the steps below</span></div></section>`;
+  if(!T.ages.length&&!T.name)h+=`<section class="card sharecard"><h2>Start a tournament</h2><p class="lead">Set up a two-day weekend: pool play on day one, then a seeded bracket on day two using the default seeding and tiebreaker rules, which you can change in step 4. Every team makes the bracket.</p><div class="row"><button class="btn primary" data-act="sample">Load a sample tournament</button><span class="sub">or fill in the steps below</span></div></section>`;
   h+=`<section class="card"><span class="secnum">Step 1</span><h2>The weekend</h2>
     <label class="f">Tournament name<input type="text" id="tName" value="${esc(T.name)}" placeholder="Type a name, like Pearland Fall Classic" class="${showErr&&!T.name.trim()?'missing':''}"></label>
     <div class="grid2"><label class="f">Pool play (day 1)${dateSel('d1',T.day1,'Pool play date')}</label><label class="f">Bracket play (day 2)${dateSel('d2',T.day2,'Bracket date')}</label></div>
@@ -630,12 +680,10 @@ function renderSetup(){
   </section>`;
   // rules
   h+=`<section class="card"><span class="secnum">Step 4</span><h2>Rules</h2>
-    <div class="grid2"><label class="f">Shortest break between a team's games${minSel('rRest',T.rules.rest,[0,30,45,60,90,120,150,180],'data-rule="rest"',fmtMin)}</label>
-      <label class="f">Extra time for semifinals and championship (no time limit)${minSel('rLong',T.rules.longExtra,[0,15,30,45,60],'data-rule="longExtra"',fmtMin)}</label></div>
-    <label class="chk" style="align-self:flex-start"><input type="checkbox" id="rOrg" data-rule="sameOrg" ${T.rules.sameOrg?'checked':''}>Keep two teams from one organization apart in their first bracket game (brackets of 8 or more)</label>
-    <div><h3>Seeding and tiebreakers</h3><p class="lead">All teams in an age group are seeded together, across pools, by:</p>
-    <ol class="ruleslist"><li>Pool play record (winning percentage; a tie counts as half a win and half a loss)</li><li>Two teams tied: head to head</li><li>Three teams tied: a team that beat both others goes first; otherwise go to 4</li><li>Fewest runs allowed</li><li>Most runs scored</li><li>Fewest runs allowed, not counting the game with the most allowed</li><li>Fewest runs allowed, not counting the two games with the most allowed</li><li>Runs scored inning by inning, starting with the first pool game</li></ol>
-    <p class="sub" style="margin:6px 0 0">The higher seed is the home team in bracket play. A forfeit counts as the winner's average runs per game to 0.</p></div>
+    <div class="grid2"><label class="f">Shortest break between a team's games${minSel('rRest',tRules(T).rest,[0,30,45,60,90,120,150,180],'data-rule="rest"',fmtMin)}</label>
+      <label class="f">Extra time for semifinals and championship (no time limit)${minSel('rLong',tRules(T).longExtra,[0,15,30,45,60],'data-rule="longExtra"',fmtMin)}</label></div>
+    <label class="chk" style="align-self:flex-start"><input type="checkbox" id="rOrg" data-rule="sameOrg" ${tRules(T).sameOrg?'checked':''}>Keep two teams from one organization apart in their first bracket game (brackets of 8 or more)</label>
+    ${renderRules()}
   </section>`;
   const errs=setupErrors();
   h+=`<section class="card"><h2>Build the weekend</h2>
@@ -646,6 +694,24 @@ function renderSetup(){
   return h;
 }
 
+
+function tbDesc(k,R){if(k==='rec')return R.tie==='points'?'Pool play points (win 2, tie 1, loss 0)':R.tie==='loss'?'Pool play record (winning percentage; a tie counts as a loss)':'Pool play record (winning percentage; a tie counts as half a win and half a loss)';
+  if(k==='rd')return `Run differential, capped at ±${R.rdCap||'no cap'} per game`;if(k==='h2h3')return 'Three teams tied: a team that beat both others goes first';return TB_CATALOG[k].label;}
+function isDefaultRules(R){return JSON.stringify(pickRules(R))===JSON.stringify(pickRules(tRulesDefault()));}
+function renderRules(){const R=tRules(T);const sets=ruleSets();const names=Object.keys(sets).sort();let n=0;
+  return `<div class="rulesbox"><div class="row"><h3>Seeding and tiebreakers</h3><span class="spacer"></span>${isDefaultRules(R)?'<span class="pill">Default rules</span>':'<span class="pill warn">Changed from the default</span><button class="btn link small" data-act="rulesDefault">Reset to default</button>'}</div>
+    <p class="lead">All teams in an age group are seeded together, across pools. The rules run top to bottom until the tie is broken. Turn a rule off, move it with the arrows, or turn on another one.</p>
+    <ol class="tblist">${R.tb.map((x,i)=>{if(x.on)n++;return `<li class="tbrow ${x.on?'':'off'}"><span class="tbn">${x.on?n:''}</span><label class="tbchk"><input type="checkbox" id="tb_${x.k}" data-tbon="${i}" ${x.on?'checked':''}><span>${esc(tbDesc(x.k,R))}${x.k==='inn'?'<span class="sub"> · needs runs by inning; asked for only when a tie gets this far</span>':''}</span></label>
+      ${x.k==='rd'&&x.on?minSel('rdCap',R.rdCap,[0,5,6,7,8,10,12,15],'data-rule="rdCap"',v=>v?'Cap ±'+v:'No cap'):''}${(x.k==='rapi'||x.k==='rspi')&&x.on?minSel('inn_'+x.k,R.innings,[4,5,6,7,9],'data-rule="innings"',v=>v+' innings a game'):''}
+      <span class="tbmv"><button class="btn small" data-act="tbUp" data-i="${i}" ${i===0?'disabled':''} aria-label="Move up">↑</button><button class="btn small" data-act="tbDown" data-i="${i}" ${i===R.tb.length-1?'disabled':''} aria-label="Move down">↓</button></span></li>`;}).join('')}</ol>
+    <p class="sub" style="margin:0">If every rule is used up and teams are still tied, you decide by coin flip on Pool standings.${R.tb.some(x=>x.on&&(x.k==='rapi'||x.k==='rspi'))?' Per-inning rules use each game\'s innings, typed on the schedule, or the regulation innings above.':''}</p>
+    <div class="grid2"><label class="f">A tie game counts as<select id="rTie" data-rules="tie"><option value="half" ${R.tie==='half'?'selected':''}>Half a win and half a loss</option><option value="points" ${R.tie==='points'?'selected':''}>Points: win 2, tie 1, loss 0</option><option value="loss" ${R.tie==='loss'?'selected':''}>A loss</option></select></label>
+      <label class="f">Forfeit score<select id="rFf" data-rules="ff">${[['avg',"Winner's average runs to 0"],['5','5 to 0'],['6','6 to 0'],['7','7 to 0'],['8','8 to 0'],['10','10 to 0']].map(([v,t])=>`<option value="${v}" ${String(R.ff)===v?'selected':''}>${t}</option>`).join('')}</select></label>
+      <label class="f">Home team in the bracket<select id="rHome" data-rules="home"><option value="seed" ${R.home==='seed'?'selected':''}>Higher seed</option><option value="flip" ${R.home==='flip'?'selected':''}>Coin flip, set game by game</option></select></label></div>
+    <div class="rsets"><h3>Rule sets</h3><p class="sub" style="margin:0">Save these rules by name to use them again at your next tournament. Rule sets are kept in this browser.</p>
+      <div class="row"><input type="text" id="rsName" value="${esc(rsName)}" placeholder="Name this rule set, like Spring rules" style="flex:1 1 220px;width:auto"><button class="btn" data-act="rsSave">Save rule set</button></div>
+      ${names.length?`<div class="row"><select id="rsPick" style="flex:1 1 220px;width:auto">${names.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select><button class="btn" data-act="rsUse">Use this rule set</button><button class="btn link small" data-act="rsDel">Delete it</button></div>`:''}</div></div>`;}
+
 // ===== Schedule and scores =====
 function gTeams(g){const s=tSides(T,g);const lab=(ref)=>{if(!ref)return '';if(ref.seed)return `Seed ${ref.seed}`;const f=T.games.find(x=>x.id===ref.w);return f?`Winner of Game ${f.num}`:'?';};
   if(g.phase==='pool')return {home:s.home,away:s.away,hl:teamName(s.home),al:teamName(s.away)};
@@ -653,6 +719,7 @@ function gTeams(g){const s=tSides(T,g);const lab=(ref)=>{if(!ref)return '';if(re
   if(x&&y)return {home:s.home,away:s.away,hl:seedLabel(g.age,s.home),al:seedLabel(g.age,s.away)};
   // unresolved: list in bracket order (ra first) as placeholders
   return {home:null,away:null,hl:x?seedLabel(g.age,x):lab(g.ra),al:y?seedLabel(g.age,y):lab(g.rb),pending:true};}
+function usesInnings(){return tRules(T).tb.some(x=>x.on&&(x.k==='rapi'||x.k==='rspi'));}
 function seedLabel(ageId,team){const s=tSeedOf(T,ageId,team);return (s?`(${s}) `:'')+teamName(team);}
 function roundLabel(g){return g.phase==='pool'?`Pool ${POOLS[g.pool]}`:tRoundName(g);}
 function scoreRow(g){
@@ -663,11 +730,11 @@ function scoreRow(g){
   const tie=fin&&ready&&g.phase==='bracket'&&r&&r.h===r.a;
   let h=`<div class="tgame ${fin?'final':''}" id="g_${g.id}"><span class="gn">Game ${g.num}</span><span class="t">${g.time!=null?tFmtTime(g.time):'Not placed'}</span><span class="fld">${esc(fieldName(g.field))}</span><span class="ag">${esc(ageOf(g.age).name)}</span>
     <div class="m"><span class="rd ${g.phase==='bracket'?'br':''}">${esc(roundLabel(g))}</span>${line('a','Visitor',tt.al)}${line('h','Home',tt.hl)}${tie?'<span class="pill bad">Bracket games can\'t end tied</span>':''}${g.ff?`<span class="sub">${esc(teamName(g.ff==='home'?tt.home:tt.away))} forfeited</span>`:''}</div>
-    <div class="acts">${ready?`<button class="btn link small" data-act="ls" data-g="${g.id}">${lsOpen===g.id?'Close':'Line score'}${g.ls?' ✓':''}</button><select id="ff_${g.id}" data-ff="${g.id}" aria-label="Forfeit, Game ${g.num}" style="width:auto;font-size:13px;padding:3px 6px"><option value="">No forfeit</option><option value="away" ${g.ff==='away'?'selected':''}>Visitor forfeits</option><option value="home" ${g.ff==='home'?'selected':''}>Home forfeits</option></select>`:''}<button class="btn link small" data-act="mv" data-g="${g.id}">${mvOpen===g.id?'Close':'Move'}</button></div>`;
+    <div class="acts">${ready&&usesInnings()&&g.phase==='pool'?`<label class="sub" style="display:flex;gap:4px;align-items:center">Innings<input type="number" min="1" max="15" class="sc" style="width:46px!important" id="gi_${g.id}" data-ginn="${g.id}" value="${g.inn||''}" placeholder="${tRules(T).innings}"></label>`:''}${ready&&g.phase==='bracket'&&tRules(T).home==='flip'&&!fin?`<button class="btn link small" data-act="swapHome" data-g="${g.id}">Switch home team</button>`:''}${ready?`<button class="btn link small" data-act="ls" data-g="${g.id}">${lsOpen===g.id?'Close':'Line score'}${g.ls?' ✓':''}</button><select id="ff_${g.id}" data-ff="${g.id}" aria-label="Forfeit, Game ${g.num}" style="width:auto;font-size:13px;padding:3px 6px"><option value="">No forfeit</option><option value="away" ${g.ff==='away'?'selected':''}>Visitor forfeits</option><option value="home" ${g.ff==='home'?'selected':''}>Home forfeits</option></select>`:''}<button class="btn link small" data-act="mv" data-g="${g.id}">${mvOpen===g.id?'Close':'Move'}</button></div>`;
   if(lsOpen===g.id&&ready){const ls=g.ls||{a:[],h:[]};const n=Math.max(7,ls.a.length,ls.h.length);
     h+=`<div class="lsbox"><div class="scroll"><table><thead><tr><th>Team</th>${Array.from({length:n},(_,i)=>`<th>${i+1}</th>`).join('')}<th>R</th></tr></thead><tbody>
       ${[['a',tt.al],['h',tt.hl]].map(([s,nm])=>`<tr><td>${esc(nm)}</td>${Array.from({length:n},(_,i)=>`<td><input type="number" min="0" inputmode="numeric" id="li_${g.id}_${s}_${i}" data-li="${g.id}|${s}|${i}" value="${ls[s][i]==null?'':ls[s][i]}" aria-label="${esc(nm)} inning ${i+1}"></td>`).join('')}<td><b>${(ls[s]||[]).reduce((p,c)=>p+(+c||0),0)}</b></td></tr>`).join('')}</tbody></table></div>
-      <div class="row"><button class="btn small" data-act="lsMore" data-g="${g.id}">Add an inning</button><span class="sub">Runs by inning are only needed for tiebreaker rule 8. The totals fill the score.</span></div></div>`;}
+      <div class="row"><button class="btn small" data-act="lsMore" data-g="${g.id}">Add an inning</button><span class="sub">Runs by inning are only needed for the inning-by-inning tiebreaker. The totals fill the score.</span></div></div>`;}
   if(mvOpen===g.id){const day=g.phase==='pool'?T.times.d1:T.times.d2;
     h+=`<div class="lsbox"><div class="row"><label class="f">Field<select id="mf_${g.id}" data-mf="${g.id}">${tFieldsFor(T,g.age).map(f=>`<option value="${f.id}" ${f.id===g.field?'selected':''}>${esc(f.name)}</option>`).join('')}</select></label>
       <label class="f">Start${timeSel('mt_'+g.id,g.time,Math.min(day.from,360),1320,5,`data-mt="${g.id}"`)}</label></div><p class="sub" style="margin:0">Any overlap this creates is flagged at the top of the schedule.</p></div>`;}
@@ -694,26 +761,27 @@ function renderSchedule(){
 // ===== Standings and seeding =====
 function seededOrderFor(ageId){const R=tRank(T,ageId);const a=ageOf(ageId);return {R,fix:tFixOrgs(T,a,R.order)};}
 function bracketScored(ageId){return T.games.some(g=>g.age===ageId&&g.phase==='bracket'&&tFinal(g));}
+const ptsHead=()=>tRules(T).tie==='points'?'Pts':'Pct';const ptsVal=s=>tRules(T).tie==='points'?s.pts:tPct(s.pct);const rdOn=()=>tRules(T).tb.some(x=>x.on&&x.k==='rd');
 function renderStand(){
   if(!T.built)return `<section class="card"><h2>Pool standings</h2><p class="lead">Build the schedule first.</p><div><button class="btn primary" data-act="goSetup">Go to setup</button></div></section>`;
   let h=`<section class="card"><div class="row"><h2>Pool standings and seeds</h2><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">Age group<select id="fAge2"><option value="all">All</option>${T.ages.map(a=>`<option value="${a.id}" ${fAge===a.id?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label></div>
-    <p class="lead">Seeds use the Perfect Game rules in order: record, head to head, runs allowed, runs scored, then runs allowed without the worst one or two games, then runs inning by inning. When the pool games are done, press <b>Seed the bracket</b>.</p></section>`;
+    <p class="lead">Seeds follow this tournament's rules in order: ${tRules(T).tb.filter(x=>x.on).map((x,i)=>`${i+1}. ${esc(TB_CATALOG[x.k].short.toLowerCase())}`).join('; ')}. Change them in Setup, step 4. When the pool games are done, press <b>Seed the bracket</b>.</p></section>`;
   for(const a of T.ages){if(fAge!=='all'&&fAge!==a.id)continue;
     const {R,fix}=seededOrderFor(a.id);const S=R.S;const pg=T.games.filter(g=>g.age===a.id&&g.phase==='pool');const done=pg.filter(tFinal).length;
     const pools=tPools(a);const rec=s=>`${s.w}-${s.l}${s.t?'-'+s.t:''}`;
     const cur=(T.seeds||{})[a.id];const changed=cur&&cur.order.join()!==fix.order.join();const scored=bracketScored(a.id);
     h+=`<section class="card"><div class="row"><h2>${esc(a.name)}</h2><span class="pill ${done===pg.length?'ok':''}">${done} of ${pg.length} pool games final</span>${cur?`<span class="pill ok">Bracket seeded</span>`:''}</div>
-      <div class="pools" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr))">${pools.map((p,k)=>`<div class="pool"><h4>Pool ${POOLS[k]}</h4><div class="scroll"><table class="stand"><thead><tr><th></th><th>Team</th><th class="num">W-L-T</th><th class="num">Pct</th><th class="num">RS</th><th class="num">RA</th></tr></thead><tbody>
-        ${p.slice().sort((x,y)=>R.order.indexOf(x)-R.order.indexOf(y)).map(id=>{const s=S[id];return `<tr><td class="sub">${R.order.indexOf(id)+1}</td><td>${esc(teamName(id))}</td><td class="num">${rec(s)}</td><td class="num">${tPct(s.pct)}</td><td class="num">${s.rs}</td><td class="num">${s.ra}</td></tr>`;}).join('')}</tbody></table></div></div>`).join('')}</div>`;
+      <div class="pools" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr))">${pools.map((p,k)=>`<div class="pool"><h4>Pool ${POOLS[k]}</h4><div class="scroll"><table class="stand"><thead><tr><th></th><th>Team</th><th class="num">W-L-T</th><th class="num">${ptsHead()}</th><th class="num">RS</th><th class="num">RA</th></tr></thead><tbody>
+        ${p.slice().sort((x,y)=>R.order.indexOf(x)-R.order.indexOf(y)).map(id=>{const s=S[id];return `<tr><td class="sub">${R.order.indexOf(id)+1}</td><td>${esc(teamName(id))}</td><td class="num">${rec(s)}</td><td class="num">${ptsVal(s)}</td><td class="num">${s.rs}</td><td class="num">${s.ra}</td></tr>`;}).join('')}</tbody></table></div></div>`).join('')}</div>`;
     // ties needing decisions
     const allFinal=ids=>pg.filter(g=>ids.includes(g.home)||ids.includes(g.away)).every(tFinal);
     for(const n of R.need.filter(n=>allFinal(n.ids))){const man=(T.tieOrder[a.id]||[]);const names=n.ids.map(teamName);
-      h+=`<div class="tiebox"><b>${esc(names.join(', '))} are still tied after rule 7.</b>
-        ${n.missing?`<span>Rule 8 needs runs by inning for their pool games: ${pg.filter(g=>n.ids.includes(g.home)||n.ids.includes(g.away)).filter(g=>!g.ls).map(g=>`<button class="btn link small" data-act="openLs" data-g="${g.id}">Game ${g.num}</button>`).join(' ')}. Or decide by coin flip below.</span>`:'<span>Rule 8 didn\'t separate them. Decide by coin flip.</span>'}
+      h+=`<div class="tiebox"><b>${esc(names.join(', '))} are still tied${n.missing?'':' after every tiebreaker'}.</b>
+        ${n.missing?`<span>The inning-by-inning rule needs runs by inning for their pool games: ${pg.filter(g=>n.ids.includes(g.home)||n.ids.includes(g.away)).filter(g=>!g.ls).map(g=>`<button class="btn link small" data-act="openLs" data-g="${g.id}">Game ${g.num}</button>`).join(' ')}. Or decide by coin flip below.</span>`:'<span>No rule separates them. Decide by coin flip.</span>'}
         <div class="row"><span class="sub">Coin flip, pick who goes ahead${n.ids.length>2?', in order':''}:</span>${n.ids.filter(t=>!man.includes(t)).map(t=>`<button class="btn small" data-act="flip" data-a="${a.id}" data-t="${t}" data-grp="${n.ids.join(',')}">${esc(teamName(t))}</button>`).join('')}${n.ids.some(t=>man.includes(t))?`<button class="btn link small" data-act="flipReset" data-a="${a.id}" data-grp="${n.ids.join(',')}">Start over</button>`:''}</div></div>`;}
     h+=`<h3>Bracket seeds${cur?'':' (as of now)'}</h3>
-      <div class="scroll"><table class="seedt"><thead><tr><th>Seed</th><th>Team</th><th>Pool</th><th class="num">W-L-T</th><th class="num">Pct</th><th class="num">RA</th><th class="num">RS</th><th>How the tie was broken</th></tr></thead><tbody>
-      ${(cur&&!changed?cur.order:fix.order).map((id,i)=>{const s=S[id];const pk=pools.findIndex(p=>p.includes(id));return `<tr><td class="sd">${i+1}</td><td>${esc(teamName(id))}${(ageOf(a.id).teams.find(t=>t.id===id)||{}).org?` <span class="sub">· ${esc(ageOf(a.id).teams.find(t=>t.id===id).org)}</span>`:''}</td><td>${pk>=0?POOLS[pk]:''}</td><td class="num">${rec(s)}</td><td class="num">${tPct(s.pct)}</td><td class="num">${s.ra}</td><td class="num">${s.rs}</td><td class="why">${esc(R.why[id]||'')}</td></tr>`;}).join('')}</tbody></table></div>
+      <div class="scroll"><table class="seedt"><thead><tr><th>Seed</th><th>Team</th><th>Pool</th><th class="num">W-L-T</th><th class="num">${ptsHead()}</th><th class="num">RA</th><th class="num">RS</th>${rdOn()?'<th class="num">RD</th>':''}<th>How the tie was broken</th></tr></thead><tbody>
+      ${(cur&&!changed?cur.order:fix.order).map((id,i)=>{const s=S[id];const pk=pools.findIndex(p=>p.includes(id));return `<tr><td class="sd">${i+1}</td><td>${esc(teamName(id))}${(ageOf(a.id).teams.find(t=>t.id===id)||{}).org?` <span class="sub">· ${esc(ageOf(a.id).teams.find(t=>t.id===id).org)}</span>`:''}</td><td>${pk>=0?POOLS[pk]:''}</td><td class="num">${rec(s)}</td><td class="num">${ptsVal(s)}</td><td class="num">${s.ra}</td><td class="num">${s.rs}</td>${rdOn()?`<td class="num">${s.rd>0?'+':''}${s.rd}</td>`:''}<td class="why">${esc(R.why[id]||'')}</td></tr>`;}).join('')}</tbody></table></div>
       ${fix.notes.length?`<div class="note info">${fix.notes.map(esc).join('<br>')}</div>`:''}
       ${cur&&changed?`<div class="note">Scores changed after the bracket was seeded, so the seeds above differ from the bracket. ${scored?'Bracket games already have scores, so the bracket stays as seeded.':''}</div>`:''}
       <div class="row">${!cur||(changed&&!scored)?`<button class="btn primary" data-act="seed" data-a="${a.id}">${confirmSeed===a.id?'Click again to seed now':cur?'Re-seed the bracket':'Seed the bracket'}</button>`:''}
@@ -809,7 +877,11 @@ V.addEventListener('change',e=>{const el=e.target;const d=el.dataset;
   if(d.tp){const [i,tid]=d.tp.split('|');const a=T.ages[+i];const pools=tPools(a);a.poolOf=a.poolOf||{};pools.forEach((p,k)=>p.forEach(t=>{if(a.poolOf[t]==null)a.poolOf[t]=k;}));a.poolOf[tid]=+el.value;touched();render();return;}
   if(d.fn!=null){T.fields[+d.fn].name=el.value.trim();touched();render();return;}
   if(d.fa!=null){const f=T.fields[+d.fa];f.ages=el.checked?[...new Set([...f.ages,el.value])]:f.ages.filter(x=>x!==el.value);touched();render();return;}
-  if(d.rule){T.rules[d.rule]=el.type==='checkbox'?el.checked:+el.value;touched();render();return;}
+  if(d.rule){const R=tRules(T);R[d.rule]=el.type==='checkbox'?el.checked:+el.value;if(d.rule==='rest'||d.rule==='longExtra')touched();else save();render();return;}
+  if(d.rules){tRules(T)[d.rules]=el.value;save();render();return;}
+  if(d.tbon!=null){tRules(T).tb[+d.tbon].on=el.checked;save();render();return;}
+  if(el.id==='rsName'){rsName=el.value;return;}
+  if(d.ginn){const g=T.games.find(x=>x.id===d.ginn);const v=parseInt(el.value,10);if(v>0)g.inn=v;else delete g.inn;save();render();return;}
   if(/^(nAge|nFld|pg\d+|nt\d+|np\d+)$/.test(el.id)){setCount(el.id,parseInt(el.value,10)||0);return;}
   if(el.id==='fDay'){fDay=el.value;render();return;}
   if(el.id==='fAge'||el.id==='fAge2'||el.id==='fAge3'){fAge=el.value;render();return;}
@@ -831,6 +903,12 @@ V.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)retu
   if(a==='poolReset'){T.ages[+b.dataset.i].poolOf={};touched();render();return;}
   if(a==='ls'){lsOpen=lsOpen===b.dataset.g?null:b.dataset.g;render();return;}
   if(a==='openLs'){lsOpen=b.dataset.g;fDay='all';fAge='all';setTab('schedule');const el=document.getElementById('g_'+lsOpen);if(el)el.scrollIntoView({block:'center'});return;}
+  if(a==='tbUp'||a==='tbDown'){const L=tRules(T).tb;const i=+b.dataset.i,j=a==='tbUp'?i-1:i+1;if(j<0||j>=L.length)return;[L[i],L[j]]=[L[j],L[i]];save();render();return;}
+  if(a==='rulesDefault'){const R=tRules(T);Object.assign(R,pickRules(tRulesDefault()));save();render();toast('Default rules restored');return;}
+  if(a==='rsSave'){const nmv=(document.getElementById('rsName').value||'').trim();if(!nmv){toast('Type a name for the rule set first');return;}const o=ruleSets();const had=!!o[nmv];o[nmv]=pickRules(tRules(T));if(saveRuleSets(o)){rsName='';render();toast(had?`Updated ${nmv}`:`Saved ${nmv}`);}return;}
+  if(a==='rsUse'){const nmv=document.getElementById('rsPick').value;const o=ruleSets()[nmv];if(!o)return;Object.assign(tRules(T),JSON.parse(JSON.stringify(o)));tRules(T);save();render();toast(`Using ${nmv}`);return;}
+  if(a==='rsDel'){const nmv=document.getElementById('rsPick').value;if(b.dataset.sure!==nmv){b.dataset.sure=nmv;b.textContent='Click again to delete '+nmv;return;}const o=ruleSets();delete o[nmv];saveRuleSets(o);render();toast(`Deleted ${nmv}`);return;}
+  if(a==='swapHome'){const g=T.games.find(x=>x.id===b.dataset.g);g.homeSide=g.homeSide==='b'?'a':'b';const t=g.sa;g.sa=g.sh;g.sh=t;save();render();return;}
   if(a==='lsMore'){const g=T.games.find(x=>x.id===b.dataset.g);g.ls=g.ls||{a:[],h:[]};const n=Math.max(7,g.ls.a.length,g.ls.h.length);g.ls.a[n]=g.ls.a[n]==null?'':g.ls.a[n];g.ls.h[n]=g.ls.h[n]==null?'':g.ls.h[n];render();return;}
   if(a==='mv'){mvOpen=mvOpen===b.dataset.g?null:b.dataset.g;render();return;}
   if(a==='copyTsv'){copyText(tsv()).then(ok=>{if(ok)toast('Schedule copied. Paste it into a sheet.');});return;}
@@ -845,7 +923,7 @@ V.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)retu
   if(a==='unseed'){delete T.seeds[b.dataset.a];save();render();return;}
   if(a==='fileSave'){downloadT();return;}
   if(a==='fileCancel'){filePanel=false;pendingFile=null;render();return;}
-  if(a==='fileOpenNow'){T=Object.assign(blankT(),pendingFile.T);pendingFile=null;filePanel=false;save();tab=T.built?'schedule':'setup';render();toast('Opened '+(T.name||'tournament'));return;}
+  if(a==='fileOpenNow'){T=Object.assign(blankT(),pendingFile.T);tRules(T);pendingFile=null;filePanel=false;save();tab=T.built?'schedule':'setup';render();toast('Opened '+(T.name||'tournament'));return;}
   if(a==='newT'){if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Click again: this clears the current tournament';return;}T=blankT();filePanel=false;tab='setup';save();render();return;}
 });
 if(!load())T=blankT();
