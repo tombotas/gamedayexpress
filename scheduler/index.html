@@ -124,6 +124,12 @@ table.uass td.gm{white-space:normal;min-width:150px}
 table.uass tr.fieldhead th{font-family:var(--display);font-size:18px;color:var(--ink);text-transform:none;letter-spacing:.02em;background:var(--surface-2);padding-top:10px}
 .crew{display:flex;flex-wrap:wrap;gap:6px}
 select.ucell{min-width:170px;max-width:240px}
+table.uavail th.num{line-height:1.2;white-space:nowrap}
+table.uavail td.num{padding:4px}
+.uav{font:inherit;font-weight:700;min-width:46px;min-height:34px;border-radius:8px;border:1px solid var(--line);background:var(--good-soft,var(--accent-soft));color:var(--good,var(--accent));cursor:pointer}
+.uav.out{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.uav:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.uoff{display:inline-block;min-width:46px;color:var(--muted);font-size:13px}
 .counter.mini{gap:4px}
 .counter.mini span{min-width:18px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 .counter.mini .btn{font-size:15px;padding:2px 9px}
@@ -1110,7 +1116,20 @@ function uFits(u,g){const why=[];
   const w=dowOf(g.date);if(u.days&&u.days.length&&!u.days.includes(w))why.push(`not available ${DOW[w]}`);
   if(u.from!=null&&g.time<u.from)why.push(`not before ${fmtTime(u.from)}`);
   if(u.to!=null&&g.time>u.to)why.push(`not after ${fmtTime(u.to)}`);
+  if((u.out||[]).includes(g.date))why.push(`out ${fmtDateLong(g.date)}`);
   return why;}
+function uStandingOff(u,d){const w=dowOf(d);return !!(u.days&&u.days.length&&!u.days.includes(w));}
+function renderUOut(named,wk,wkEnd,label){
+  const ds=uDates().filter(d=>d>=wk&&d<=wkEnd);if(!ds.length)return '';
+  const head=ds.map(d=>{const n=uLive().filter(g=>g.date===d).length;return `<th class="num">${fmtDateLong(d).replace(' ','<br>')}<br><span class="sub">${n} game${n===1?'':'s'}</span></th>`;}).join('');
+  const outCount=named.reduce((n,u)=>n+ds.filter(d=>(u.out||[]).includes(d)).length,0);
+  const body=named.map(u=>`<tr><td>${esc(u.name)}</td>${ds.map(d=>{
+    if(uStandingOff(u,d))return `<td class="num"><span class="uoff" title="${esc(u.name)} never works ${DOW[dowOf(d)]} (Edit details)">Off</span></td>`;
+    const out=(u.out||[]).includes(d);
+    return `<td class="num"><button class="uav ${out?'out':''}" data-act="uOut" data-u="${u.id}" data-d="${d}" aria-pressed="${out}" aria-label="${esc(u.name)}, ${fmtDateLong(d)}: ${out?'out':'available'}">${out?'Out':'✓'}</button></td>`;}).join('')}</tr>`).join('');
+  return `<section class="card"><div class="row"><h2>Who's available, ${label}</h2><span class="spacer"></span>${outCount?`<span class="pill warn">${outCount} day${outCount===1?'':'s'} marked out</span>`:''}</div>
+    <p class="lead">Everyone is available unless you mark them out. Click a day to mark ${aan(W().official)} <b>Out</b>, and click again to undo. Auto-fill skips anyone marked out. <b>Off</b> is a day they never work, set in Edit details.</p>
+    <div class="scroll"><table class="uavail"><thead><tr><th>${W().Official}</th>${head}</tr></thead><tbody>${body}</tbody></table></div></section>`;}
 function uAssigned(){const m={};for(const g of uLive()){const c=ump.crew[g.id];if(!c)continue;c.ids.slice(0,c.n).forEach(id=>{if(id)(m[id]=m[id]||[]).push(g);});}return m;}
 function uClash(list,g){return list.filter(h=>h.id!==g.id&&h.date===g.date&&overlaps(g.time,gLen(cfg,g),h.time,gLen(cfg,h)));}
 function uPartnerNames(u){return (u.partners||[]).map(id=>(ump.umps.find(x=>x.id===id)||{}).name).filter(Boolean).join(', ');}
@@ -1184,6 +1203,7 @@ function renderUmp(){
   }
   const wkOpen=uOpenRange(wk,ump.lvl);const label=uPeriodLabel(wk);const pname=span===14?'these two weeks':'this week';
   const seen=new Set();const issues=dayIssues.filter(x=>!seen.has(x.text)&&seen.add(x.text));
+  h+=renderUOut(named,wk,wkEnd,label);
   h+=`<section class="card"><div class="row"><h2>Assign games</h2><span class="spacer"></span><button class="btn small primary" data-act="uAuto" ${wkOpen?'':'disabled'}>Auto-fill open spots</button><button class="btn small ${uConfirmClear?'danger':'link'}" data-act="uClearWk">${uConfirmClear?'Click again to clear':'Clear '+pname}</button><button class="btn small" data-act="uCopyDay">Copy ${pname} for Excel or Google Sheets</button></div>
     <div class="row"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Assign</span>
       <label class="chk"><input type="radio" name="uspan" id="uspan7" data-uspan="7" ${span===7?'checked':''}>1 week at a time</label>
@@ -1464,6 +1484,12 @@ document.getElementById('view').addEventListener('click',e=>{
   if(a==='uNextOpen'){const ps=uPeriods();const k=ps.indexOf(ump.wk);const nx=ps.slice(k+1).concat(ps.slice(0,k+1)).find(p=>uOpenRange(p,ump.lvl)>0);if(nx){ump.wk=nx;saveUmp();render();}return;}
   if(a==='ucnt'){const c=ump.crew[b.dataset.g]||(ump.crew[b.dataset.g]={n:2,ids:[]});c.n=Math.max(0,Math.min(6,c.n+(+b.dataset.d)));saveUmp();render();return;}
   if(a==='uSame'){const src=ump.crew[b.dataset.from];const c=ump.crew[b.dataset.g]||(ump.crew[b.dataset.g]={n:2,ids:[]});const ids=src.ids.slice(0,src.n).filter(Boolean);c.n=Math.max(c.n,ids.length);c.ids=ids.concat(Array(Math.max(0,c.n-ids.length)).fill(''));saveUmp();render();toast('Crew copied');return;}
+  if(a==='uOut'){const u=ump.umps.find(x=>x.id===b.dataset.u);if(!u)return;const d=b.dataset.d;u.out=u.out||[];const i=u.out.indexOf(d);
+    if(i>=0){u.out.splice(i,1);saveUmp();render();toast(`${u.name} is available ${fmtDateLong(d)}`);return;}
+    u.out.push(d);u.out.sort();let removed=0;
+    for(const g of uLive()){if(g.date!==d)continue;const c=ump.crew[g.id];if(!c)continue;c.ids=c.ids.map(x=>{if(x===u.id){removed++;return '';}return x;});}
+    uConfirmClear=false;saveUmp();render();
+    toast(removed?`${u.name} marked out ${fmtDateLong(d)} and taken off ${removed} game${removed===1?'':'s'}. Auto-fill can refill ${removed===1?'it':'them'}.`:`${u.name} marked out ${fmtDateLong(d)}`);return;}
   if(a==='uAddPartner'){const c=ump.crew[b.dataset.g]||(ump.crew[b.dataset.g]={n:2,ids:[]});let i=-1;for(let k=0;k<c.n;k++){if(!c.ids[k]){i=k;break;}}if(i<0)return;c.ids[i]=b.dataset.u;saveUmp();render();toast('Partner added');return;}
   if(a==='uCopy'){uCopySchedule(b.dataset.u);return;}
   if(a==='uCopyDay'){uCopyDay();return;}
