@@ -60,7 +60,7 @@ h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
 .lead{color:var(--muted);margin:0;max-width:68ch}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
-input[type=text],input[type=number],input[type=date],select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%;min-width:0}
+input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel],select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%;min-width:0}
 textarea{resize:vertical;min-height:70px}
 input::placeholder,textarea::placeholder{color:var(--muted);opacity:.65;font-style:italic}
 input.missing{border-color:var(--bad);background:var(--bad-soft)}
@@ -1077,12 +1077,14 @@ function renderUmp(){
   if(!built)return `<section class="card"><h2>${W().Official} Corner</h2><p class="lead">Assign ${W().officials} to every game on the league schedule. Build the schedule first.</p><div><button class="btn primary" data-act="goSetup">Go to setup</button></div></section>`;
   const U=ump.umps;const named=uNamed();const asg=uAssigned();
   let h=`<section class="card"><div class="row"><h2>${W().Officials}</h2><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">${W().Officials}${countInput('uN',U.length,0,60,'Number of '+W().officials)}</label></div>
-    <p class="lead">Add your ${W().officials} and, if needed, the levels they can work, when they're available and who they like to work with. Leave those alone for ${aan(W().official)} who can work anything. Assignments are saved on this device only.</p>
-    ${U.length?`<div class="scroll"><table class="umps"><thead><tr><th>Name</th><th>Levels</th><th>Days</th><th>Start times</th><th>Paired with</th><th class="num">Games</th><th></th></tr></thead><tbody>
+    <p class="lead">Add your ${W().officials} with their email and phone and, if needed, the levels they can work, when they're available and who they like to work with. Leave those alone for ${aan(W().official)} who can work anything. Assignments are saved on this device only.</p>
+    ${U.length?`<div class="scroll"><table class="umps"><thead><tr><th>Name</th><th>Levels</th><th>Days</th><th>Start times</th><th>Paired with</th><th>Contact</th><th class="num">Games</th><th></th></tr></thead><tbody>
     ${U.map((u,i)=>`<tr><td><input type="text" id="un${i}" data-un="${i}" value="${esc(u.name)}" placeholder="Type ${W().official} ${i+1} name" aria-label="${W().Official} ${i+1} name"></td>
-      <td class="wrapc">${esc(uLevelSummary(u))}</td><td class="wrapc">${uDaySummary(u)}</td><td>${uTimeSummary(u)}</td><td class="wrapc">${esc(uPartnerNames(u)||'—')}</td><td class="num">${(asg[u.id]||[]).length}</td>
-      <td><button class="btn small ${uOpen===u.id?'primary':''}" data-act="uEdit" data-u="${u.id}">${uOpen===u.id?'Done':'Edit limits'}</button></td></tr>
-      ${uOpen===u.id?`<tr class="uedit"><td colspan="7"><div class="ed">
+      <td class="wrapc">${esc(uLevelSummary(u))}</td><td class="wrapc">${uDaySummary(u)}</td><td>${uTimeSummary(u)}</td><td class="wrapc">${esc(uPartnerNames(u)||'—')}</td><td class="wrapc">${u.email?esc(u.email):'<span class="sub">No email</span>'}${u.phone?`<br>${esc(u.phone)}`:''}</td><td class="num">${(asg[u.id]||[]).length}</td>
+      <td><button class="btn small ${uOpen===u.id?'primary':''}" data-act="uEdit" data-u="${u.id}">${uOpen===u.id?'Done':'Edit details'}</button></td></tr>
+      ${uOpen===u.id?`<tr class="uedit"><td colspan="8"><div class="ed">
+        <div class="grid2"><label class="f">Email<input type="email" id="uem_${u.id}" data-ucon="${u.id}|email" value="${esc(u.email||'')}" placeholder="name@example.com" autocomplete="off"></label>
+        <label class="f">Phone<input type="tel" id="uph_${u.id}" data-ucon="${u.id}|phone" value="${esc(u.phone||'')}" placeholder="713-555-0123" autocomplete="off"></label></div>
         <div class="row"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Levels ${esc(u.name||'this '+W().official)} can work</span><span class="spacer"></span><button class="btn link small" data-act="uAllLv" data-u="${u.id}">All levels</button></div>
         <div class="days">${cfg.divisions.map(d=>`<label class="chk"><input type="checkbox" id="ulv_${u.id}_${d.id}" data-ulv="${u.id}" value="${d.id}" ${(u.levels||[]).includes(d.id)?'checked':''}>${esc(d.name)}</label>`).join('')}</div>
         <div class="row"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Days available</span><span class="spacer"></span><button class="btn link small" data-act="uAllDays" data-u="${u.id}">Any day</button></div>
@@ -1153,25 +1155,38 @@ function renderUmp(){
     const pg=gs.filter(g=>g.date>=wk&&g.date<=wkEnd);
     let clashes=0,outs=0;pg.forEach(g=>{if(uClash(gs,g).length)clashes++;if(uFits(u,g).length)outs++;});
     return {u,gs,pg,days:new Set(pg.map(g=>g.date)).size,clashes,outs};});
-  h+=`<section class="card"><h2>${W().Official} schedules, ${label}</h2><p class="lead">Copy ${aan(W().official)}'s games for ${pname} and text or email them. Season totals help keep the work spread evenly.</p>
+  const note=(ump.notes||{})[wk]||'';
+  h+=`<section class="card"><h2>${W().Official} schedules, ${label}</h2><p class="lead">Send each ${W().official} their games for ${pname}. <b>Email schedule</b> opens your email program with everything filled in, including partners and their phone numbers. Season totals help keep the work spread evenly.</p>
+    <div class="grid2"><label class="f">Your name, for the sign-off<input type="text" id="uSup" value="${esc(ump.sup||'')}" placeholder="Type your name, like Tom B"></label>
+      <label class="f">Note for ${pname} (optional, added to every email)<textarea id="uNote" data-unote="${wk}" placeholder="For example: Navy shirts and gray pants. Plate meeting 15 minutes before first pitch.">${esc(note)}</textarea></label></div>
     <div class="scroll"><table class="utot"><thead><tr><th>${W().Official}</th><th class="num">${span===14?'These 2 weeks':'This week'}</th><th class="num">Days</th><th class="num">Season so far</th><th>Problems</th><th></th></tr></thead><tbody>
     ${totals.map(x=>`<tr><td>${esc(x.u.name)}</td><td class="num">${x.pg.length}</td><td class="num">${x.days}</td><td class="num">${x.gs.length}</td>
       <td>${x.clashes?`<span class="pill bad">${x.clashes} double booked</span>`:''}${x.outs?`<span class="pill warn">${x.outs} outside limits</span>`:''}${!x.clashes&&!x.outs?'<span class="sub">None</span>':''}</td>
-      <td><button class="btn small" data-act="uCopy" data-u="${x.u.id}" ${x.pg.length?'':'disabled'}>Copy ${span===14?'2-week':'weekly'} schedule</button></td></tr>`).join('')}
+      <td><div class="row" style="gap:6px;flex-wrap:nowrap">${x.pg.length?(x.u.email?`<a class="btn small primary" href="${esc(uMailto(x.u.id))}" target="_blank" rel="noopener">Email schedule</a>`:`<span class="sub">Add an email</span>`):''}<button class="btn small" data-act="uCopy" data-u="${x.u.id}" ${x.pg.length?'':'disabled'}>Copy</button></div></td></tr>`).join('')}
     </tbody></table></div></section>`;
   return h;
 }
+function uScheduleText(uid,forEmail){const u=ump.umps.find(x=>x.id===uid);const span=ump.span===14?14:7;const wk=ump.wk;const e=addDays(wk,span-1);
+  const gs=(uAssigned()[uid]||[]).filter(g=>g.date>=wk&&g.date<=e).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time);
+  const first=(u.name||'').trim().split(/\s+/)[0]||'there';const sup=(ump.sup||'').trim();const note=((ump.notes||{})[wk]||'').trim();
+  let s='';if(forEmail)s+=`Hi ${first},\n\nHere are your games for ${uPeriodLabel(wk)}:\n`;else s+=`${cfg.league} ${W().official} schedule: ${u.name}\n${uPeriodLabel(wk)}\n`;
+  let last='';
+  for(const g of gs){if(g.date!==last){s+=`\n${fmtDateLong(g.date)}\n`;last=g.date;}
+    const c=ump.crew[g.id];const ps=c.ids.slice(0,c.n).filter(id=>id&&id!==uid).map(id=>ump.umps.find(x=>x.id===id)).filter(Boolean);
+    s+=`  ${fmtTime(g.time)} - ${fieldName(g.field)} - ${divName(g.div)}: ${g.away} at ${g.home}\n`;
+    s+=ps.length?`    With: ${ps.map(p=>p.name+(p.phone?` (${p.phone})`:'')).join(', ')}\n`:`    Partner: not assigned yet\n`;}
+  const days=new Set(gs.map(g=>g.date)).size;
+  s+=`\nThat's ${gs.length} game${gs.length===1?'':'s'} on ${days} day${days===1?'':'s'}.\n`;
+  if(note)s+=`\nNote${sup?' from '+sup:''}: ${note}\n`;
+  if(forEmail){s+=`\nPlease reply to confirm, or let me know right away if you can't make a game.\n\nThanks,\n${sup||cfg.league}\n${sup?cfg.league+' '+W().Official+' Supervisor':''}`;}
+  return {text:s.trim(),count:gs.length};}
+function uMailto(uid){const u=ump.umps.find(x=>x.id===uid);const r=uScheduleText(uid,true);
+  return 'mailto:'+encodeURIComponent(u.email||'')+'?subject='+encodeURIComponent(`${cfg.league} ${W().official} schedule: ${uPeriodLabel(ump.wk)}`)+'&body='+encodeURIComponent(r.text);}
 function uPeriods(){const span=ump.span===14?14:7;const ds=uDates();if(!ds.length)return [];const out=[];let p=weekStart(ds[0]);const last=ds[ds.length-1];
   while(p<=last){const e=addDays(p,span-1);if(ds.some(d=>d>=p&&d<=e))out.push(p);p=addDays(p,span);}return out;}
 function uPeriodLabel(p){const span=ump.span===14?14:7;return `${fmtDateLong(p)} to ${fmtDateLong(addDays(p,span-1))}`;}
 function uOpenRange(p,lvl){const span=ump.span===14?14:7;const e=addDays(p,span-1);let n=0;for(const d of uDates()){if(d>=p&&d<=e)n+=uOpenOn(d,lvl);}return n;}
-function uCopySchedule(uid){const u=ump.umps.find(x=>x.id===uid);const span=ump.span===14?14:7;const wk=ump.wk;const e=addDays(wk,span-1);
-  const gs=(uAssigned()[uid]||[]).filter(g=>g.date>=wk&&g.date<=e).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time);
-  let s=`${cfg.league} ${W().official} schedule: ${u.name}\n${uPeriodLabel(wk)}\n`;let last='';
-  for(const g of gs){if(g.date!==last){s+=`\n${fmtDateLong(g.date)}\n`;last=g.date;}
-    const c=ump.crew[g.id];const partners=c.ids.slice(0,c.n).filter(id=>id&&id!==uid).map(id=>(ump.umps.find(x=>x.id===id)||{}).name).filter(Boolean);
-    s+=`  ${fmtTime(g.time)}  ${fieldName(g.field)}  ${divName(g.div)}: ${g.away} at ${g.home}${partners.length?`  (with ${partners.join(', ')})`:''}\n`;}
-  copyText(s.trim()).then(ok=>{if(ok)toast(`Copied ${u.name}'s schedule (${gs.length} game${gs.length===1?'':'s'})`);});}
+function uCopySchedule(uid){const u=ump.umps.find(x=>x.id===uid);const r=uScheduleText(uid,false);copyText(r.text).then(ok=>{if(ok)toast(`Copied ${u.name}'s schedule (${r.count} game${r.count===1?'':'s'})`);});}
 function uCopyDay(){const span=ump.span===14?14:7;const wk=ump.wk;const e=addDays(wk,span-1);
   const dg=uLive().filter(g=>g.date>=wk&&g.date<=e&&(ump.lvl==='all'||g.div===ump.lvl)).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time||fieldName(a.field).localeCompare(fieldName(b.field),undefined,{numeric:true}));
   const mx=Math.max(2,...dg.map(g=>(ump.crew[g.id]||{n:2}).n));
@@ -1280,6 +1295,9 @@ document.getElementById('view').addEventListener('change',e=>{
     if(el.checked){if(!u.partners.includes(o.id))u.partners.push(o.id);if(!o.partners.includes(u.id))o.partners.push(u.id);}
     else{u.partners=u.partners.filter(x=>x!==o.id);o.partners=o.partners.filter(x=>x!==u.id);}saveUmp();render();return;}
   if(el.dataset.uft!=null){const [id,k]=el.dataset.uft.split('|');const u=ump.umps.find(x=>x.id===id);u[k]=el.value===''?null:+el.value;saveUmp();render();return;}
+  if(el.dataset.ucon!=null){const [id,k]=el.dataset.ucon.split('|');const u=ump.umps.find(x=>x.id===id);if(u){u[k]=el.value.trim();saveUmp();render();}return;}
+  if(el.id==='uSup'){ump.sup=el.value.trim();saveUmp();render();return;}
+  if(el.id==='uNote'){ump.notes=ump.notes||{};const v=el.value.trim();if(v)ump.notes[el.dataset.unote]=v;else delete ump.notes[el.dataset.unote];saveUmp();render();return;}
   if(el.id==='uWk'){ump.wk=el.value;saveUmp();render();return;}
   if(el.dataset.uspan!=null){ump.span=+el.dataset.uspan;ump.wk='';saveUmp();render();return;}
   if(el.id==='uLvl'){ump.lvl=el.value;saveUmp();render();return;}
