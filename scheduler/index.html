@@ -1,0 +1,1417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>League Scheduler | GameDay Express</title>
+<meta name="description" content="Free league scheduler from GameDay Express: build a fair season schedule for baseball, softball, basketball, soccer, volleyball, tennis, pickleball and more, then handle rainouts, lineups, game-day duties and officials.">
+<meta name="theme-color" content="#e8341a">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DTHGH6C7GR"></script>
+</body>
+</html>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-DTHGH6C7GR");</script>
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<style id="appStyle">
+/* Layout: scorebook-style tool. Sticky tab bar, one working panel per step (Setup, Schedule, Fairness, Rainouts), plus Coaches Corner and Umpire Corner. */
+:root{
+  --bg:#0d0e12; --surface:#16171c; --surface-2:#1e2026; --ink:#eceef2; --muted:#9ba1ad; --line:#2b2e36;
+  --accent:#e8341a; --accent-soft:#3b1d19; --on-accent:#ffffff; --good:#5cc98a; --good-soft:#18301f;
+  --rain:#7fb2ea; --rain-soft:#18263a; --warn:#f0b04a; --warn-soft:#33270f; --bad:#ff8a7d; --bad-soft:#3d1c19;
+  --pc0:#5e2c26; --pc1:#5e3f1c; --pc2:#55491a; --pc3:#3a5022; --pc4:#214a31; --pc5:#1d4845; --pc6:#21405f; --pc7:#35315f; --pc8:#4a2a5c; --pc9:#592a42; --pc10:#4b4334; --pc11:#36423a;
+  color-scheme:dark;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif; --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:18px 0;display:flex;flex-direction:column;gap:12px}
+.brandrow{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 20px}
+h1{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.01em;margin:0;line-height:1.1;text-wrap:balance}
+.sub{color:var(--muted);font-size:14px}
+.demo-tag{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);padding:3px 8px;border-radius:4px}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+nav.tabs button{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:.03em;background:none;border:0;color:var(--muted);padding:10px 14px 9px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.step{font-family:var(--body);font-size:11px;font-weight:700;width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
+button[aria-selected="true"] .step{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.badge-n{font-family:var(--body);font-size:11px;font-weight:700;background:var(--rain);color:var(--surface);border-radius:10px;padding:0 7px}
+main .wrap{padding-block:22px 60px;display:flex;flex-direction:column;gap:20px}
+.statusbar{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.pill.ok{color:var(--good);background:var(--good-soft);border-color:transparent}
+.pill.bad{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.pill.rain{color:var(--rain);background:var(--rain-soft);border-color:transparent}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+h2{font-family:var(--display);font-weight:700;font-size:22px;margin:0;letter-spacing:.01em}
+h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
+.lead{color:var(--muted);margin:0;max-width:68ch}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=number],input[type=date],select,textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.65;font-style:italic}
+input.missing{border-color:var(--bad);background:var(--bad-soft)}
+.times{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.times select{width:auto}
+.tchip{display:inline-flex;align-items:center;gap:2px;font-weight:600;font-size:14px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 4px 3px 10px;font-variant-numeric:tabular-nums}
+.tchip .x{border:0;background:none;color:inherit;font-size:16px;line-height:1;cursor:pointer;padding:0 6px;border-radius:50%}
+.hdr-actions{display:flex;gap:10px;align-items:center}
+.gdxbar{background:#08090c;border-bottom:3px solid var(--accent)}
+.gdxbar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
+.gdxlogo{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:.01em;color:#fff;text-decoration:none;line-height:1}
+.gdxlogo span{color:var(--accent)}
+.gdxsub{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.gdxback{color:var(--muted);font-size:14px;text-decoration:none}.gdxback:hover{color:var(--ink);text-decoration:underline}
+.gdxbar .spacer{flex:1}
+.filecard{border-color:var(--accent)}
+
+.sharecard{border-color:var(--accent)}
+.sharebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.tabsep{width:1px;background:var(--line);margin:8px 6px;flex:none}
+.pname{display:flex;align-items:center;gap:8px}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;flex:none;vertical-align:-2px;border:1px solid var(--line)}
+.pc0{background:var(--pc0)}.pc1{background:var(--pc1)}.pc2{background:var(--pc2)}.pc3{background:var(--pc3)}.pc4{background:var(--pc4)}.pc5{background:var(--pc5)}
+.pc6{background:var(--pc6)}.pc7{background:var(--pc7)}.pc8{background:var(--pc8)}.pc9{background:var(--pc9)}.pc10{background:var(--pc10)}.pc11{background:var(--pc11)}
+table.lu{width:auto;min-width:100%}
+table.lu th[scope=row]{font-family:var(--display);font-size:20px;font-weight:700;color:var(--ink);letter-spacing:.02em;padding:4px 12px 4px 4px;width:70px}
+table.lu th.inn{font-family:var(--display);font-size:22px;color:var(--ink);text-align:center}
+table.lu td{padding:3px}
+table.lu tr.benchrow th[scope=row]{color:var(--muted)}
+table.lu tr.benchrow:first-of-type td, table.lu tr:not(.benchrow)+tr.benchrow td, table.lu tr:not(.benchrow)+tr.benchrow th{border-top:2px solid var(--muted)}
+select.cell{min-width:118px;font-weight:600;font-size:14px;padding:6px 6px;background-color:var(--surface-2)}
+select.cell.pc0{background-color:var(--pc0)}select.cell.pc1{background-color:var(--pc1)}select.cell.pc2{background-color:var(--pc2)}select.cell.pc3{background-color:var(--pc3)}select.cell.pc4{background-color:var(--pc4)}select.cell.pc5{background-color:var(--pc5)}select.cell.pc6{background-color:var(--pc6)}select.cell.pc7{background-color:var(--pc7)}select.cell.pc8{background-color:var(--pc8)}select.cell.pc9{background-color:var(--pc9)}select.cell.pc10{background-color:var(--pc10)}select.cell.pc11{background-color:var(--pc11)}
+select.cell.dbl{outline:2px solid var(--bad);outline-offset:-2px}
+table.chk2 td.c-dbl{background:var(--bad-soft);color:var(--bad);font-weight:700}
+table.chk2 td.c-miss{background:var(--warn-soft);color:var(--warn);font-weight:700}
+.btn.danger{background:var(--bad);color:var(--surface);border-color:var(--bad)}
+.dlist{display:flex;flex-direction:column;gap:10px}
+.drow{display:grid;grid-template-columns:minmax(200px,2fr) minmax(130px,1fr) minmax(180px,1.3fr) auto auto;gap:10px;align-items:end;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2)}
+@media (max-width:820px){.drow{grid-template-columns:1fr 1fr}.drow .f:first-child{grid-column:1/-1}}
+table.duties{width:auto;min-width:100%}
+table.duties td{padding:3px 6px}
+table.duties td.na{background:repeating-linear-gradient(135deg,var(--surface-2) 0 6px,var(--line) 6px 7px)}
+table.duties td.us{font-weight:700}
+table.duties th.dname{white-space:normal;min-width:120px;max-width:160px;text-transform:none;letter-spacing:0;font-size:12px;color:var(--ink);vertical-align:bottom;line-height:1.25}
+table.duties th.dname span{display:block;color:var(--muted);font-weight:500;margin-top:2px}
+table.duties th.side-visitor{background:var(--rain-soft);color:var(--rain)}
+table.duties th.side-home{background:var(--accent-soft);color:var(--accent)}
+table.duties th.side-both{background:var(--warn-soft);color:var(--warn)}
+table.duties tr.pprow td{color:var(--muted)}
+table.duties td.unav{min-width:150px}
+select.cell.duty{min-width:110px}
+select.cell.warnc{outline:2px solid var(--warn);outline-offset:-2px}
+.tchip.mini{font-size:12px;padding:1px 2px 1px 8px}
+table.fam{width:auto;min-width:min(100%,480px)}
+table.umps td input[type=text]{min-width:160px}
+table.umps td.wrapc{white-space:normal;max-width:240px;color:var(--muted);font-size:14px}
+table.umps tr.uedit td{background:var(--surface)}
+table.uass td{vertical-align:top}
+table.uass td.t{font-weight:700;font-variant-numeric:tabular-nums}
+table.uass td.gm{white-space:normal;min-width:150px}
+table.uass tr.fieldhead th{font-family:var(--display);font-size:18px;color:var(--ink);text-transform:none;letter-spacing:.02em;background:var(--surface-2);padding-top:10px}
+.crew{display:flex;flex-wrap:wrap;gap:6px}
+select.ucell{min-width:170px;max-width:240px}
+.counter.mini{gap:4px}
+.counter.mini span{min-width:18px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.counter.mini .btn{font-size:15px;padding:2px 9px}
+table.utot td .pill{margin-right:4px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{height:56px;width:auto;max-width:120px;object-fit:contain;flex:none}
+.logopick{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.logobox{width:84px;height:84px;border:1px dashed var(--line);border-radius:8px;display:grid;place-items:center;background:var(--surface-2);overflow:hidden;flex:none}
+.logobox img{max-width:100%;max-height:100%;object-fit:contain}
+.logobox span{font-size:12px;color:var(--muted)}
+.filebtn{position:relative;overflow:hidden;cursor:pointer}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.sumlogo{height:22px;width:auto;vertical-align:middle;margin-right:4px}
+@media (max-width:640px){.logo{height:44px}}
+.posrow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.posrow input[type=text]{padding:4px 8px;font-size:14px}
+.sportchip{font-size:14px;padding:5px 10px}
+.datesel{display:grid;grid-template-columns:1.2fr .8fr 1fr;gap:6px;min-width:0}
+.ngrow .datesel{flex:1 1 220px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn{font:inherit;font-weight:600;font-size:14px;border-radius:6px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.rain{color:var(--rain);border-color:var(--rain)}
+.btn.small{font-size:13px;padding:4px 10px}
+.btn.link{border:0;background:none;color:var(--muted);padding:4px 6px;text-decoration:underline}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.spacer{flex:1}
+.ed{border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--surface-2)}
+.ed .head{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.days{display:flex;flex-wrap:wrap;gap:6px}
+.chk{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:500;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:3px 8px;cursor:pointer}
+.chk input{margin:0;accent-color:var(--accent)}
+.cap{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.capbox{border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.capbox .big{font-family:var(--display);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.capbox.bad{border-color:var(--bad);background:var(--bad-soft)}
+.capbox small{color:var(--muted)}
+.scroll{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th.grp{text-align:center;border-bottom:1px solid var(--line);color:var(--ink)}
+th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:600;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right}
+td.hot{color:var(--warn);font-weight:700}
+.day{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden}
+.dayhead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.dayhead strong{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:.02em}
+.dayhead .tag{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.game{display:grid;grid-template-columns:78px 72px 86px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.game:last-child{border-bottom:0}
+.game .t{font-weight:600}
+.game .fld,.game .dv{font-size:13px;color:var(--muted)}
+.game .m{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.game .m b{font-weight:600}
+.game.pp .m,.game.pp .t{text-decoration:line-through;color:var(--muted)}
+.chipst{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
+.chipst.rain{color:var(--rain);background:var(--rain-soft)}
+.chipst.new{color:var(--good);background:var(--good-soft)}
+.weekhead{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.note{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:0 6px 6px 0;font-size:14px}
+.note.bad{border-left-color:var(--bad);background:var(--bad-soft)}
+.note.info{border-left-color:var(--rain);background:var(--rain-soft)}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--surface)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt .k{font-size:12px;color:var(--muted)}
+.ppitem{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
+.ppitem .title{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+pre.msg{white-space:pre-wrap;font-family:var(--body);font-size:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:12px;margin:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:6px;font-weight:600;font-size:14px;z-index:20}
+.empty{text-align:left;color:var(--muted);padding:6px 0}
+@media (max-width:640px){
+  .game{grid-template-columns:70px minmax(0,1fr) auto;row-gap:2px}
+  .game .fld,.game .dv{grid-column:2;grid-row:2;display:inline}
+  .game .dv{grid-column:1;grid-row:2}
+  .game .m{grid-column:2;grid-row:1;white-space:normal}
+  .game .act{grid-column:3;grid-row:1/3}
+  h1{font-size:26px}
+}
+.wizard{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;align-items:start}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px)}
+.steps button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;font-size:14px;color:var(--muted);background:none;border:0;border-radius:6px;padding:7px 8px;cursor:pointer}
+.steps button:hover{background:var(--surface)}
+.steps button.cur{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.steps .dot{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.steps .done .dot{background:var(--good-soft);color:var(--good);border-color:transparent}
+.steps .cur .dot{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.qcard{gap:18px;padding:22px}
+.qhead{display:flex;flex-direction:column;gap:6px}
+.qhead h2{font-size:28px;text-wrap:balance;line-height:1.15}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.counter{display:inline-flex;align-items:center;gap:6px}
+.counter input{width:72px;text-align:center;font-family:var(--display);font-size:20px;font-weight:700;padding:4px}
+.counter .btn{font-size:18px;line-height:1;padding:6px 12px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.list.cols{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+.choice{display:flex;flex-direction:column;gap:6px}
+.opt.dim{opacity:.6;cursor:not-allowed}
+.navrow{border-top:1px solid var(--line);padding-top:16px}
+.sumgrid{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px}
+.sum{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:8px 12px;border-bottom:1px solid var(--line)}
+.sum:last-child{border-bottom:0}
+.sum .k{font-size:13px;font-weight:600;color:var(--muted)}
+.sum .v{min-width:0;overflow-wrap:anywhere}
+@media (max-width:760px){.wizard{grid-template-columns:1fr}.steps{position:static;flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}.steps button{white-space:nowrap}.steps button span:last-child{display:none}.steps button.cur span:last-child{display:inline}.sum{grid-template-columns:1fr auto}.sum .k{grid-column:1/-1}.qhead h2{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<script type="application/json" id="sharedLeague">null</script>
+<script id="appScript">
+// ===== Scheduling core (no DOM) =====
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYMS = 86400000;
+function parseD(s){const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d);}
+function fmtD(t){return new Date(t).toISOString().slice(0,10);}
+function dowOf(s){return new Date(parseD(s)).getUTCDay();}
+function dayNum(s){return Math.round(parseD(s)/DAYMS);}
+function weekKey(s){const n=dayNum(s);const dow=(dowOf(s)+6)%7;return n-dow;} // Monday-based
+function addDays(s,k){return fmtD(parseD(s)+k*DAYMS);}
+function fmtTime(m){let h=Math.floor(m/60),mi=m%60,ap=h>=12?'PM':'AM';h=h%12||12;return h+':'+String(mi).padStart(2,'0')+' '+ap;}
+function parseTime(s){const m=String(s).trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i);if(!m)return null;let h=+m[1],mi=+(m[2]||0);const ap=(m[3]||'').toLowerCase();if(ap==='pm'&&h<12)h+=12;if(ap==='am'&&h===12)h=0;if(!ap&&h<9)h+=12;return h*60+mi;}
+function fmtDateLong(s){const d=new Date(parseD(s));return DOW[d.getUTCDay()]+' '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});}
+
+function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s>>>=0;s^=s>>17;s^=s<<5;s>>>=0;return s/4294967296;};}
+
+function buildSlots(cfg){
+  const slots=[];const black=new Set(cfg.blackouts);
+  for(let t=parseD(cfg.start);t<=parseD(cfg.end);t+=DAYMS){
+    const date=fmtD(t);if(black.has(date))continue;const dow=new Date(t).getUTCDay();
+    if(cfg.dayTimes[dow]===undefined)continue;
+    const set=new Set(cfg.dayTimes[dow]);if(dow>=1&&dow<=5)for(const dv of cfg.divisions)for(const x of (dv.ownTimes||[]))set.add(x);
+    const times=[...set].sort((a,b)=>a-b);if(!times.length)continue;
+    const makeup=cfg.makeupDays.includes(dow);
+    for(const time of times)for(const f of cfg.fields)slots.push({id:date+'|'+time+'|'+f.id,date,dow,time,field:f.id,makeup});
+  }
+  return slots;
+}
+function divLen(cfg,div){return (div&&div.gameLength)||cfg.gameLength;}
+function divTimesFor(cfg,div,dow){return (dow>=1&&dow<=5&&div.ownTimes&&div.ownTimes.length)?div.ownTimes:(cfg.dayTimes[dow]||[]);}
+function gLen(cfg,g){return g.len||divLen(cfg,cfg.divisions.find(d=>d.id===g.div));}
+function overlaps(t1,l1,t2,l2){return t1<t2+l2&&t2<t1+l1;}
+function fieldFree(cfg,idx,field,date,time,len){for(const g of (idx.byFieldDate[field+'|'+date]||[]))if(overlaps(time,len,g.time,gLen(cfg,g)))return false;return true;}
+function divAllowsSlot(cfg,div,slot,repair){
+  const f=cfg.fields.find(x=>x.id===slot.field);if(!f||!f.divisions.includes(div.id))return false;
+  if(!divTimesFor(cfg,div,slot.dow).includes(slot.time))return false;
+  if(slot.time>div.latest)return false;
+  if(slot.makeup)return !!repair;
+  if(!repair&&!div.days.includes(slot.dow))return false;
+  return true;
+}
+function roundRobin(teams,gamesPerTeam){
+  const list=teams.slice();if(list.length%2)list.push(null);
+  const n=list.length,rounds=[];
+  let arr=list.slice();
+  for(let r=0;r<n-1;r++){const pairs=[];for(let i=0;i<n/2;i++){const a=arr[i],b=arr[n-1-i];if(a&&b)pairs.push(r%2?[b,a]:[a,b]);}rounds.push(pairs);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)];}
+  const games=[];const count={};teams.forEach(t=>count[t]=0);let cycle=0,ri=0;
+  const target=teams.length*gamesPerTeam/2;
+  while(games.length<target&&cycle<50){
+    for(const [a,b] of rounds[ri]){if(games.length>=target)break;if(count[a]>=gamesPerTeam||count[b]>=gamesPerTeam)continue;const p=cycle%2?[b,a]:[a,b];games.push({home:p[0],away:p[1],round:cycle*(n-1)+ri});count[a]++;count[b]++;}
+    ri++;if(ri>=rounds.length){ri=0;cycle++;}
+  }
+  return games;
+}
+function conflictsFor(cfg,team){const out=new Set();for(const c of cfg.conflicts){const ts=c.teams||[c.a,c.b];if(ts.includes(team))ts.forEach(x=>{if(x&&x!==team)out.add(x);});}return [...out];}
+
+// index helpers over a schedule
+function makeIndex(cfg,games){
+  const idx={byTeamDate:{},bySlot:{},byTeam:{},byFieldDate:{}};
+  for(const g of games){if(!g.date)continue;addToIndex(idx,g);}
+  return idx;
+}
+function teamCanPlay(cfg,idx,team,date,time,ignoreIds,len){len=len||cfg.gameLength;
+  const rest=cfg.rules.minRest;const d=dayNum(date);
+  for(const g of (idx.byTeam[team]||[])){if(ignoreIds&&ignoreIds.has(g.id))continue;
+    const gd=dayNum(g.date);if(Math.abs(gd-d)<=rest)return 'rest';}
+  const wk=weekKey(date);let n=0;for(const g of (idx.byTeam[team]||[])){if(ignoreIds&&ignoreIds.has(g.id))continue;if(weekKey(g.date)===wk)n++;}
+  if(n>=cfg.rules.maxPerWeek)return 'week';
+  for(const other of conflictsFor(cfg,team)){for(const g of (idx.byTeamDate[other+'|'+date]||[])){if(ignoreIds&&ignoreIds.has(g.id))continue;if(overlaps(time,len,g.time,gLen(cfg,g)))return 'coach';}}
+  return null;
+}
+function addToIndex(idx,g){for(const t of [g.home,g.away]){(idx.byTeamDate[t+'|'+g.date]=idx.byTeamDate[t+'|'+g.date]||[]).push(g);(idx.byTeam[t]=idx.byTeam[t]||[]).push(g);}idx.bySlot[g.date+'|'+g.time+'|'+g.field]=g;(idx.byFieldDate[g.field+'|'+g.date]=idx.byFieldDate[g.field+'|'+g.date]||[]).push(g);}
+
+function capacity(cfg){
+  const slots=buildSlots(cfg);const out=[];
+  for(const div of cfg.divisions){const n=div.teams.length;const need=Math.floor(n*div.gamesPerTeam/2);
+    const own=slots.filter(s=>divAllowsSlot(cfg,div,s,false));
+    const dates=new Set(own.map(s=>s.date));
+    const maxByTeams=dates.size*Math.floor(n/2);
+    out.push({div:div.id,name:div.name,need,slots:own.length,teamNights:maxByTeams,ok:need<=own.length&&need<=maxByTeams,weeks:new Set(own.map(s=>weekKey(s.date))).size});}
+  return out;
+}
+
+function generate(cfg,seed){
+  const R=rng(seed);const slots=buildSlots(cfg).filter(s=>!s.makeup);
+  // order: date, time, random field
+  slots.forEach(s=>s.r=R());slots.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time||a.r-b.r);
+  let gid=0;const pools={};const divOf={};const lateTime={};const weeksFor={};
+  for(const div of cfg.divisions){pools[div.id]=roundRobin(div.teams,div.gamesPerTeam).map(g=>({...g,id:'g'+(++gid),div:div.id}));div.teams.forEach(t=>divOf[t]=div.id);
+    const own=slots.filter(s=>divAllowsSlot(cfg,div,s,false));
+    const lt={};own.forEach(s=>{lt[s.date]=Math.max(lt[s.date]||0,s.time);});lateTime[div.id]=lt;
+    weeksFor[div.id]=[...new Set(own.map(s=>weekKey(s.date)))].sort((a,b)=>a-b);}
+  const idx={byTeamDate:{},bySlot:{},byTeam:{},byFieldDate:{}};
+  const stat={};cfg.divisions.forEach(d=>d.teams.forEach(t=>stat[t]={games:0,home:0,late:0,sat:0,tm:{},fd:{}}));
+  const placed=[];
+  for(const s of slots){
+    let best=null,bestScore=Infinity;
+    for(const div of cfg.divisions){if(!divAllowsSlot(cfg,div,s,false))continue;
+      const pool=pools[div.id];if(!pool.length)continue;const L=divLen(cfg,div);if(!fieldFree(cfg,idx,s.field,s.date,s.time,L))continue;
+      const W=weeksFor[div.id];const wi=W.indexOf(weekKey(s.date));
+      const isLate=lateTime[div.id][s.date]===s.time&&Object.values(lateTime[div.id]).length>0&&s.time>=cfg.lateCutoff;
+      const minRound=pool[0].round;
+      for(const g of pool){if(g.round>minRound+2)break;
+        let ok=true;
+        for(const t of [g.home,g.away]){
+          if((idx.byTeamDate[t+'|'+s.date]||[]).length){ok=false;break;}
+          if(teamCanPlay(cfg,idx,t,s.date,s.time,null,L)){ok=false;break;}
+          const pace=Math.ceil(div.gamesPerTeam*(wi+1)/W.length)+1;if(stat[t].games>=pace){ok=false;break;}
+        }
+        if(!ok)continue;
+        let sc=(g.round-minRound)*6+R()*0.5;
+        if(isLate)sc+=(stat[g.home].late+stat[g.away].late)*1.5;else sc-=(stat[g.home].late+stat[g.away].late)*0.3;
+        if(s.dow===6)sc+=(stat[g.home].sat+stat[g.away].sat)*0.8;
+        sc+=(stat[g.home].games+stat[g.away].games)*0.4;
+        if(cfg.rules.balanceTimes!==false&&s.dow>=1&&s.dow<=5)sc+=((stat[g.home].tm[s.time]||0)+(stat[g.away].tm[s.time]||0))*2.2;
+        if(cfg.rules.balanceFields!==false)sc+=((stat[g.home].fd[s.field]||0)+(stat[g.away].fd[s.field]||0))*1.4;
+        if(sc<bestScore){bestScore=sc;best={g,div,isLate};}
+      }
+    }
+    if(best){const {g,div,isLate}=best;pools[div.id].splice(pools[div.id].indexOf(g),1);
+      let home=g.home,away=g.away;if(cfg.rules.balanceHome&&stat[away].home<stat[home].home){[home,away]=[away,home];}
+      const game={id:g.id,div:div.id,home,away,date:s.date,time:s.time,field:s.field,len:divLen(cfg,div),status:'scheduled'};
+      placed.push(game);addToIndex(idx,game);
+      stat[home].games++;stat[away].games++;stat[home].home++;if(isLate){stat[home].late++;stat[away].late++;}if(s.dow===6){stat[home].sat++;stat[away].sat++;}
+      for(const t of [home,away]){if(s.dow>=1&&s.dow<=5)stat[t].tm[s.time]=(stat[t].tm[s.time]||0)+1;stat[t].fd[s.field]=(stat[t].fd[s.field]||0)+1;}
+    }
+  }
+  const unplaced=[];for(const d in pools)for(const g of pools[d])unplaced.push({...g,div:d});
+  return {games:placed,unplaced};
+}
+
+function fairness(cfg,games){
+  const out={};
+  for(const div of cfg.divisions){
+    const own=games.filter(g=>g.div===div.id&&g.status!=='postponed');
+    const lt={};own.forEach(g=>{lt[g.date]=Math.max(lt[g.date]||0,g.time);});
+    // late = latest start time used by division across season
+    const rows=div.teams.map(t=>{const tg=own.filter(g=>g.home===t||g.away===t).sort((a,b)=>a.date<b.date?-1:1);
+      let minGap=Infinity;for(let i=1;i<tg.length;i++)minGap=Math.min(minGap,dayNum(tg[i].date)-dayNum(tg[i-1].date));
+      return {team:t,games:tg.length,home:tg.filter(g=>g.home===t).length,away:tg.filter(g=>g.away===t).length,
+        late:tg.filter(g=>g.time>=cfg.lateCutoff).length,sat:tg.filter(g=>dowOf(g.date)===6).length,
+        minGap:tg.length>1?minGap:null,
+        tm:tg.reduce((m,g)=>{const w=dowOf(g.date);if(w>=1&&w<=5)m[g.time]=(m[g.time]||0)+1;return m;},{}),
+        fd:tg.reduce((m,g)=>{m[g.field]=(m[g.field]||0)+1;return m;},{})};});
+    const spread=k=>{const v=rows.map(r=>r[k]);return Math.max(...v)-Math.min(...v);};
+    const times=[...new Set(own.filter(g=>{const w=dowOf(g.date);return w>=1&&w<=5;}).map(g=>g.time))].sort((a,b)=>a-b);
+    const fields=[...new Set(own.map(g=>g.field))];
+    const mapSpread=(k,keys)=>keys.length?Math.max(...keys.map(x=>{const v=rows.map(r=>r[k][x]||0);return Math.max(...v)-Math.min(...v);})):0;
+    out[div.id]={rows,times,fields,spread:{games:spread('games'),late:spread('late'),sat:spread('sat'),ha:Math.max(...rows.map(r=>Math.abs(r.home-r.away))),time:times.length>1?mapSpread('tm',times):0,field:fields.length>1?mapSpread('fd',fields):0}};
+  }
+  return out;
+}
+
+function scoreSchedule(cfg,res){
+  const f=fairness(cfg,res.games);let s=res.unplaced.length*1000;
+  for(const d in f){s+=f[d].spread.games*50+f[d].spread.late*2+f[d].spread.sat*2+f[d].spread.ha*4+(cfg.rules.balanceTimes!==false?f[d].spread.time*4:0)+(cfg.rules.balanceFields!==false?f[d].spread.field*3:0);}
+  return s;
+}
+function generateBest(cfg,tries){
+  let best=null,bs=Infinity;for(let i=1;i<=tries;i++){const r=generate(cfg,i*7919);const s=scoreSchedule(cfg,r);if(s<bs){bs=s;best=r;}if(s===0)break;}
+  return best;
+}
+
+function validate(cfg,games){
+  const issues=[];const live=games.filter(g=>g.status!=='postponed'&&g.date);
+  const black=new Set(cfg.blackouts);const seen={};
+  const fd={};live.forEach(g=>(fd[g.field+'|'+g.date]=fd[g.field+'|'+g.date]||[]).push(g));
+  for(const k in fd){const l=fd[k];for(let i=0;i<l.length;i++)for(let j=i+1;j<l.length;j++)if(overlaps(l[i].time,gLen(cfg,l[i]),l[j].time,gLen(cfg,l[j])))issues.push(`Two games overlap on the same field on ${l[i].date}`);}
+  for(const g of live){
+    if(black.has(g.date))issues.push(`Game on blackout date ${g.date}`);
+    const div=cfg.divisions.find(d=>d.id===g.div);const f=cfg.fields.find(x=>x.id===g.field);
+    if(!f||!f.divisions.includes(g.div))issues.push(`${div.name} game on a field it can't use`);
+    if(g.time>div.latest)issues.push(`${div.name} game starts after its latest start time`);}
+  const byTeam={};live.forEach(g=>[g.home,g.away].forEach(t=>(byTeam[t]=byTeam[t]||[]).push(g)));
+  for(const t in byTeam){const tg=byTeam[t].sort((a,b)=>dayNum(a.date)-dayNum(b.date));
+    for(let i=1;i<tg.length;i++){const gap=dayNum(tg[i].date)-dayNum(tg[i-1].date);if(gap<=cfg.rules.minRest)issues.push(`${t}: not enough rest before ${tg[i].date}`);}
+    const wk={};tg.forEach(g=>{const k=weekKey(g.date);wk[k]=(wk[k]||0)+1;});for(const k in wk)if(wk[k]>cfg.rules.maxPerWeek)issues.push(`${t}: too many games in one week`);
+    for(const o of conflictsFor(cfg,t))for(const g of tg)for(const h of (byTeam[o]||[]))if(h.date===g.date&&overlaps(g.time,gLen(cfg,g),h.time,gLen(cfg,h))&&t<o)issues.push(`Coach conflict: ${t} and ${o} both play ${g.date}`);}
+  return issues;
+}
+
+// Rainout repair: propose makeup slots for postponed games without moving others
+function makeupOptions(cfg,games,game,fromDate,taken){
+  const div=cfg.divisions.find(d=>d.id===game.div);
+  const from=fromDate||game.date;const slots=buildSlots(cfg).filter(s=>s.date>from&&divAllowsSlot(cfg,div,s,true));
+  const live=games.filter(g=>g.status!=='postponed'&&g.id!==game.id).concat(taken||[]);
+  const idx=makeIndex(cfg,live);const opts=[];
+  const L=divLen(cfg,div);
+  for(const s of slots){if(!fieldFree(cfg,idx,s.field,s.date,s.time,L))continue;
+    let bad=false;for(const t of [game.home,game.away]){if((idx.byTeamDate[t+'|'+s.date]||[]).length||teamCanPlay(cfg,idx,t,s.date,s.time,null,L)){bad=true;break;}}
+    if(bad)continue;
+    const kind=s.makeup?'Makeup day':div.days.includes(s.dow)?(s.dow===6?'Regular Saturday':'Regular game night'):'Open night';
+    const days=dayNum(s.date)-dayNum(game.origDate||game.date);
+    let sc=days+(kind==='Open night'?5:0)+(kind==='Makeup day'?-3:0)+(s.time>=cfg.lateCutoff?0.5:0);
+    opts.push({date:s.date,time:s.time,field:s.field,kind,score:sc});}
+  opts.sort((a,b)=>a.score-b.score);
+  // keep the best option per date/time, then top 5
+  const seen=new Set(),out=[];for(const o of opts){const k=o.date+'|'+o.time;if(seen.has(k))continue;seen.add(k);out.push(o);if(out.length>=5)break;}
+  return out;
+}
+function proposeMakeups(cfg,games,postponed,fromDate,picks){
+  const taken=[];const res=[];
+  for(const g of postponed){const opts=makeupOptions(cfg,games,g,fromDate,taken);
+    let choice=null;const p=picks&&picks[g.id];
+    if(p!=null&&opts[p])choice=p;else if(opts.length)choice=0;
+    if(choice!=null){const o=opts[choice];taken.push({...g,date:o.date,time:o.time,field:o.field,status:'scheduled'});}
+    res.push({game:g,options:opts,choice});}
+  return res;
+}
+
+//module.exports={buildSlots,roundRobin,generate,generateBest,fairness,validate,capacity,makeupOptions,proposeMakeups,fmtTime,fmtDateLong,parseTime,addDays,dowOf};
+
+// ===== Sample league (made-up data) =====
+function sampleConfig(){
+  const wk=[1080,1200];
+  return {
+    league:'Sample Little League',
+    start:'2027-03-01',end:'2027-05-15',
+    blackouts:['2027-03-15','2027-03-16','2027-03-17','2027-03-18','2027-03-19','2027-03-20','2027-03-26','2027-03-27'],
+    dayTimes:{0:[780,900,1020],1:wk,2:wk,3:wk,4:wk,5:wk,6:[540,660,780,900,1020]},
+    makeupDays:[0],
+    gameLength:120,lateCutoff:1200,
+    rules:{minRest:1,maxPerWeek:3,balanceHome:true},
+    divisions:[
+      {id:'d6',name:'T-Ball',teams:['Bees','Ants','Hornets','Fireflies'],gamesPerTeam:10,days:[2,4,6],latest:1170,gameLength:90,ownTimes:[1080,1170]},
+      {id:'d7',name:'Coach Pitch',teams:['Sharks','Gators','Falcons','Wolves','Bears','Hawks'],gamesPerTeam:10,days:[1,3,6],latest:1170,gameLength:90,ownTimes:[1080,1170]},
+      {id:'d1',name:'Single A',teams:['Red Sox','Pirates','Rays','Mets','Royals','Padres'],gamesPerTeam:12,days:[2,5,6],latest:1080},
+      {id:'d2',name:'Double AA',teams:['Giants','Brewers','Twins','Reds','Rockies','Marlins'],gamesPerTeam:12,days:[1,4,6],latest:1200},
+      {id:'d3',name:'Triple AAA',teams:['Dodgers','Cubs','Tigers','Mariners','Orioles','Phillies'],gamesPerTeam:14,days:[2,4,6],latest:1200},
+      {id:'d4',name:'Majors',teams:['Astros','Braves','Yankees','Cardinals','Rangers','Blue Jays'],gamesPerTeam:15,days:[1,3,6],latest:1200},
+      {id:'d5',name:'Seniors',teams:['Athletics','Angels','White Sox','Nationals'],gamesPerTeam:12,days:[3,5,6],latest:1200}
+    ],
+    fields:[
+      {id:'f1',name:'Field 1',divisions:['d4','d5']},
+      {id:'f2',name:'Field 2',divisions:['d4','d3']},
+      {id:'f3',name:'Field 3',divisions:['d3','d2']},
+      {id:'f4',name:'Field 4',divisions:['d2','d1']},
+      {id:'f5',name:'Field 5',divisions:['d1','d7']},
+      {id:'f6',name:'Field 6',divisions:['d6','d7']}
+    ],
+    conflicts:[{name:'Coach Rivera',teams:['Dodgers','Red Sox','Sharks']},{name:'',teams:['Astros','Giants']},{name:'',teams:['Cubs','Pirates']}]
+  };
+}
+//module.exports={sampleConfig};
+
+
+// ===== Page shell (kept in script so the page can republish itself) =====
+const FONT_URL='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap';
+const SHELL=`<div class="gdxbar"><div class="wrap"><a class="gdxlogo" href="/" aria-label="GameDay Express home">GAME<span>DAY</span> EXPRESS</a><span class="gdxsub">League Scheduler</span><span class="spacer"></span><a class="gdxback" href="/">← Sports portal</a></div></div>
+<header class="top">
+  <div class="wrap">
+    <div class="brandrow">
+      <div class="brand"><img id="leagueLogo" class="logo" alt="" hidden>
+      <div>
+        <h1 id="leagueTitle">New league</h1>
+        <div class="sub" id="seasonLine"></div>
+      </div></div>
+      <div class="hdr-actions"><button class="btn small" id="shareBtn" hidden>Share my league</button><button class="btn small" id="fileBtn">Save or open a league</button><span class="demo-tag">Beta</span></div>
+    </div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Steps">
+  <div class="wrap" role="tablist">
+    <button role="tab" data-tab="setup" aria-selected="true"><span class="step">1</span>Setup</button>
+    <button role="tab" data-tab="schedule" aria-selected="false"><span class="step">2</span>Schedule</button>
+    <button role="tab" data-tab="fair" aria-selected="false"><span class="step">3</span>Fairness</button>
+    <button role="tab" data-tab="rain" aria-selected="false"><span class="step">4</span><span id="tabRain">Rainouts</span> <span class="badge-n" id="ppCount" hidden>0</span></button>
+    <span class="tabsep" aria-hidden="true"></span>
+    <button role="tab" data-tab="coach" aria-selected="false">Coaches Corner</button>
+    <button role="tab" data-tab="ump" aria-selected="false"><span id="tabUmp">Umpire Corner</span></button>
+  </div>
+</nav>
+<main><div class="wrap" id="view"></div></main>
+<div class="toast" id="toast" hidden></div>`;
+document.getElementById('appScript').insertAdjacentHTML('beforebegin',SHELL);
+let SHARED=null;try{SHARED=JSON.parse(document.getElementById('sharedLeague').textContent||'null');}catch(e){SHARED=null;}
+let basedOn=null, canShare=false, isEditor=false, sharePanel=false, artifactApi=null;
+
+// ===== App state =====
+let cfg, games=[], unplaced=[], built=false, stale=false, picks={}, changeLog=[], tab='setup', filterDiv='all', filterTeam='all', wiz=0, reached=0, showErr=false;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const divName=id=>(cfg.divisions.find(d=>d.id===id)||{}).name||'?';
+const fieldName=id=>(cfg.fields.find(f=>f.id===id)||{}).name||'?';
+const KEY='gdxSchedLeague1';
+function save(){try{localStorage.setItem(KEY,JSON.stringify({cfg,games,unplaced,built,stale,changeLog,wiz,reached,basedOn}));}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.cfg){({cfg,games,unplaced,built,stale,changeLog,wiz,reached}=s);basedOn=s.basedOn||null;changeLog=changeLog||[];wiz=wiz||0;reached=Math.max(reached||0,wiz);return true;}}catch(e){}return false;}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>el.hidden=true,2400);}
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Copied');return true;}catch(e){toast('Copy blocked here. Select the text and copy it.');return false;}}
+let uid=0;const newId=p=>p+Date.now().toString(36)+(++uid);
+
+function blankConfig(){return {league:'',sport:'',start:'',end:'',blackouts:[],dayTimes:{},makeupDays:[],gameLength:120,lateCutoff:1200,
+  rules:{minRest:1,maxPerWeek:3,balanceHome:true},divisions:[],fields:[],conflicts:[]};}
+
+function header(){
+  document.getElementById('leagueTitle').textContent=cfg.league||'New league';
+  const lg=document.getElementById('leagueLogo');if(lg){if(cfg.logo){if(lg.getAttribute('src')!==cfg.logo)lg.src=cfg.logo;lg.alt=(cfg.league||'League')+' logo';lg.hidden=false;}else{lg.hidden=true;lg.removeAttribute('src');}}
+  const n=games.filter(g=>g.status!=='postponed').length;
+  const parts=[];
+  if(cfg.start&&cfg.end)parts.push(`Season ${fmtDateLong(cfg.start)} to ${fmtDateLong(cfg.end)}`);
+  if(cfg.divisions.length)parts.push(`${cfg.divisions.length} level${cfg.divisions.length===1?'':'s'}`);
+  if(cfg.fields.length)parts.push(`${cfg.fields.length} ${cfg.fields.length===1?W().venue:W().venues}`);
+  {const w=W();const tr=document.getElementById('tabRain');if(tr)tr.textContent=w.rainTab;const tu=document.getElementById('tabUmp');if(tu)tu.textContent=w.Official+' Corner';}
+  if(built)parts.push(`${n} games scheduled`);
+  document.getElementById('seasonLine').textContent=parts.join(' · ')||'Answer the setup questions to build a schedule';
+  const pp=games.filter(g=>g.status==='postponed').length;const b=document.getElementById('ppCount');b.textContent=pp;b.hidden=!pp;
+  document.querySelectorAll('nav.tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.tab===tab));
+}
+function statusBar(){
+  if(!built)return '';
+  const issues=validate(cfg,games);const pp=games.filter(g=>g.status==='postponed').length;
+  return `<div class="statusbar">
+    <span class="pill ${issues.length?'bad':'ok'}">${issues.length?issues.length+' rule violations':'0 rule violations'}</span>
+    ${unplaced.length?`<span class="pill bad">${unplaced.length} games could not be placed</span>`:`<span class="pill ok">All games placed</span>`}
+    ${pp?`<span class="pill rain">${pp} postponed, waiting for makeups</span>`:''}
+    ${stale?`<span class="pill warn">Setup changed since this schedule was built</span>`:''}
+  </div>`;
+}
+
+function loadLogo(file){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const img=new Image();img.onerror=rej;img.onload=()=>{
+  const max=240;let w=img.naturalWidth||max,h=img.naturalHeight||max;const k=Math.min(1,max/Math.max(w,h));w=Math.max(1,Math.round(w*k));h=Math.max(1,Math.round(h*k));
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);
+  let url=c.toDataURL('image/png');if(url.length>120000)url=c.toDataURL('image/jpeg',0.85);res(url);};img.src=r.result;};r.readAsDataURL(file);});}
+// ===== Sports and wording =====
+const B9=['P','C','1B','2B','SS','3B','LF','CF','RF'];
+const SPORTS={
+  baseball:{label:'Baseball',venue:'field',venues:'fields',period:'inning',periods:'innings',nper:6,official:'umpire',officials:'umpires',outdoor:true,spots:B9},
+  softball:{label:'Softball',venue:'field',venues:'fields',period:'inning',periods:'innings',nper:7,official:'umpire',officials:'umpires',outdoor:true,spots:B9},
+  basketball:{label:'Basketball',venue:'court',venues:'courts',period:'quarter',periods:'quarters',nper:4,official:'referee',officials:'referees',outdoor:false,spots:['PG','SG','SF','PF','C']},
+  volleyball:{label:'Volleyball',venue:'court',venues:'courts',period:'set',periods:'sets',nper:3,official:'referee',officials:'referees',outdoor:false,spots:['S','OH 1','OH 2','MB 1','MB 2','OPP']},
+  tennis:{label:'Tennis',venue:'court',venues:'courts',period:'match',periods:'matches',nper:1,official:'official',officials:'officials',outdoor:true,spots:['Singles 1','Singles 2','Doubles 1A','Doubles 1B','Doubles 2A','Doubles 2B','Doubles 3A','Doubles 3B']},
+  soccer:{label:'Soccer',venue:'field',venues:'fields',period:'half',periods:'halves',nper:2,official:'referee',officials:'referees',outdoor:true,spots:['GK','LB','CB 1','CB 2','RB','LM','CM 1','CM 2','RM','ST 1','ST 2']},
+  youthfootball:{label:'Youth football',venue:'field',venues:'fields',period:'quarter',periods:'quarters',nper:4,official:'referee',officials:'referees',outdoor:true,spots:['QB','RB','FB','WR 1','WR 2','TE','LT','LG','C','RG','RT']},
+  flagfootball:{label:'Flag football',venue:'field',venues:'fields',period:'half',periods:'halves',nper:2,official:'referee',officials:'referees',outdoor:true,spots:['QB','C','WR 1','WR 2','RB']},
+  pickleball:{label:'Pickleball',venue:'court',venues:'courts',period:'match',periods:'matches',nper:1,official:'referee',officials:'referees',outdoor:true,spots:['Doubles 1A','Doubles 1B','Doubles 2A','Doubles 2B','Mixed A','Mixed B']},
+  tabletennis:{label:'Table tennis',venue:'table',venues:'tables',period:'round',periods:'rounds',nper:1,official:'umpire',officials:'umpires',outdoor:false,spots:['Singles 1','Singles 2','Singles 3','Doubles 1','Doubles 2']},
+  other:{label:'Other',venue:'venue',venues:'venues',period:'period',periods:'periods',nper:4,official:'official',officials:'officials',outdoor:false,spots:['Spot 1','Spot 2','Spot 3','Spot 4','Spot 5']}
+};
+const aan=x=>(/^[aeiou]/i.test(x)?'an ':'a ')+x;
+const cap1=x=>x.charAt(0).toUpperCase()+x.slice(1);
+function W(){const sp=SPORTS[(typeof cfg!=='undefined'&&cfg&&cfg.sport)]||SPORTS.baseball;
+  return Object.assign({},sp,{Venue:cap1(sp.venue),Venues:cap1(sp.venues),Period:cap1(sp.period),Periods:cap1(sp.periods),Official:cap1(sp.official),Officials:cap1(sp.officials),
+    rainTab:sp.outdoor?'Rainouts':'Postponements',rainDay:sp.outdoor?'Rain out this day':'Postpone this day',rainNoun:sp.outdoor?'rainout':'postponement',rainVerb:sp.outdoor?'rain out':'postpone'});}
+function wt(x){const w=W();return String(x).replace(/\{(\w+)\}/g,(m,k)=>w[k]!=null?w[k]:m);}
+// ===== Guided setup =====
+const STEPS=[
+  {id:'league',title:'League name',q:'What is the name of your league?',help:'This name appears at the top of every schedule and update you send.'},
+  {id:'season',title:'Season dates',q:'When does your season run?',help:'Pick the first and last day games can be played. Then add any stretch with no games.'},
+  {id:'levels',title:'Levels',q:'How many levels does your league have?',help:'Use the names your league uses, for example 8U, 10U, 12U, Varsity, Single A or Majors.'},
+  {id:'teams',title:'Teams',q:'How many teams are in each level, and what are they called?',help:'Team names must be different across the whole league, so the schedule never mixes up two teams.'},
+  {id:'fields',title:'{Venues}',q:'How many {venues} do you have, and which levels play on each?',help:'Levels that share a {venue} never get the same time slot.'},
+  {id:'times',title:'Game days and times',q:'Which days are games played, and what time do they start?',help:'Check each day games are played. Weeknights start with 6:00 PM and 8:00 PM; add or remove times as needed. Hold a day for makeups only if it should stay empty until a {rainNoun}.'},
+  {id:'levelplay',title:'Level schedules',q:'When does each level play, and how many games does each team get?',help:'Pick the days each level plays. Younger levels can have their own weeknight start times and shorter games, like 6:00 and 7:30 PM.'},
+  {id:'coaches',title:'Shared coaches',q:'Do any managers or coaches have teams in more than one level?',help:'List every team each person coaches, two or more. Those teams never play at overlapping times on the same day. Back-to-back slots, like 6:00 and 8:00, are still allowed.'},
+  {id:'rules',title:'Fairness rules',q:'What rules keep the schedule fair?',help:'These apply to every team in every level.'},
+  {id:'review',title:'Review and build',q:'Check your answers and build the schedule',help:'The capacity check makes sure each level has enough open slots before anything is built.'}
+];
+const gameDays=()=>[1,2,3,4,5,6,0].filter(d=>cfg.dayTimes[d]!==undefined);
+const allTeams=()=>cfg.divisions.flatMap(d=>d.teams.filter(Boolean).map(t=>({t,d:d.name||'Unnamed level'})));
+function stepErrors(id){
+  const e=[];
+  if(id==='league'&&!cfg.league.trim())e.push('Enter the league name.');if(id==='league'&&!cfg.sport)e.push('Pick a sport.');
+  if(id==='season'){if(!cfg.start||!cfg.end)e.push('Pick the month, day and year for both the first and last game day.');else if(cfg.end<=cfg.start)e.push('The last game day must come after the first.');(cfg.noGame||[]).forEach((r,i)=>{if(!r.from)e.push(`No-game dates row ${i+1} needs a start date, or remove it.`);});}
+  if(id==='levels'){if(!cfg.divisions.length)e.push('Add at least one level.');
+    cfg.divisions.forEach((d,i)=>{if(!d.name.trim())e.push(`Level ${i+1} still needs a name. The gray text is only an example.`);});
+    const n=cfg.divisions.map(d=>d.name.trim().toLowerCase()).filter(Boolean);if(new Set(n).size<n.length)e.push('Two levels have the same name.');}
+  if(id==='teams'){cfg.divisions.forEach(d=>{if(d.teams.length<2)e.push(`${d.name||'A level'} needs at least 2 teams.`);if(d.teams.some(t=>!t.trim()))e.push(`Name every team in ${d.name||'each level'}.`);});
+    const all=cfg.divisions.flatMap(d=>d.teams.map(t=>t.trim().toLowerCase())).filter(Boolean);const dup=all.filter((t,i)=>all.indexOf(t)!==i);if(dup.length)e.push(`These team names are used twice: ${[...new Set(dup)].join(', ')}.`);}
+  if(id==='fields'){if(!cfg.fields.length)e.push(`Add at least one ${W().venue}.`);if(cfg.fields.some(f=>!f.name.trim()))e.push(`Give every ${W().venue} a name.`);
+    cfg.divisions.forEach(d=>{if(!cfg.fields.some(f=>f.divisions.includes(d.id)))e.push(`${d.name} isn't assigned to any ${W().venue}.`);});}
+  if(id==='times'){const gd=gameDays();if(!gd.length)e.push('Pick at least one game day.');
+    gd.forEach(d=>{if(!cfg.dayTimes[d].length)e.push(`Add start times for ${DOW[d]}, or uncheck it.`);});
+    if(gd.length&&gd.every(d=>cfg.makeupDays.includes(d)))e.push('At least one game day must be for regular games, not only makeups.');}
+  if(id==='levelplay'){cfg.divisions.forEach(d=>{const ok=d.days.filter(x=>gameDays().includes(x)&&!cfg.makeupDays.includes(x));if(!ok.length)e.push(`Pick the days ${d.name} plays.`);if(!(d.gamesPerTeam>=1))e.push(`Enter games per team for ${d.name}.`);});}
+  if(id==='coaches'){cfg.conflicts.forEach((c,i)=>{const who=c.name||`Shared coach ${i+1}`;const ts=c.teams.filter(Boolean);if(ts.length<c.teams.length)e.push(`Pick every team for ${who}, or remove the empty row.`);if(new Set(ts).size<ts.length)e.push(`${who} lists the same team twice.`);if(c.teams.length<2)e.push(`${who} needs at least 2 teams.`);});}
+  if(id==='review'){for(const s of STEPS.slice(0,-1)){const x=stepErrors(s.id);if(x.length){e.push(`Finish "${s.title}" first.`);}}
+    if(!e.length){const cap=capacity(cfg);cap.filter(c=>!c.ok).forEach(c=>e.push(`${c.name} needs ${c.need} games but only has room for ${Math.min(c.slots,c.teamNights)}. Add game days or ${W().venues}, extend the season, or lower games per team.`));}}
+  return e;
+}
+function blackText(){
+  const d=cfg.blackouts.slice().sort();const out=[];let i=0;
+  while(i<d.length){let j=i;while(j+1<d.length&&d[j+1]===addDays(d[j],1))j++;out.push(i===j?d[i]:d[i]+' to '+d[j]);i=j+1;}
+  return out.join('\n');
+}
+function countInput(id,val,min,max,label){return `<div class="counter"><button class="btn small" data-act="cnt" data-for="${id}" data-d="-1" aria-label="Fewer">−</button><input type="number" id="${id}" min="${min}" max="${max}" value="${val}" aria-label="${label}"><button class="btn small" data-act="cnt" data-for="${id}" data-d="1" aria-label="More">+</button></div>`;}
+
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let dDraft={};
+const TIME_OPTS=Array.from({length:29},(_,i)=>480+i*30);
+function dateSel(key,val,label){
+  const p=dDraft[key]||(val?{y:val.slice(0,4),m:val.slice(5,7),d:val.slice(8,10)}:{y:'',m:'',d:''});
+  const yNow=new Date().getFullYear();const years=[];for(let y=yNow;y<=yNow+4;y++)years.push(String(y));
+  const opt=(v,t,cur)=>`<option value="${v}" ${v===cur?'selected':''}>${t}</option>`;
+  return `<div class="datesel" role="group" aria-label="${label}">
+    <select id="ds_${key}_m" data-date="${key}" data-part="m" aria-label="${label} month">${opt('','Month',p.m)}${MONTHS.map((n,i)=>opt(String(i+1).padStart(2,'0'),n,p.m)).join('')}</select>
+    <select id="ds_${key}_d" data-date="${key}" data-part="d" aria-label="${label} day">${opt('','Day',p.d)}${Array.from({length:31},(_,i)=>opt(String(i+1).padStart(2,'0'),i+1,p.d)).join('')}</select>
+    <select id="ds_${key}_y" data-date="${key}" data-part="y" aria-label="${label} year">${opt('','Year',p.y)}${years.map(y=>opt(y,y,p.y)).join('')}</select></div>`;
+}
+function syncBlackouts(){const out=new Set();for(const r of (cfg.noGame||[])){if(!r.from)continue;let a=r.from,b=r.to&&r.to>=r.from?r.to:r.from,n=0;while(a<=b&&n<120){out.add(a);a=addDays(a,1);n++;}}cfg.blackouts=[...out].sort();}
+function rangesFromBlackouts(list){const d=list.slice().sort();const out=[];let i=0;while(i<d.length){let j=i;while(j+1<d.length&&d[j+1]===addDays(d[j],1))j++;out.push({from:d[i],to:d[j]});i=j+1;}return out;}
+function fixConfig(){if(!cfg.sport)cfg.sport='baseball';cfg.conflicts=(cfg.conflicts||[]).map(c=>c.teams?c:{name:'',teams:[c.a||'',c.b||'']});if(!cfg.noGame)cfg.noGame=rangesFromBlackouts(cfg.blackouts||[]);
+  for(const k of ['start','end'])if(cfg[k]&&+cfg[k].slice(0,4)<2000)cfg[k]='';}
+function stepBody(id){
+  switch(id){
+  case 'league':return `<div class="logopick"><div class="logobox">${cfg.logo?`<img src="${cfg.logo}" alt="League logo preview">`:'<span>No logo</span>'}</div>
+      <div class="choice"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">League logo (optional)</span>
+      <div class="row"><label class="btn small filebtn">${cfg.logo?'Change logo':'Add a logo'}<input type="file" id="lgLogo" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"></label>${cfg.logo?'<button class="btn link small" data-act="rmLogo">Remove</button>':''}</div>
+      <span class="sub">PNG, JPG or SVG. It shows next to the league name at the top of every page.</span></div></div>
+    <label class="f">League name<input type="text" id="lg" value="${esc(cfg.league)}" placeholder="Type your league name" class="${showErr&&!cfg.league.trim()?'missing':''}" autocomplete="off"></label>
+    <div class="choice"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Sport</span>
+      <div class="days">${Object.entries(SPORTS).map(([k,v])=>`<label class="chk sportchip"><input type="radio" name="sport" id="sp_${k}" data-sport="${k}" ${cfg.sport===k?'checked':''}>${v.label}</label>`).join('')}</div>
+      <span class="sub">${cfg.sport?`Wording follows ${SPORTS[cfg.sport].label.toLowerCase()}: ${W().venues}, ${W().periods} and ${W().officials}. You can still name your ${W().venues} anything.`:'Pick one so the app uses the right words, like courts or fields, and referees or umpires.'}</span></div>
+    <div class="choice"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">What are you scheduling?</span>
+      <label class="opt"><input type="radio" checked name="kind"><span><b>A league season</b><br><span class="k">Games spread over weeks, every team plays a set number of games</span></span></label>
+      <label class="opt dim"><input type="radio" disabled name="kind"><span><b>A weekend tournament</b><br><span class="k">Pool play and brackets. Coming in a later version.</span></span></label></div>`;
+  case 'season':return `<div class="grid2"><div class="f">First game day${dateSel('start',cfg.start,'First game day')}</div><div class="f">Last game day${dateSel('end',cfg.end,'Last game day')}</div></div>
+    <div class="f">Dates with no games (optional), like spring break or a holiday weekend</div>
+    ${(cfg.noGame||[]).map((r,i)=>`<div class="row ngrow"><span class="sub">From</span>${dateSel('ng'+i+'f',r.from,'No games from')}<span class="sub">through</span>${dateSel('ng'+i+'t',r.to,'No games through')}<button class="btn link" data-act="rmNg" data-i="${i}">Remove</button></div>`).join('')}
+    <div><button class="btn small" data-act="addNg">Add no-game dates</button></div>`;
+  case 'levels':return `<label class="f">Number of levels${countInput('nlv',cfg.divisions.length,0,12,'Number of levels')}</label>
+    ${cfg.divisions.length?`<div class="list">${cfg.divisions.map((d,i)=>`<label class="f">Level ${i+1} name<input type="text" id="lvn${i}" data-lv="${i}" value="${esc(d.name)}" placeholder="Type a name, like ${['8U','10U','12U','14U','Varsity','Adult'][i]||'Varsity'}" class="${showErr&&!d.name.trim()?'missing':''}"></label>`).join('')}</div>`:''}`;
+  case 'teams':return cfg.divisions.length?cfg.divisions.map((d,i)=>`<div class="ed">
+      <div class="row"><h3>${esc(d.name||'Level '+(i+1))}</h3><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">Teams${countInput('ntm'+i,d.teams.length,0,30,'Teams in '+(d.name||'level'))}</label></div>
+      ${d.teams.length?`<div class="list cols">${d.teams.map((t,j)=>`<input type="text" id="tm${i}_${j}" data-tm="${i}_${j}" value="${esc(t)}" placeholder="Type team ${j+1} name" class="${showErr&&!t.trim()?'missing':''}" aria-label="${esc(d.name)} team ${j+1}">`).join('')}</div>`:''}
+    </div>`).join(''):`<p class="empty">Add levels first.</p>`;
+  case 'fields':return `<label class="f">Number of ${W().venues}${countInput('nfd',cfg.fields.length,0,20,'Number of '+W().venues)}</label>
+    ${cfg.fields.map((f,i)=>`<div class="ed"><label class="f">${W().Venue} ${i+1} name<input type="text" id="fdn${i}" data-fd="${i}" value="${esc(f.name)}"></label>
+      <span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Levels that can play here</span>
+      <div class="days">${cfg.divisions.map(d=>`<label class="chk"><input type="checkbox" id="fdv${i}_${d.id}" data-fdv="${i}" value="${d.id}" ${f.divisions.includes(d.id)?'checked':''}>${esc(d.name)}</label>`).join('')}</div></div>`).join('')}`;
+  case 'times':return `<div class="row"><button class="btn small" data-act="allGameDays">Games Mon through Sat</button><span class="sub">Checks every day except Sunday. You can still uncheck any day.</span></div><div class="scroll"><table><thead><tr><th>Games on</th><th>Start times</th><th>Hold for makeups only</th></tr></thead><tbody>
+    ${[1,2,3,4,5,6,0].map(d=>{const on=cfg.dayTimes[d]!==undefined;return `<tr><td><label class="chk"><input type="checkbox" id="gd${d}" data-gd="${d}" ${on?'checked':''}>${DOW[d]}</label></td>
+      <td>${on?`<div class="times">${(cfg.dayTimes[d]||[]).map(t=>`<span class="tchip">${fmtTime(t)}<button class="x" data-act="rmTime" data-d="${d}" data-t="${t}" aria-label="Remove ${fmtTime(t)} on ${DOW[d]}">×</button></span>`).join('')}
+        <select id="at${d}" data-addtime="${d}" aria-label="Add a start time on ${DOW[d]}"><option value="">+ Add time</option>${TIME_OPTS.filter(t=>!(cfg.dayTimes[d]||[]).includes(t)).map(t=>`<option value="${t}">${fmtTime(t)}</option>`).join('')}</select>
+        ${d>=1&&d<=5&&(cfg.dayTimes[d]||[]).length?`<button class="btn link small" data-act="copyWk" data-d="${d}">Use for all weeknights</button>`:''}</div>`:'<span class="sub">No games</span>'}</td>
+      <td>${on?`<label class="chk"><input type="checkbox" id="mk${d}" data-mk="${d}" ${cfg.makeupDays.includes(d)?'checked':''}>Makeups only</label>`:''}</td></tr>`;}).join('')}
+    </tbody></table></div>
+    <div class="grid2"><label class="f">Usual game length, including ${W().venue} turnover (minutes). You can change it for a level later.<input type="number" min="45" step="15" id="gl" value="${cfg.gameLength}"></label>
+    <label class="f">Count a game as late if it starts at or after<input type="text" id="lc" value="${fmtTime(cfg.lateCutoff)}"></label></div>`;
+  case 'levelplay':{const gd=gameDays().filter(d=>!cfg.makeupDays.includes(d));const wkTimes=[...new Set([1,2,3,4,5].filter(d=>cfg.dayTimes[d]).flatMap(d=>cfg.dayTimes[d]))].sort((a,b)=>a-b);
+    return cfg.divisions.map((d,i)=>`<div class="ed"><h3>${esc(d.name)}</h3>
+      <span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Plays on</span>
+      <div class="days">${gd.length?gd.map(w=>`<label class="chk"><input type="checkbox" id="lp${i}_${w}" data-dvday="${i}" value="${w}" ${d.days.includes(w)?'checked':''}>${DOW[w]}</label>`).join('')+(gd.every(w=>d.days.includes(w))?`<button class="btn small" data-act="allDays" data-i="${i}" data-on="0">Clear all</button>`:`<button class="btn small" data-act="allDays" data-i="${i}" data-on="1">All days</button>`):'<span class="sub">Set game days first.</span>'}</div>
+      <span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Weeknight start times</span>
+      <div class="choice">
+        <label class="chk"><input type="radio" name="own${i}" id="own${i}s" data-own="${i}" value="same" ${d.ownTimes&&d.ownTimes.length?'':'checked'}>Same as the league${wkTimes.length?` (${wkTimes.map(fmtTime).join(', ')})`:''}</label>
+        <label class="chk"><input type="radio" name="own${i}" id="own${i}o" data-own="${i}" value="own" ${d.ownTimes&&d.ownTimes.length?'checked':''}>Different times for ${esc(d.name)}</label>
+        ${d.ownTimes&&d.ownTimes.length?`<div class="times">${d.ownTimes.map(t=>`<span class="tchip">${fmtTime(t)}<button class="x" data-act="rmOwn" data-i="${i}" data-t="${t}" aria-label="Remove ${fmtTime(t)}">×</button></span>`).join('')}<select id="ao${i}" data-addown="${i}" aria-label="Add a start time for ${esc(d.name)}"><option value="">+ Add time</option>${TIME_OPTS.filter(t=>!d.ownTimes.includes(t)).map(t=>`<option value="${t}">${fmtTime(t)}</option>`).join('')}</select></div>`:''}
+      </div>
+      <div class="grid2"><label class="f">Games per team${countInput('gpt'+i,d.gamesPerTeam,1,40,'Games per team for '+d.name)}</label>
+      <label class="f">Game length<select id="gln${i}" data-glen="${i}"><option value="">League default (${cfg.gameLength} min)</option>${[60,75,90,105,120,135,150].map(m=>`<option value="${m}" ${d.gameLength===m?'selected':''}>${m===90?'1 hr 30 min':m%60?Math.floor(m/60)+' hr '+(m%60)+' min':(m/60)+' hr'+(m>60?'s':'')}</option>`).join('')}</select></label>
+      <label class="f">Latest start time<select id="lt${i}" data-lt="${i}">${(()=>{const ts=[...new Set([...gameDays().flatMap(x=>cfg.dayTimes[x]),...(d.ownTimes||[]),d.latest])].sort((a,b)=>a-b);return ts.map(t=>`<option value="${t}" ${t===d.latest?'selected':''}>${fmtTime(t)}</option>`).join('');})()}</select></label></div>
+      ${d.teams.length>1?`<span class="sub">${d.teams.length} teams × ${d.gamesPerTeam} games = ${Math.floor(d.teams.length*d.gamesPerTeam/2)} games to schedule.</span>`:''}
+    </div>`).join('');}
+  case 'coaches':{const at=allTeams();return `${cfg.conflicts.length?cfg.conflicts.map((c,i)=>`<div class="ed">
+      <div class="head"><label class="f">Coach or manager name (optional)<input type="text" id="cfn${i}" data-cfname="${i}" value="${esc(c.name||'')}" placeholder="Type a name, like Tom B."></label><button class="btn link" data-act="rmConf" data-i="${i}">Remove coach</button></div>
+      <span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Teams this person coaches</span>
+      ${c.teams.map((t,j)=>`<div class="row"><select id="cft${i}_${j}" data-cf="${i}" data-j="${j}" aria-label="Team ${j+1}" style="flex:1 1 240px"><option value="">Pick a team</option>${at.map(x=>`<option ${x.t===t?'selected':''} value="${esc(x.t)}">${esc(x.t)} (${esc(x.d)})</option>`).join('')}</select>${c.teams.length>2?`<button class="btn link small" data-act="rmConfTeam" data-i="${i}" data-j="${j}">Remove</button>`:''}</div>`).join('')}
+      <div><button class="btn small" data-act="addConfTeam" data-i="${i}">Add another team</button></div>
+    </div>`).join(''):'<p class="empty">No shared coaches yet. If none, just continue.</p>'}
+    <div><button class="btn small" data-act="addConf">Add a shared coach</button></div>`;}
+  case 'rules':return `<div class="grid2"><label class="f">Days off required between a team's games${countInput('mr',cfg.rules.minRest,0,6,'Days off')}</label>
+    <label class="f">Most games for one team in a week${countInput('mw',cfg.rules.maxPerWeek,1,7,'Games per week')}</label></div>
+    <div class="choice">
+      <label class="chk" style="align-self:flex-start"><input type="checkbox" id="bh" ${cfg.rules.balanceHome?'checked':''}>Balance home and away games</label>
+      <label class="chk" style="align-self:flex-start"><input type="checkbox" id="btm" ${cfg.rules.balanceTimes!==false?'checked':''}>Balance early and late weeknight starts, like 6:00 vs 8:00</label>
+      <label class="chk" style="align-self:flex-start"><input type="checkbox" id="bfd" ${cfg.rules.balanceFields!==false?'checked':''}>Balance which ${W().venues} each team plays on</label>
+    </div>`;
+  case 'review':{const ready=STEPS.slice(0,-1).every(s=>!stepErrors(s.id).length);const cap=ready?capacity(cfg):[];
+    return `<div class="sumgrid">
+      ${sumRow(0,'League',(cfg.logo?`<img class="sumlogo" src="${cfg.logo}" alt=""> `:'')+esc(cfg.league||'—'))}
+      ${sumRow(1,'Season',cfg.start&&cfg.end?`${fmtDateLong(cfg.start)} to ${fmtDateLong(cfg.end)}${cfg.blackouts.length?` · ${cfg.blackouts.length} no-game dates`:''}`:'—')}
+      ${sumRow(2,'Levels',esc(cfg.divisions.map(d=>d.name).join(', ')||'—'))}
+      ${sumRow(3,'Teams',cfg.divisions.map(d=>`${esc(d.name)}: ${d.teams.length}`).join(' · ')||'—')}
+      ${sumRow(4,'Fields',esc(cfg.fields.map(f=>f.name).join(', ')||'—'))}
+      ${sumRow(5,'Game days',gameDays().map(d=>`${DOW[d]}${cfg.makeupDays.includes(d)?' (makeups)':''}`).join(', ')||'—')}
+      ${sumRow(6,'Level schedules',cfg.divisions.map(d=>`${esc(d.name)}: ${d.gamesPerTeam} games${d.ownTimes&&d.ownTimes.length?`, weeknights ${d.ownTimes.map(fmtTime).join(' & ')}`:''}${d.gameLength?`, ${d.gameLength} min`:''}`).join('<br>')||'—')}
+      ${sumRow(7,'Shared coaches',cfg.conflicts.length?cfg.conflicts.map(c=>`${c.name?esc(c.name)+': ':''}${c.teams.map(esc).join(', ')}`).join('<br>'):'None')}
+      ${sumRow(8,'Rules',`${cfg.rules.minRest} day${cfg.rules.minRest===1?'':'s'} off between games · up to ${cfg.rules.maxPerWeek} a week${cfg.rules.balanceHome?' · balanced home/away':''}${cfg.rules.balanceTimes!==false?' · balanced start times':''}${cfg.rules.balanceFields!==false?' · balanced '+W().venues:''}`)}
+    </div>
+    ${ready?`<h3>Capacity check</h3><div class="cap">${cap.map(c=>`<div class="capbox ${c.ok?'':'bad'}"><b>${esc(c.name)}</b><span class="big">${c.need} games</span><small>${c.slots} open slots over ${c.weeks} weeks${c.ok?'':' · not enough room'}</small></div>`).join('')}</div>`:''}
+    ${built?'<p class="sub" style="margin:0">Building again replaces the current schedule and any makeups.</p>':''}`;}
+  }
+}
+function sumRow(i,k,v){return `<div class="sum"><span class="k">${k}</span><span class="v">${v}</span><button class="btn link small" data-act="goStep" data-i="${i}">Edit</button></div>`;}
+
+function renderSetup(){
+  const s=STEPS[wiz];const errs=stepErrors(s.id);const last=wiz===STEPS.length-1;
+  return `${statusBar()}
+  <div class="wizard">
+    <ol class="steps" aria-label="Setup steps">${STEPS.map((x,i)=>{const done=i<reached&&!stepErrors(x.id).length&&i!==STEPS.length-1;return `<li><button data-act="goStep" data-i="${i}" class="${i===wiz?'cur':''} ${done?'done':''}" ${i===wiz?'aria-current="step"':''}><span class="dot">${done&&i!==wiz?'✓':i+1}</span><span>${wt(x.title)}</span></button></li>`;}).join('')}</ol>
+    <section class="card qcard">
+      <div class="qhead"><span class="eyebrow">Question ${wiz+1} of ${STEPS.length}</span><h2>${wt(s.q)}</h2><p class="lead">${wt(s.help)}</p></div>
+      ${stepBody(s.id)}
+      ${showErr&&errs.length?`<div class="note bad" role="alert">${errs.map(esc).join('<br>')}</div>`:''}
+      <div class="row navrow">
+        ${wiz>0?`<button class="btn" data-act="prev">Back</button>`:''}
+        <span class="spacer"></span>
+        ${wiz===0&&!cfg.league&&!cfg.divisions.length?`<button class="btn link" data-act="sample">Fill every step with a sample league</button>`:''}
+        ${last?`<button class="btn primary" data-act="build">${built?'Rebuild schedule':'Build schedule'}</button>`:`<button class="btn primary" data-act="next">Next</button>`}
+      </div>
+    </section>
+  </div>
+  <div class="row"><span class="spacer"></span><button class="btn link" data-act="sample">Load sample league</button><button class="btn link" data-act="clear">Start over with a blank league</button></div>`;
+}
+
+// ===== Schedule =====
+function renderSchedule(){
+  if(!built)return emptyBuild();
+  const teams=filterDiv==='all'?cfg.divisions.flatMap(d=>d.teams):cfg.divisions.find(d=>d.id===filterDiv).teams;
+  let list=games.slice();
+  if(filterDiv!=='all')list=list.filter(g=>g.div===filterDiv);
+  if(filterTeam!=='all')list=list.filter(g=>g.home===filterTeam||g.away===filterTeam);
+  list.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time||fieldName(a.field).localeCompare(fieldName(b.field)));
+  const byDate={};list.forEach(g=>(byDate[g.date]=byDate[g.date]||[]).push(g));
+  let lastWeek=null,html='';
+  for(const date of Object.keys(byDate)){
+    const wk=weekStart(date);if(wk!==lastWeek){html+=`<div class="weekhead">Week of ${fmtDateLong(wk)}</div>`;lastWeek=wk;}
+    const dg=byDate[date];const live=dg.filter(g=>g.status!=='postponed').length;
+    html+=`<div class="day"><div class="dayhead"><div><strong>${fmtDateLong(date)}</strong> <span class="tag">${cfg.makeupDays.includes(dowOf(date))?'Makeup day · ':''}${dg.length} games</span></div>${live?`<button class="btn small rain" data-act="rainDay" data-d="${date}">${W().rainDay}</button>`:''}</div>
+      ${dg.map(g=>`<div class="game ${g.status==='postponed'?'pp':''}">
+        <span class="t">${fmtTime(g.time)}</span><span class="fld">${esc(fieldName(g.field))}</span><span class="dv">${esc(divName(g.div))}</span>
+        <span class="m"><b>${esc(g.away)}</b> at <b>${esc(g.home)}</b></span>
+        <span class="act">${g.status==='postponed'?'<span class="chipst rain">Postponed</span>':g.status==='rescheduled'?'<span class="chipst new">Makeup</span>':`<button class="btn small link" data-act="pp" data-id="${g.id}">Postpone</button>`}</span>
+      </div>`).join('')}</div>`;
+  }
+  return `${statusBar()}
+  <section class="card">
+    <div class="row"><h2>Season schedule</h2><span class="spacer"></span><button class="btn small" data-act="copyTsv">Copy for Excel or Google Sheets</button></div>
+    <div class="row">
+      <label class="f" style="flex:1 1 180px">Level<select id="fd"><option value="all">All levels</option>${cfg.divisions.map(d=>`<option value="${d.id}" ${filterDiv===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select></label>
+      <label class="f" style="flex:1 1 180px">Team<select id="ft"><option value="all">All teams</option>${teams.map(t=>`<option ${filterTeam===t?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+    </div>
+    ${unplaced.length?`<div class="note bad"><b>${unplaced.length} games could not be placed.</b> There were not enough open slots that keep every team's rest days, weekly limit and coach conflicts. Add game nights, extend the season, or lower games per team, then rebuild.</div>`:''}
+    <p class="sub" style="margin:0">To try a ${W().rainNoun}, press <b>${W().rainDay}</b> on any date, or <b>Postpone</b> a single game, then open ${W().rainTab}.</p>
+  </section>
+  ${html||'<p class="empty">No games match these filters.</p>'}`;
+}
+function weekStart(date){const w=(dowOf(date)+6)%7;return addDays(date,-w);}
+function emptyBuild(){return `<section class="card"><h2>No schedule yet</h2><p class="lead">Finish setup and press Build schedule.</p><div><button class="btn primary" data-act="goSetup">Go to setup</button></div></section>`;}
+
+// ===== Fairness =====
+function renderFair(){
+  if(!built)return emptyBuild();
+  const f=fairness(cfg,games);const issues=validate(cfg,games);
+  const hlMap=(rows,k,key,r)=>{const v=rows.map(x=>x[k][key]||0);const mx=Math.max(...v),mn=Math.min(...v);return (mx-mn>=2&&(r[k][key]||0)===mx)?'hot':'';};
+  const hl=(rows,k,v)=>{const vals=rows.map(r=>r[k]);const mx=Math.max(...vals),mn=Math.min(...vals);return (mx-mn>=2&&v===mx)?'hot':'';};
+  return `${statusBar()}
+  <section class="card">
+    <h2>Rule check</h2>
+    ${issues.length?`<div class="note bad"><b>${issues.length} problems found.</b><br>${issues.slice(0,12).map(esc).join('<br>')}</div>`:`<p class="lead">Every game was checked against the required rules: one game per ${W().venue} at a time, no team twice in a day, ${cfg.rules.minRest} day${cfg.rules.minRest===1?'':'s'} off between games, no more than ${cfg.rules.maxPerWeek} games a week, levels only on their own ${W().venues}, and no coach conflicts. No problems found.</p>`}
+  </section>
+  <section class="card">
+    <h2>How evenly games are spread</h2>
+    <p class="lead">Use this to answer coach questions with numbers. A number is highlighted when a team has 2 or more than the team with the fewest. Weeknight starts count Monday through Friday games only.</p>
+  </section>
+  ${cfg.divisions.map(d=>{const x=f[d.id];return `<section class="card">
+    <div class="row"><h3>${esc(d.name)}</h3><span class="spacer"></span>
+      ${x.times.length>1?`<span class="pill ${x.spread.time>=2?'warn':'ok'}">Weeknight start times: ${x.spread.time===0?'even':'within '+x.spread.time}</span>`:''}
+      ${x.fields.length>1?`<span class="pill ${x.spread.field>=2?'warn':'ok'}">${W().Venues}: ${x.spread.field===0?'even':'within '+x.spread.field}</span>`:''}
+      <span class="pill ${x.spread.ha>=2?'warn':'ok'}">Home/away: ${x.spread.ha===0?'even':'off by '+x.spread.ha}</span></div>
+    <div class="scroll"><table><thead>
+      <tr><th></th><th></th><th></th><th></th>${x.times.length?`<th class="grp" colspan="${x.times.length}">Weeknight starts</th>`:''}${x.fields.length>1?`<th class="grp" colspan="${x.fields.length}">${W().Venues}</th>`:''}<th></th><th></th></tr>
+      <tr><th>Team</th><th class="num">Games</th><th class="num">Home</th><th class="num">Away</th>${x.times.map(t=>`<th class="num">${fmtTime(t)}</th>`).join('')}${x.fields.length>1?x.fields.map(fl=>`<th class="num">${esc(fieldName(fl))}</th>`).join(''):''}<th class="num">Saturdays</th><th class="num">Fewest days between games</th></tr></thead>
+    <tbody>${x.rows.map(r=>`<tr><td>${esc(r.team)}</td><td class="num ${hl(x.rows,'games',r.games)}">${r.games}</td><td class="num">${r.home}</td><td class="num">${r.away}</td>${x.times.map(t=>`<td class="num ${x.times.length>1?hlMap(x.rows,'tm',t,r):''}">${r.tm[t]||0}</td>`).join('')}${x.fields.length>1?x.fields.map(fl=>`<td class="num ${hlMap(x.rows,'fd',fl,r)}">${r.fd[fl]||0}</td>`).join(''):''}<td class="num ${hl(x.rows,'sat',r.sat)}">${r.sat}</td><td class="num">${r.minGap??'–'}</td></tr>`).join('')}</tbody></table></div>
+  </section>`;}).join('')}`;
+}
+
+// ===== Rainouts =====
+function renderRain(){
+  if(!built)return emptyBuild();
+  const pp=games.filter(g=>g.status==='postponed').sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time);
+  let body='';
+  if(!pp.length){
+    const firstLive=games.filter(g=>g.status==='scheduled'&&dowOf(g.date)!==6).sort((a,b)=>a.date<b.date?-1:1)[Math.floor(games.length/3)];
+    body=`<section class="card"><h2>No postponed games</h2><p class="lead">When a day is called off, the tool finds makeup slots that keep every rule, without moving any other game. Sooner dates rank higher, makeup days get a boost, and open nights rank lower.</p>
+      ${firstLive?`<div class="row"><button class="btn rain" data-act="rainDay" data-d="${firstLive.date}">Try it: ${W().rainVerb} ${fmtDateLong(firstLive.date)}</button></div>`:''}</section>`;
+  }else{
+    const prop=proposeMakeups(cfg,games,pp,null,picks);
+    const unresolved=prop.filter(p=>p.choice==null);
+    body=`<section class="card">
+      <h2>Makeups for ${pp.length} postponed game${pp.length>1?'s':''}</h2>
+      <p class="lead">Each game gets its best open slot by default. If a manager can't make it, pick another option. Only the postponed games move, and every option already keeps rest days, weekly limits and coach conflicts.</p>
+      ${unresolved.length?`<div class="note bad">${unresolved.length} game${unresolved.length>1?'s have':' has'} no open slot before the season ends. Add a makeup date or extend the season in setup.</div>`:''}
+      ${prop.map(p=>{const g=p.game;return `<div class="ppitem">
+        <div class="title"><b>${esc(divName(g.div))}: ${esc(g.away)} at ${esc(g.home)}</b><span class="sub">Was ${fmtDateLong(g.date)}, ${fmtTime(g.time)}, ${esc(fieldName(g.field))}</span></div>
+        ${p.options.length?`<div class="opts">${p.options.map((o,i)=>`<label class="opt"><input type="radio" name="o_${g.id}" data-pick="${g.id}" value="${i}" ${p.choice===i?'checked':''}><span><b>${fmtDateLong(o.date)}, ${fmtTime(o.time)}</b><br><span class="k">${esc(fieldName(o.field))} · ${o.kind}</span></span></label>`).join('')}</div>`:`<div class="note bad">No legal slot left this season.</div>`}
+        <div><button class="btn link small" data-act="unpp" data-id="${g.id}">Cancel postponement</button></div>
+      </div>`;}).join('')}
+      <div class="row"><button class="btn primary" data-act="apply" ${unresolved.length===prop.length?'disabled':''}>Apply makeups</button><span class="sub">Moves ${prop.length-unresolved.length} game${prop.length-unresolved.length===1?'':'s'}. Other games stay where they are.</span></div>
+    </section>`;
+  }
+  if(changeLog.length){
+    const msg=directorsMessage();
+    body+=`<section class="card"><div class="row"><h2>Update for division directors</h2><span class="spacer"></span><button class="btn small" data-act="copyMsg">Copy message</button></div>
+      <p class="lead">Ready to send. Directors pass it to their coaches.</p><pre class="msg">${esc(msg)}</pre></section>`;
+  }
+  return statusBar()+body;
+}
+function directorsMessage(){
+  const by={};changeLog.forEach(c=>(by[c.div]=by[c.div]||[]).push(c));
+  let s=`${cfg.league}: schedule changes\n`;
+  for(const d of cfg.divisions){if(!by[d.id])continue;s+=`\n${d.name}\n`;by[d.id].forEach(c=>{s+=`• ${c.away} at ${c.home}: moved from ${fmtDateLong(c.fromDate)} ${fmtTime(c.fromTime)} to ${fmtDateLong(c.date)} ${fmtTime(c.time)}, ${c.field}\n`;});}
+  return s.trim();
+}
+
+// ===== Coaches Corner =====
+function cSpots(t){const S=coach.spots||(coach.spots={});const sp=S[t];return (sp&&sp.length)?sp:W().spots.slice();}
+const KEY_C='gdxSchedCoach1';
+let coach={team:'',rosters:{},lineups:{},sel:{},duties:{},spots:{}};let cConfirmClear=false;
+function saveCoach(){try{localStorage.setItem(KEY_C,JSON.stringify(coach));}catch(e){}}
+function loadCoach(){try{const c=JSON.parse(localStorage.getItem(KEY_C)||'null');if(c&&typeof c==='object')coach=Object.assign({team:'',rosters:{},lineups:{},sel:{},duties:{},spots:{}},c);}catch(e){}}
+const cRoster=t=>coach.rosters[t]||(coach.rosters[t]=[]);
+const cNamed=t=>cRoster(t).filter(p=>p.name.trim());
+function cTeamGames(t){return games.filter(g=>g.home===t||g.away===t).sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time);}
+function cGameLabel(t,g){return `${fmtDateLong(g.date)}, ${fmtTime(g.time)} · ${g.home===t?'vs '+g.away:'at '+g.home}${g.status==='postponed'?' (postponed)':''}`;}
+function cLineups(t){return coach.lineups[t]||(coach.lineups[t]={});}
+function cHasCells(L){return L&&L.grid&&Object.values(L.grid).some(Boolean);}
+function cKey(t,tg){const k=coach.sel[t];if(k&&(k==='practice'||tg.some(g=>g.id===k)))return k;const first=tg.find(g=>!cHasCells(cLineups(t)[g.id]))||tg[0];return first?first.id:'practice';}
+function cLastInnings(t){const ls=Object.values(cLineups(t)).filter(cHasCells);return ls.length?ls[ls.length-1].innings:W().nper;}
+function cGetLineup(t,k){const all=cLineups(t);if(!all[k])all[k]={innings:cLastInnings(t),grid:{}};return all[k];}
+function cRows(t){const n=cNamed(t).length;const sp=cSpots(t);const rows=sp.slice();for(let i=1;i<=Math.max(0,n-sp.length);i++)rows.push('B'+i);return rows;}
+const cRowLabel=r=>/^B\d+$/.test(r)?'Bench':r;
+const isBench=r=>/^B\d+$/.test(r);
+function cAnalyze(t,L){
+  const rows=cRows(t),players=cNamed(t),inns=L.innings;
+  const cnt={},where={},bench={},empty={};
+  for(let i=1;i<=inns;i++){cnt[i]={};where[i]={};empty[i]=0;
+    for(const r of rows){const pid=L.grid[r+'|'+i];if(!pid||!players.some(p=>p.id===pid)){if(!isBench(r))empty[i]++;continue;}
+      cnt[i][pid]=(cnt[i][pid]||0)+1;(where[i][pid]=where[i][pid]||[]).push(cRowLabel(r));if(isBench(r))bench[pid]=(bench[pid]||0)+1;}}
+  const benchVals=players.map(p=>bench[p.id]||0);const minB=Math.min(...benchVals);
+  const issues=[];
+  for(let i=1;i<=inns;i++){
+    const dbl=players.filter(p=>(cnt[i][p.id]||0)>1),miss=players.filter(p=>!cnt[i][p.id]);
+    const anyFilled=Object.keys(cnt[i]).length>0;
+    if(dbl.length)issues.push({kind:'bad',text:`${W().Period} ${i}: ${dbl.map(p=>`${p.name} is in ${where[i][p.id].join(' and ')}`).join('; ')}`});
+    if(anyFilled&&miss.length)issues.push({kind:'warn',text:`${W().Period} ${i}: ${miss.map(p=>p.name).join(', ')} ${miss.length===1?'is':'are'} not in the lineup`});
+  }
+  const sitTooMuch=players.filter(p=>(bench[p.id]||0)>minB+1);
+  if(sitTooMuch.length){const least=players.filter(p=>(bench[p.id]||0)===minB);issues.push({kind:'warn',text:`${sitTooMuch.map(p=>p.name).join(', ')} ${sitTooMuch.length===1?'sits':'sit'} at least 2 ${W().periods} more than ${least.length<=3?least.map(p=>p.name).join(', '):least.length+' teammates'}${minB===0?', who haven\'t sat yet':''}`});}
+  return {rows,players,cnt,where,bench,empty,issues,minB};
+}
+function cColor(t,pid){const i=cRoster(t).findIndex(p=>p.id===pid);return i<0?'':'pc'+(i%12);}
+
+function renderCoach(){
+  const teams=cfg.divisions.flatMap(d=>d.teams.filter(Boolean));
+  if(!teams.length)return `<section class="card"><h2>Coaches Corner</h2><p class="lead">Coaches use this to plan who plays where each ${W().period}. The league's levels and teams need to be set up first.</p><div><button class="btn primary" data-act="goSetup">Go to setup</button></div></section>`;
+  const t=teams.includes(coach.team)?coach.team:'';
+  let h=`<section class="card"><h2>Coaches Corner</h2><p class="lead">Plan who plays where each ${W().period}. Pick your team, enter your players once, then fill in a lineup for each game. Lineups are saved in this browser. Use Save everything to move them.</p>
+    <label class="f" style="max-width:360px">Your team<select id="cTeam"><option value="">Pick your team</option>${cfg.divisions.map(d=>`<optgroup label="${esc(d.name)}">${d.teams.filter(Boolean).map(x=>`<option ${x===t?'selected':''} value="${esc(x)}">${esc(x)}</option>`).join('')}</optgroup>`).join('')}</select></label></section>`;
+  if(!t)return h;
+  const R=cRoster(t);
+  h+=`<section class="card"><div class="row"><h2>${esc(t)} roster</h2><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">Players${countInput('cN',R.length,0,20,'Number of players')}</label></div>
+    ${R.length?`<div class="list cols">${R.map((p,i)=>`<label class="pname"><span class="sw pc${i%12}" aria-hidden="true"></span><input type="text" id="cp${i}" data-cp="${i}" value="${esc(p.name)}" placeholder="Type player ${i+1} name" aria-label="Player ${i+1} name"></label>`).join('')}</div>`:'<p class="empty">Add your players to start building lineups.</p>'}
+    <p class="sub" style="margin:0">Each player gets a color so you can spot them across the lineup. With more players than positions, bench rows are added automatically.</p></section>`;
+  const players=cNamed(t);
+  if(players.length<2)return h;
+  const tg=cTeamGames(t);const k=cKey(t,tg);coach.sel[t]=k;const L=cGetLineup(t,k);const A=cAnalyze(t,L);
+  const all=cLineups(t);
+  h+=`<section class="card"><div class="row"><h2>Lineup</h2><span class="spacer"></span>
+      <button class="btn small" data-act="cCopyPrev">Copy last game's lineup</button>
+      <button class="btn small" data-act="cCopyTsv">Copy for Excel or Google Sheets</button>
+      <button class="btn small ${cConfirmClear?'danger':'link'}" data-act="cClear">${cConfirmClear?'Click again to clear':'Clear this lineup'}</button></div>
+    <div class="row">
+      <label class="f" style="flex:1 1 300px">Game<select id="cGame">${tg.map(g=>`<option value="${g.id}" ${g.id===k?'selected':''}>${cHasCells(all[g.id])?'✓ ':''}${esc(cGameLabel(t,g))}</option>`).join('')}<option value="practice" ${k==='practice'?'selected':''}>${cHasCells(all.practice)?'✓ ':''}Practice or scrimmage</option></select></label>
+      <label class="f">${W().Periods}${countInput('cInn',L.innings,1,12,W().Periods)}</label>
+    </div>
+    ${tg.length?'':'<div class="note info">No games are scheduled for this team yet, so only a practice lineup is available.</div>'}
+    <div class="statusbar">${A.issues.length?A.issues.map(x=>`<span class="pill ${x.kind}">${esc(x.text)}</span>`).join(''):(Object.values(A.cnt).some(c=>Object.keys(c).length)?'<span class="pill ok">No one is double booked or left out</span>':'<span class="pill">Pick a player for each spot to start</span>')}</div>
+    <div class="posrow"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Positions</span>
+      ${cSpots(t).map((p,pi)=>`<span class="tchip mini">${esc(p)}<button class="x" data-act="cRmSpot" data-i="${pi}" aria-label="Remove ${esc(p)}">×</button></span>`).join('')}
+      <input type="text" id="cSpotNew" placeholder="Add a position" aria-label="Add a position" style="width:140px">
+      <button class="btn small" data-act="cAddSpot">Add</button>
+      ${(coach.spots&&coach.spots[t]&&coach.spots[t].length)?`<button class="btn link small" data-act="cResetSpots">Use ${esc(W().label.toLowerCase())} defaults</button>`:''}</div>
+    <div class="scroll"><table class="lu"><thead><tr><th>Position</th>${Array.from({length:L.innings},(_,j)=>`<th class="inn">${j+1}</th>`).join('')}</tr></thead><tbody>
+    ${A.rows.map((r,ri)=>`<tr class="${isBench(r)?'benchrow':''}"><th scope="row">${esc(cRowLabel(r))}</th>${Array.from({length:L.innings},(_,j)=>{const i=j+1;const pid=L.grid[r+'|'+i]||'';const valid=players.some(p=>p.id===pid);const dbl=valid&&(A.cnt[i][pid]||0)>1;
+      return `<td><select id="lu_${ri}_${i}" data-lu="${esc(r)}|${i}" class="cell ${valid?cColor(t,pid):''} ${dbl?'dbl':''}" aria-label="${cRowLabel(r)}, ${W().period} ${i}"><option value="">—</option>${players.map(p=>{const other=p.id===pid?(A.where[i][p.id]||[]).slice(1):(A.where[i][p.id]||[]);return `<option value="${p.id}" ${p.id===pid?'selected':''}>${esc(p.name)}${other.length?' · in '+other.join(', '):''}</option>`;}).join('')}</select></td>`;}).join('')}</tr>`).join('')}
+    </tbody></table></div>
+  </section>
+  <section class="card"><h2>Playing time check</h2>
+    <p class="lead">Each player should show 1 in every ${W().period}. A 0 means they were left out; 2 or more means they are in two spots at once. Bench ${W().periods} shows how often each player sits.</p>
+    <div class="scroll"><table class="chk2"><thead><tr><th>Player</th>${Array.from({length:L.innings},(_,j)=>`<th class="num">${j+1}</th>`).join('')}<th class="num">Bench ${W().periods}</th></tr></thead><tbody>
+    ${players.map(p=>{const b=A.bench[p.id]||0;return `<tr><td><span class="sw ${cColor(t,p.id)}" aria-hidden="true"></span> ${esc(p.name)}</td>${Array.from({length:L.innings},(_,j)=>{const c=A.cnt[j+1][p.id]||0;const any=Object.keys(A.cnt[j+1]).length>0;return `<td class="num ${c>1?'c-dbl':c===0&&any?'c-miss':''}">${any?c:'–'}</td>`;}).join('')}<td class="num ${b>A.minB+1?'hot':''}">${b}</td></tr>`;}).join('')}
+    </tbody></table></div></section>`;
+  return h+renderDuties(t);
+}
+function cCopyTsv(){const t=coach.team;const tg=cTeamGames(t);const k=cKey(t,tg);const L=cGetLineup(t,k);const ps=cRoster(t);
+  const g=tg.find(x=>x.id===k);const rows=[[`${t} ${g?cGameLabel(t,g):'Practice'}`],['Position',...Array.from({length:L.innings},(_,j)=>W().Period+' '+(j+1))]];
+  for(const r of cRows(t))rows.push([cRowLabel(r),...Array.from({length:L.innings},(_,j)=>{const p=ps.find(x=>x.id===L.grid[r+'|'+(j+1)]);return p?p.name:'';})]);
+  copyText(rows.map(r=>r.join('\t')).join('\n')).then(ok=>{if(ok)toast('Lineup copied. Paste it into a sheet.');});}
+function cSetCount(id,n){const t=coach.team;
+  if(id==='cN'){const R=cRoster(t);n=Math.max(0,Math.min(20,n));while(R.length<n)R.push({id:newId('p'),name:''});
+    while(R.length>n){const p=R.pop();for(const L of Object.values(cLineups(t)))for(const k in L.grid)if(L.grid[k]===p.id)delete L.grid[k];}}
+  if(id==='cInn'){const tg=cTeamGames(t);const L=cGetLineup(t,cKey(t,tg));L.innings=Math.max(1,Math.min(12,n));}
+  saveCoach();render();}
+
+// ===== Coaches Corner: game-day duties =====
+const SIDE_LABEL={visitor:'Visiting team',home:'Home team',both:'Both teams'};
+const WHEN_LABEL={first:'Before 1st game on {venue}',last:'After last game on {venue}',every:'Every game'};
+const WHEN_SHORT={first:'Before 1st game',last:'After last game',every:'Every game'};
+function dutyPreset(){const sp=cfg.sport||'baseball';const P={
+  basketball:[['Set up benches and scorer\u2019s table','home','first',2],['Clock operator','home','every',1],['Official scorebook','home','every',1],['Visiting scorebook','visitor','every',1],['Clean up gym and bleachers','visitor','last',2]],
+  volleyball:[['Put up nets and antennas','home','first',2],['Scoreboard / flip score','home','every',1],['Line judges','visitor','every',2],['Take down nets and put away poles','visitor','last',2]],
+  tennis:[['Bring a new can of balls','home','every',1],['Report scores to the league','home','every',1],['Set up court signs and water','home','first',1],['Collect balls and trash, close gates','visitor','last',1]],
+  soccer:[['Set up goals, nets and corner flags','home','first',2],['Take down nets and corner flags','visitor','last',2],['Sideline marshal','home','every',1],['Scorekeeper','visitor','every',1]],
+  flagfootball:[['Set up cones and down markers','home','first',2],['Chain / down marker crew','both','every',1],['Put away cones and markers','visitor','last',2],['Scorekeeper','home','every',1]],
+  pickleball:[['Bring new balls','home','every',1],['Set up portable nets','home','first',2],['Report scores to the league','home','every',1],['Take down nets, collect balls and trash','visitor','last',2]],
+  youthfootball:[['Chain crew','home','every',3],['Clock operator','home','every',1],['Announcer','home','every',1],['Set up pylons and benches','home','first',2],['Clean up sidelines and bleachers','visitor','last',2]],
+  tabletennis:[['Set up tables, nets and barriers','home','first',2],['Score keeper / flip cards','both','every',1],['Put away tables and barriers','visitor','last',2]],
+  other:[['Set up','home','first',2],['Scorekeeper','home','every',1],['Clean up','visitor','last',2]]};
+  if(P[sp])return P[sp].map(([name,side,when,count])=>({id:newId('u'),name,side,when,count}));
+  return [
+  {name:'Remove tarp from mound, place along 3rd base fence',side:'visitor',when:'first',count:2},
+  {name:'Rake and water field, cover mound',side:'visitor',when:'last',count:2},
+  {name:'Chalk batter’s boxes and base paths',side:'home',when:'first',count:2},
+  {name:'Collect trash, empty and reline cans',side:'home',when:'last',count:2},
+  {name:'Scoreboard operator / official pitch counter',side:'visitor',when:'every',count:1},
+  {name:'Official scorekeeper / announcer',side:'home',when:'every',count:1},
+  {name:'Pitch count cross-checker',side:'both',when:'every',count:1}
+].map(d=>Object.assign({id:newId('u')},d));}
+function cDuty(t){const D=coach.duties||(coach.duties={});return D[t]||(D[t]={on:false,list:[],assign:{},excused:[],unavail:{}});}
+const SIDE_ORDER={visitor:0,home:1,both:2};
+function dutyCols(D){return D.list.slice().sort((a,b)=>SIDE_ORDER[a.side]-SIDE_ORDER[b.side]).flatMap(d=>Array.from({length:Math.max(1,d.count)},(_,s)=>({d,s})));}
+let fieldDayIdx=null;
+function fieldDay(){if(fieldDayIdx&&fieldDayIdx.__n===games.length&&fieldDayIdx.__g===games)return fieldDayIdx;const m={};for(const g of games){if(g.status==='postponed')continue;const k=g.field+'|'+g.date;const x=m[k]||(m[k]={first:g.time,last:g.time});x.first=Math.min(x.first,g.time);x.last=Math.max(x.last,g.time);}m.__n=games.length;m.__g=games;return fieldDayIdx=m;}
+function dutyApplies(t,g,d){if(g.status==='postponed')return false;const home=g.home===t;
+  if(d.side==='home'&&!home)return false;if(d.side==='visitor'&&home)return false;
+  if(d.when==='every')return true;const x=fieldDay()[g.field+'|'+g.date];if(!x)return false;return d.when==='first'?g.time===x.first:g.time===x.last;}
+function dutyAnalyze(t,D,tg){
+  const players=cNamed(t);const pids=new Set(players.map(p=>p.id));const count={};players.forEach(p=>count[p.id]=0);
+  const issues=[];let open=0;
+  for(const g of tg){const a=D.assign[g.id]||{};const un=new Set(D.unavail[g.id]||[]);const seen={};
+    for(const d of D.list){if(!dutyApplies(t,g,d))continue;for(let s=0;s<Math.max(1,d.count);s++){const pid=(a[d.id]||[])[s];
+      if(!pid||!pids.has(pid)){open++;continue;}count[pid]++;(seen[pid]=seen[pid]||[]).push(d.name);
+      const nm=players.find(p=>p.id===pid).name;
+      if(D.excused.includes(pid))issues.push({kind:'warn',text:`${fmtDateLong(g.date)}: ${nm} is excused but has a duty`});
+      if(un.has(pid))issues.push({kind:'bad',text:`${fmtDateLong(g.date)}: ${nm} can't make this game but has a duty`});}}
+    for(const pid in seen)if(seen[pid].length>1)issues.push({kind:'bad',text:`${fmtDateLong(g.date)}: ${players.find(p=>p.id===pid).name} has ${seen[pid].length} duties`});}
+  const active=players.filter(p=>!D.excused.includes(p.id));const vals=active.map(p=>count[p.id]);const mn=vals.length?Math.min(...vals):0,mx=vals.length?Math.max(...vals):0;
+  return {players,count,issues,open,mn,mx};
+}
+function dutyRandomize(t){fieldDayIdx=null;const D=cDuty(t);const tg=cTeamGames(t);const players=cNamed(t);const pids=new Set(players.map(p=>p.id));
+  const A=dutyAnalyze(t,D,tg);const count=Object.assign({},A.count);let filled=0,left=0;
+  const last={};// recent duty per family to vary jobs
+  for(const g of tg){const a=D.assign[g.id]||(D.assign[g.id]={});const un=new Set(D.unavail[g.id]||[]);
+    const used=new Set();for(const d of D.list){if(!dutyApplies(t,g,d))continue;for(const pid of (a[d.id]||[]))if(pid&&pids.has(pid))used.add(pid);}
+    for(const d of D.list){if(!dutyApplies(t,g,d))continue;const arr=a[d.id]||(a[d.id]=[]);
+      for(let s=0;s<Math.max(1,d.count);s++){if(arr[s]&&pids.has(arr[s]))continue;
+        const cand=players.filter(p=>!D.excused.includes(p.id)&&!un.has(p.id)&&!used.has(p.id));
+        if(!cand.length){left++;continue;}
+        const mn=Math.min(...cand.map(p=>count[p.id]));let pool=cand.filter(p=>count[p.id]===mn);
+        const varied=pool.filter(p=>last[p.id]!==d.id);if(varied.length)pool=varied;
+        const p=pool[Math.floor(Math.random()*pool.length)];arr[s]=p.id;used.add(p.id);count[p.id]++;last[p.id]=d.id;filled++;}}}
+  return {filled,left};}
+function dutyGameRow(t,g,i,D,cols,players){
+  const home=g.home===t;const a=D.assign[g.id]||{};const un=D.unavail[g.id]||[];
+  const pp=g.status==='postponed';
+  const cells=cols.map(({d,s})=>{if(!dutyApplies(t,g,d))return `<td class="na" aria-label="Not needed"></td>`;
+    const pid=(a[d.id]||[])[s]||'';const valid=players.some(p=>p.id===pid);
+    const others=new Set();for(const x of D.list)if(dutyApplies(t,g,x))(a[x.id]||[]).forEach((q,j)=>{if(q&&!(x.id===d.id&&j===s))others.add(q);});
+    const bad=valid&&(others.has(pid)||un.includes(pid));const warn=valid&&D.excused.includes(pid);
+    return `<td><select id="ds_${g.id}_${d.id}_${s}" data-ds="${g.id}|${d.id}|${s}" class="cell duty ${valid?cColor(t,pid):''} ${bad?'dbl':warn?'warnc':''}" aria-label="${esc(d.name)}, ${fmtDateLong(g.date)}"><option value="">—</option>${players.map(p=>{const tags=[];if(D.excused.includes(p.id))tags.push('excused');if(un.includes(p.id))tags.push("can't make it");if(p.id!==pid&&others.has(p.id))tags.push('has a duty');return `<option value="${p.id}" ${p.id===pid?'selected':''}>${esc(p.name)}${tags.length?' · '+tags.join(', '):''}</option>`;}).join('')}</select></td>`;}).join('');
+  const unChips=un.map(pid=>{const p=players.find(x=>x.id===pid);return p?`<span class="tchip mini">${esc(p.name)}<button class="x" data-act="dUnRm" data-g="${g.id}" data-p="${pid}" aria-label="Remove ${esc(p.name)} from can't make it">×</button></span>`:'';}).join('');
+  const avail=players.filter(p=>!un.includes(p.id));
+  return `<tr class="${pp?'pprow':''}"><td class="num">${i+1}</td><td>${DOW[dowOf(g.date)]}</td><td>${fmtDateLong(g.date).slice(4)}</td><td>${fmtTime(g.time)}</td><td>${esc(fieldName(g.field))}</td>
+    <td class="${home?'':'us'}">${esc(g.away)}</td><td class="${home?'us':''}">${esc(g.home)}</td>
+    ${pp?`<td colspan="${cols.length}" class="sub">Postponed. Duties will show once it's rescheduled.</td>`:cells}
+    <td class="unav"><div class="times">${unChips}${pp?'':`<select id="du_${g.id}" data-dun="${g.id}" aria-label="Mark a family unavailable for ${fmtDateLong(g.date)}"><option value="">+ Add</option>${avail.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select>`}</div></td></tr>`;
+}
+function renderDuties(t){fieldDayIdx=null;
+  const D=cDuty(t);const players=cNamed(t);
+  let h=`<section class="card"><div class="row"><h2>Game-day duties</h2><span class="spacer"></span><label class="chk"><input type="checkbox" id="dOn" ${D.on?'checked':''}>Assign duties to families</label></div>
+    <p class="lead">Optional. List the jobs your league requires of each team, then assign families to them for every game, by hand or with Randomize. Assignments use your players' names, so "Jack" means Jack's family.</p>`;
+  if(!D.on)return h+'</section>';
+  h+=`<h3>Duties your league requires</h3>
+    ${D.list.length?`<div class="dlist">${D.list.map((d,i)=>`<div class="drow">
+      <label class="f">Duty<input type="text" id="dn${i}" data-dn="${i}" value="${esc(d.name)}" placeholder="Type the duty, like Run the scoreboard"></label>
+      <label class="f">Who<select id="dsd${i}" data-dside="${i}">${Object.keys(SIDE_LABEL).map(k=>`<option value="${k}" ${d.side===k?'selected':''}>${SIDE_LABEL[k]}</option>`).join('')}</select></label>
+      <label class="f">When<select id="dwh${i}" data-dwhen="${i}">${Object.keys(WHEN_LABEL).map(k=>`<option value="${k}" ${d.when===k?'selected':''}>${wt(WHEN_LABEL[k])}</option>`).join('')}</select></label>
+      <label class="f">People${countInput('dc'+i,d.count,1,4,'People for '+d.name)}</label>
+      <button class="btn link small" data-act="dRm" data-i="${i}">Remove</button></div>`).join('')}</div>`:'<p class="empty">No duties yet. Start from a typical league list or add your own.</p>'}
+    <div class="row"><button class="btn small" data-act="dAdd">Add a duty</button>${D.list.length?'':'<button class="btn small" data-act="dPreset">Start from a typical league list</button>'}</div>
+    <p class="sub" style="margin:0">"Before the first game" and "After the last game" use the league schedule: the duty only appears when your team plays the first or last game of the day on that ${W().venue}.</p>
+  </section>`;
+  if(!D.list.length)return h;
+  const tg=cTeamGames(t);
+  if(!tg.length)return h+`<section class="card"><div class="note info">No games are scheduled for ${esc(t)} yet. Duties are assigned per game once the schedule is built.</div></section>`;
+  const cols=dutyCols(D);const A=dutyAnalyze(t,D,tg);
+  const groups=[];cols.forEach(c=>{const last=groups[groups.length-1];if(last&&last.side===c.d.side)last.n++;else groups.push({side:c.d.side,n:1});});
+  const dgroups=[];cols.forEach(c=>{const last=dgroups[dgroups.length-1];if(last&&last.d===c.d)last.n++;else dgroups.push({d:c.d,n:1});});
+  h+=`<section class="card"><div class="row"><h2>Duty schedule</h2><span class="spacer"></span>
+      <button class="btn small primary" data-act="dRandom">Randomize open slots</button>
+      <button class="btn small" data-act="dCopy">Copy for Excel or Google Sheets</button>
+      <button class="btn small ${dConfirmClear?'danger':'link'}" data-act="dClear">${dConfirmClear?'Click again to clear all duties':'Clear all duties'}</button></div>
+    <div class="statusbar">${A.issues.length?A.issues.slice(0,8).map(x=>`<span class="pill ${x.kind}">${esc(x.text)}</span>`).join('')+(A.issues.length>8?`<span class="pill">${A.issues.length-8} more</span>`:''):'<span class="pill ok">No family has two duties at one game</span>'}${A.open?`<span class="pill">${A.open} open slot${A.open===1?'':'s'}</span>`:'<span class="pill ok">Every slot is filled</span>'}</div>
+    <div class="scroll"><table class="duties"><thead>
+      <tr><th colspan="7"></th>${groups.map(g=>`<th class="grp side-${g.side}" colspan="${g.n}">${SIDE_LABEL[g.side]}</th>`).join('')}<th></th></tr>
+      <tr><th colspan="7"></th>${dgroups.map(g=>`<th class="dname" colspan="${g.n}">${esc(g.d.name)}<span>${WHEN_SHORT[g.d.when]}</span></th>`).join('')}<th></th></tr>
+      <tr><th class="num">Game</th><th>Day</th><th>Date</th><th>Time</th><th>${W().Venue}</th><th>Away</th><th>Home</th>${cols.map(()=>'<th></th>').join('')}<th>Can't make it</th></tr></thead>
+    <tbody>${tg.map((g,i)=>dutyGameRow(t,g,i,D,cols,players)).join('')}</tbody></table></div>
+  </section>
+  <section class="card"><h2>Families</h2>
+    <p class="lead">Excused families are skipped by Randomize, for example a manager's or coach's family. A count is highlighted when a family has 2 or more duties than the family with the fewest.</p>
+    <div class="scroll"><table class="fam"><thead><tr><th>Family</th><th class="num">Duties</th><th>Excused from duties</th></tr></thead><tbody>
+    ${players.map(p=>{const ex=D.excused.includes(p.id);const c=A.count[p.id]||0;return `<tr><td><span class="sw ${cColor(t,p.id)}" aria-hidden="true"></span> ${esc(p.name)}</td><td class="num ${!ex&&(c>=A.mn+2)?'hot':''}">${c}</td><td><label class="chk"><input type="checkbox" id="dx_${p.id}" data-dx="${p.id}" ${ex?'checked':''}>Excused</label></td></tr>`;}).join('')}
+    </tbody></table></div></section>`;
+  return h;
+}
+let dConfirmClear=false;
+function dutyCopy(t){const D=cDuty(t);const tg=cTeamGames(t);const cols=dutyCols(D);const ps=cRoster(t);
+  const rows=[['Game','Day','Date','Time',W().Venue,'Away','Home',...cols.map(c=>c.d.name+(c.d.count>1?' '+(c.s+1):''))]];
+  tg.forEach((g,i)=>{const a=D.assign[g.id]||{};rows.push([i+1,DOW[dowOf(g.date)],g.date,fmtTime(g.time),fieldName(g.field),g.away,g.home,...cols.map(({d,s})=>{if(!dutyApplies(t,g,d))return '';const p=ps.find(x=>x.id===(a[d.id]||[])[s]);return p?p.name:'';})]);});
+  copyText(rows.map(r=>r.join('\t')).join('\n')).then(ok=>{if(ok)toast('Duty schedule copied. Paste it into a sheet.');});}
+
+// ===== Umpire Corner =====
+const KEY_U='gdxSchedUmp1';
+let ump={umps:[],crew:{},day:'',lvl:'all'};let uOpen=null;
+function saveUmp(){try{localStorage.setItem(KEY_U,JSON.stringify(ump));}catch(e){}}
+function loadUmp(){try{const u=JSON.parse(localStorage.getItem(KEY_U)||'null');if(u&&typeof u==='object')ump=Object.assign({umps:[],crew:{},day:'',lvl:'all'},u);}catch(e){}}
+const uLive=()=>games.filter(g=>g.status!=='postponed'&&g.date);
+function uCrew(g){return ump.crew[g.id]||(ump.crew[g.id]={n:2,ids:[]});}
+const uNamed=()=>ump.umps.filter(u=>u.name.trim());
+function uFits(u,g){const why=[];
+  if(u.levels&&u.levels.length&&!u.levels.includes(g.div))why.push(`doesn't work ${divName(g.div)}`);
+  const w=dowOf(g.date);if(u.days&&u.days.length&&!u.days.includes(w))why.push(`not available ${DOW[w]}`);
+  if(u.from!=null&&g.time<u.from)why.push(`not before ${fmtTime(u.from)}`);
+  if(u.to!=null&&g.time>u.to)why.push(`not after ${fmtTime(u.to)}`);
+  return why;}
+function uAssigned(){const m={};for(const g of uLive()){const c=ump.crew[g.id];if(!c)continue;c.ids.slice(0,c.n).forEach(id=>{if(id)(m[id]=m[id]||[]).push(g);});}return m;}
+function uClash(list,g){return list.filter(h=>h.id!==g.id&&h.date===g.date&&overlaps(g.time,gLen(cfg,g),h.time,gLen(cfg,h)));}
+function uPartnerNames(u){return (u.partners||[]).map(id=>(ump.umps.find(x=>x.id===id)||{}).name).filter(Boolean).join(', ');}
+function uLevelSummary(u){if(!u.levels||!u.levels.length)return 'All levels';return u.levels.map(divName).join(', ');}
+function uDaySummary(u){if(!u.days||!u.days.length)return 'Any day';return [1,2,3,4,5,6,0].filter(d=>u.days.includes(d)).map(d=>DOW[d]).join(', ');}
+function uTimeSummary(u){if(u.from==null&&u.to==null)return 'Any time';return (u.from!=null?fmtTime(u.from):'Any')+' to '+(u.to!=null?fmtTime(u.to):'any');}
+function uDates(){return [...new Set(uLive().map(g=>g.date))].sort();}
+function uOpenOn(date,lvl){let n=0;for(const g of uLive()){if(g.date!==date)continue;if(lvl&&lvl!=='all'&&g.div!==lvl)continue;const c=ump.crew[g.id]||{n:2,ids:[]};for(let i=0;i<c.n;i++)if(!c.ids[i]||!ump.umps.some(u=>u.id===c.ids[i]))n++;}return n;}
+function uTimeOpts(){return [...new Set([...gameDays().flatMap(d=>cfg.dayTimes[d]),...cfg.divisions.flatMap(d=>d.ownTimes||[])])].sort((a,b)=>a-b);}
+
+function renderUmp(){
+  if(!built)return `<section class="card"><h2>${W().Official} Corner</h2><p class="lead">Assign ${W().officials} to every game on the league schedule. Build the schedule first.</p><div><button class="btn primary" data-act="goSetup">Go to setup</button></div></section>`;
+  const U=ump.umps;const named=uNamed();const asg=uAssigned();
+  let h=`<section class="card"><div class="row"><h2>${W().Officials}</h2><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">${W().Officials}${countInput('uN',U.length,0,60,'Number of '+W().officials)}</label></div>
+    <p class="lead">Add your ${W().officials} and, if needed, the levels they can work, when they're available and who they like to work with. Leave those alone for ${aan(W().official)} who can work anything. Assignments are saved on this device only.</p>
+    ${U.length?`<div class="scroll"><table class="umps"><thead><tr><th>Name</th><th>Levels</th><th>Days</th><th>Start times</th><th>Paired with</th><th class="num">Games</th><th></th></tr></thead><tbody>
+    ${U.map((u,i)=>`<tr><td><input type="text" id="un${i}" data-un="${i}" value="${esc(u.name)}" placeholder="Type ${W().official} ${i+1} name" aria-label="${W().Official} ${i+1} name"></td>
+      <td class="wrapc">${esc(uLevelSummary(u))}</td><td class="wrapc">${uDaySummary(u)}</td><td>${uTimeSummary(u)}</td><td class="wrapc">${esc(uPartnerNames(u)||'—')}</td><td class="num">${(asg[u.id]||[]).length}</td>
+      <td><button class="btn small ${uOpen===u.id?'primary':''}" data-act="uEdit" data-u="${u.id}">${uOpen===u.id?'Done':'Edit limits'}</button></td></tr>
+      ${uOpen===u.id?`<tr class="uedit"><td colspan="7"><div class="ed">
+        <div class="row"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Levels ${esc(u.name||'this '+W().official)} can work</span><span class="spacer"></span><button class="btn link small" data-act="uAllLv" data-u="${u.id}">All levels</button></div>
+        <div class="days">${cfg.divisions.map(d=>`<label class="chk"><input type="checkbox" id="ulv_${u.id}_${d.id}" data-ulv="${u.id}" value="${d.id}" ${(u.levels||[]).includes(d.id)?'checked':''}>${esc(d.name)}</label>`).join('')}</div>
+        <div class="row"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Days available</span><span class="spacer"></span><button class="btn link small" data-act="uAllDays" data-u="${u.id}">Any day</button></div>
+        <div class="days">${[1,2,3,4,5,6,0].map(d=>`<label class="chk"><input type="checkbox" id="udy_${u.id}_${d}" data-udy="${u.id}" value="${d}" ${(u.days||[]).includes(d)?'checked':''}>${DOW[d]}</label>`).join('')}</div>
+        <div class="grid2"><label class="f">No games starting before<select id="uf_${u.id}" data-uft="${u.id}|from"><option value="">Any time</option>${uTimeOpts().map(t=>`<option value="${t}" ${u.from===t?'selected':''}>${fmtTime(t)}</option>`).join('')}</select></label>
+        <label class="f">No games starting after<select id="ut_${u.id}" data-uft="${u.id}|to"><option value="">Any time</option>${uTimeOpts().map(t=>`<option value="${t}" ${u.to===t?'selected':''}>${fmtTime(t)}</option>`).join('')}</select></label></div>
+        <span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Prefers to work with</span>
+        <div class="days">${named.filter(o=>o.id!==u.id).map(o=>`<label class="chk"><input type="checkbox" id="upr_${u.id}_${o.id}" data-upr="${u.id}" value="${o.id}" ${(u.partners||[]).includes(o.id)?'checked':''}>${esc(o.name)}</label>`).join('')||'<span class="sub">Add more '+W().officials+' to pair them.</span>'}</div>
+        <p class="sub" style="margin:0">Leaving every level or every day unchecked means no limit. Pairings go both ways.</p></div></td></tr>`:''}`).join('')}
+    </tbody></table></div>`:'<p class="empty">Add your '+W().officials+' to start assigning games.</p>'}
+  </section>`;
+  if(named.length<1)return h;
+  const dates=uDates();if(!dates.length)return h+`<section class="card"><p class="lead">No games are scheduled.</p></section>`;
+  if(!dates.includes(ump.day)){ump.day=dates.find(d=>uOpenOn(d,ump.lvl)>0)||dates[0];}
+  const day=ump.day;const di=dates.indexOf(day);
+  const dg=uLive().filter(g=>g.date===day&&(ump.lvl==='all'||g.div===ump.lvl)).sort((a,b)=>fieldName(a.field).localeCompare(fieldName(b.field),undefined,{numeric:true})||a.time-b.time);
+  let seasonOpen=0;for(const d of dates)seasonOpen+=uOpenOn(d,ump.lvl);
+  const dayIssues=[];
+  const rows=[];let lastField=null;
+  for(const g of dg){
+    if(g.field!==lastField){rows.push(`<tr class="fieldhead"><th colspan="5">${esc(fieldName(g.field))}</th></tr>`);lastField=g.field;}
+    const c=ump.crew[g.id]||{n:2,ids:[]};
+    const sameField=dg.filter(x=>x.field===g.field&&x.id!==g.id);
+    const prev=sameField.filter(x=>x.time<g.time).sort((a,b)=>b.time-a.time)[0];
+    const onField=new Set(sameField.flatMap(x=>{const cc=ump.crew[x.id];return cc?cc.ids.slice(0,cc.n).filter(Boolean):[];}));
+    const slots=[];
+    for(let s=0;s<c.n;s++){const cur=c.ids[s]||'';const curU=named.find(u=>u.id===cur);
+      const taken=new Set(c.ids.slice(0,c.n).filter((x,j)=>x&&j!==s));
+      let cls='';let tip='';
+      if(curU){const clash=uClash(asg[cur]||[],g);const why=uFits(curU,g);
+        if(clash.length){cls='dbl';const pair=[g,clash[0]].sort((x,y)=>x.time-y.time||fieldName(x.field).localeCompare(fieldName(y.field)));dayIssues.push({kind:'bad',text:`${curU.name} is double booked: ${fmtTime(pair[0].time)} ${fieldName(pair[0].field)} and ${fmtTime(pair[1].time)} ${fieldName(pair[1].field)}`});}
+        else if(why.length){cls='warnc';dayIssues.push({kind:'warn',text:`${curU.name}, ${fmtTime(g.time)} ${fieldName(g.field)}: ${why.join(', ')}`});}
+        if(taken.has(cur)){cls='dbl';dayIssues.push({kind:'bad',text:`${curU.name} is listed twice on the ${fmtTime(g.time)} ${fieldName(g.field)} game`});}}
+      const grpP=[],grpA=[],grpB=[],grpC=[];
+      const crewOthers=c.ids.slice(0,c.n).filter((x,j)=>x&&j!==s);const partnerOf={};crewOthers.forEach(o=>{const ou=named.find(z=>z.id===o);(ou&&ou.partners||[]).forEach(p=>{partnerOf[p]=ou.name;});});
+      for(const u of named){const clash=uClash(asg[u.id]||[],g);const why=uFits(u,g);const tags=[];
+        if(clash.length&&u.id!==cur)tags.push(`busy ${fmtTime(clash[0].time)} ${fieldName(clash[0].field)}`);
+        why.forEach(w=>tags.push(w));if(taken.has(u.id))tags.push('already on this crew');
+        const opt=`<option value="${u.id}" ${u.id===cur?'selected':''}>${esc(u.name)}${tags.length?' · '+tags.join(', '):''}</option>`;
+        if(tags.length&&u.id!==cur)grpC.push(opt);else if(partnerOf[u.id])grpP.push(opt);else if(onField.has(u.id))grpA.push(opt);else grpB.push(opt);}
+      slots.push(`<select id="uc_${g.id}_${s}" data-uc="${g.id}|${s}" class="cell ucell ${cls}" aria-label="${W().Official} ${s+1}, ${fmtTime(g.time)} ${esc(fieldName(g.field))}"><option value="">— Open —</option>${grpP.length?`<optgroup label="Paired with ${esc([...new Set(Object.values(partnerOf))].join(', '))}">${grpP.join('')}</optgroup>`:''}${grpA.length?`<optgroup label="Already on ${esc(fieldName(g.field))} today">${grpA.join('')}</optgroup>`:''}${grpB.length?`<optgroup label="Available">${grpB.join('')}</optgroup>`:''}${grpC.length?`<optgroup label="Check first">${grpC.join('')}</optgroup>`:''}</select>`);}
+    const prevCrew=prev?(ump.crew[prev.id]||{ids:[]}).ids.filter(Boolean):[];
+    const crewNow=c.ids.slice(0,c.n).filter(Boolean);const hasOpen=crewNow.length<c.n;const addBtns=[];
+    if(hasOpen){const seenP=new Set();for(const id of crewNow){const cu=named.find(z=>z.id===id);if(!cu)continue;for(const pid of (cu.partners||[])){if(crewNow.includes(pid)||seenP.has(pid))continue;const pu=named.find(z=>z.id===pid);if(!pu)continue;if(uClash(asg[pid]||[],g).length||uFits(pu,g).length)continue;seenP.add(pid);addBtns.push(`<button class="btn link small" data-act="uAddPartner" data-g="${g.id}" data-u="${pid}">Add ${esc(pu.name)} (${esc(cu.name)}'s partner)</button>`);}}}
+    rows.push(`<tr><td class="t">${fmtTime(g.time)}</td><td>${esc(divName(g.div))}</td><td class="gm">${esc(g.away)} <span class="sub">at</span> ${esc(g.home)}</td>
+      <td><div class="crew">${slots.join('')}</div><div class="row" style="gap:2px 6px">${addBtns.join('')}${prev&&prevCrew.length?`<button class="btn link small" data-act="uSame" data-g="${g.id}" data-from="${prev.id}">Same crew as ${fmtTime(prev.time)}</button>`:''}</div></td>
+      <td><div class="counter mini"><button class="btn small" data-act="ucnt" data-g="${g.id}" data-d="-1" aria-label="Fewer ${W().officials}">−</button><span>${c.n}</span><button class="btn small" data-act="ucnt" data-g="${g.id}" data-d="1" aria-label="More ${W().officials}">+</button></div></td></tr>`);
+  }
+  const dayOpen=uOpenOn(day,ump.lvl);
+  const seen=new Set();const issues=dayIssues.filter(x=>!seen.has(x.text)&&seen.add(x.text));
+  h+=`<section class="card"><div class="row"><h2>Assign games</h2><span class="spacer"></span><button class="btn small" data-act="uCopyDay">Copy this day for Excel or Google Sheets</button></div>
+    <div class="row">
+      <button class="btn small" data-act="uPrev" ${di<=0?'disabled':''} aria-label="Previous day">‹</button>
+      <label class="f" style="flex:1 1 260px">Day<select id="uDay">${dates.map(d=>{const o=uOpenOn(d,ump.lvl);return `<option value="${d}" ${d===day?'selected':''}>${fmtDateLong(d)}${o?` · ${o} open`:' · ✓ covered'}</option>`;}).join('')}</select></label>
+      <button class="btn small" data-act="uNext" ${di>=dates.length-1?'disabled':''} aria-label="Next day">›</button>
+      <label class="f" style="flex:1 1 200px">Level<select id="uLvl"><option value="all">All levels</option>${cfg.divisions.map(d=>`<option value="${d.id}" ${ump.lvl===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select></label>
+      <button class="btn small" data-act="uNextOpen" ${seasonOpen?'':'disabled'}>Next day with open spots</button>
+    </div>
+    <div class="statusbar"><span class="pill ${dayOpen?'warn':'ok'}">${dayOpen?`${dayOpen} open spot${dayOpen===1?'':'s'} on ${fmtDateLong(day)}`:`Every game on ${fmtDateLong(day)} is covered`}</span><span class="pill ${seasonOpen?'':'ok'}">${seasonOpen?`${seasonOpen} open spots this season`:'Whole season covered'}</span>${issues.map(x=>`<span class="pill ${x.kind}">${esc(x.text)}</span>`).join('')}</div>
+    ${dg.length?`<div class="scroll"><table class="uass"><thead><tr><th>Time</th><th>Level</th><th>Game</th><th>${W().Officials}</th><th>Crew size</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`:'<p class="empty">No games for this level on this day.</p>'}
+    <p class="sub" style="margin:0">In each list, ${aan(W().official)}'s preferred partner comes first, then ${W().officials} already working this ${W().venue} today, so they can stay put. "Check first" means they're busy, outside their limits, or already on the crew.</p>
+  </section>`;
+  const totals=named.map(u=>{const gs=(asg[u.id]||[]).slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time);
+    let clashes=0,outs=0;gs.forEach(g=>{if(uClash(gs,g).length)clashes++;if(uFits(u,g).length)outs++;});
+    return {u,gs,days:new Set(gs.map(g=>g.date)).size,clashes,outs};});
+  h+=`<section class="card"><h2>${W().Official} schedules</h2><p class="lead">Season totals for each ${W().official}. Copy ${aan(W().official)}'s schedule to text or email it to them.</p>
+    <div class="scroll"><table class="utot"><thead><tr><th>${W().Official}</th><th class="num">Games</th><th class="num">Days</th><th>Next game</th><th>Problems</th><th></th></tr></thead><tbody>
+    ${totals.map(x=>{const nxt=x.gs[0];return `<tr><td>${esc(x.u.name)}</td><td class="num">${x.gs.length}</td><td class="num">${x.days}</td><td>${nxt?`${fmtDateLong(nxt.date)}, ${fmtTime(nxt.time)}, ${esc(fieldName(nxt.field))}`:'<span class="sub">None yet</span>'}</td>
+      <td>${x.clashes?`<span class="pill bad">${x.clashes} double booked</span>`:''}${x.outs?`<span class="pill warn">${x.outs} outside limits</span>`:''}${!x.clashes&&!x.outs?'<span class="sub">None</span>':''}</td>
+      <td><button class="btn small" data-act="uCopy" data-u="${x.u.id}" ${x.gs.length?'':'disabled'}>Copy schedule</button></td></tr>`;}).join('')}
+    </tbody></table></div></section>`;
+  return h;
+}
+function uCopySchedule(uid){const u=ump.umps.find(x=>x.id===uid);const gs=(uAssigned()[uid]||[]).slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time);
+  let s=`${cfg.league} ${W().official} schedule: ${u.name}\n`;let last='';
+  for(const g of gs){if(g.date!==last){s+=`\n${fmtDateLong(g.date)}\n`;last=g.date;}
+    const c=ump.crew[g.id];const partners=c.ids.slice(0,c.n).filter(id=>id&&id!==uid).map(id=>(ump.umps.find(x=>x.id===id)||{}).name).filter(Boolean);
+    s+=`  ${fmtTime(g.time)}  ${fieldName(g.field)}  ${divName(g.div)}: ${g.away} at ${g.home}${partners.length?`  (with ${partners.join(', ')})`:''}\n`;}
+  copyText(s.trim()).then(ok=>{if(ok)toast(`Copied ${u.name}'s schedule (${gs.length} games)`);});}
+function uCopyDay(){const day=ump.day;const dg=uLive().filter(g=>g.date===day&&(ump.lvl==='all'||g.div===ump.lvl)).sort((a,b)=>a.time-b.time||fieldName(a.field).localeCompare(fieldName(b.field),undefined,{numeric:true}));
+  const mx=Math.max(2,...dg.map(g=>(ump.crew[g.id]||{n:2}).n));
+  const rows=[['Date','Time',W().Venue,'Level','Away','Home',...Array.from({length:mx},(_,i)=>W().Official+' '+(i+1))]];
+  dg.forEach(g=>{const c=ump.crew[g.id]||{n:2,ids:[]};rows.push([g.date,fmtTime(g.time),fieldName(g.field),divName(g.div),g.away,g.home,...Array.from({length:mx},(_,i)=>i<c.n?((ump.umps.find(u=>u.id===c.ids[i])||{}).name||'OPEN'):'')]);});
+  copyText(rows.map(r=>r.join('\t')).join('\n')).then(ok=>{if(ok)toast(`Copied ${dg.length} games for ${fmtDateLong(day)}`);});}
+function uSetCount(n){n=Math.max(0,Math.min(60,n));while(ump.umps.length<n)ump.umps.push({id:newId('m'),name:'',levels:[],days:[],from:null,to:null});
+  while(ump.umps.length>n){const u=ump.umps.pop();ump.umps.forEach(o=>{if(o.partners)o.partners=o.partners.filter(x=>x!==u.id);});for(const k in ump.crew)ump.crew[k].ids=ump.crew[k].ids.map(x=>x===u.id?'':x);if(uOpen===u.id)uOpen=null;}saveUmp();render();}
+
+// ===== Sharing =====
+function sameAsShared(){return SHARED&&JSON.stringify([cfg,games])===JSON.stringify([SHARED.cfg,SHARED.games]);}
+function fmtStamp(t){try{return new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){return '';}}
+function shareBarHtml(){
+  let h='';
+  if(sharePanel){h+=`<section class="card sharecard"><h2>Share ${esc(cfg.league||'your league')}</h2>
+    <p class="lead">This saves your setup, schedule, fairness report and ${W().rainNoun} changes into this page. Anyone you send the page's link to will open it on exactly what you see now.</p>
+    <p class="lead">They can click around and try things, but their changes stay on their own device and never change yours. You can publish again any time to update what they see.</p>
+    ${built?'':'<div class="note">You haven\'t built a schedule yet, so they will only see your setup answers.</div>'}
+    <div class="row"><button class="btn primary" data-act="doShare">Publish to the link</button><button class="btn" data-act="closeShare">Cancel</button></div>
+    <p class="sub" style="margin:0">After publishing, use the <b>Share</b> menu at the top of the page to choose who can open the link.</p></section>`;}
+  if(SHARED&&SHARED.cfg){const same=sameAsShared();
+    if(isEditor)h+=`<div class="note info sharebar"><span>Everyone with this page's link starts on <b>${esc(SHARED.cfg.league||'your league')}</b> as you published it ${fmtStamp(SHARED.stamp)}.${same?'':' You have changes they can\'t see yet.'}</span>${same?'':`<button class="btn small" data-act="openShare">Update what they see</button>`}</div>`;
+    else h+=`<div class="note info sharebar"><span>You're viewing <b>${esc(SHARED.cfg.league||'this league')}</b> as shared by its scheduler. Explore freely; your changes stay on this device only.</span>${same?'':`<button class="btn small" data-act="useShared">Back to the shared version</button>`}</div>`;}
+  return h;
+}
+function applyShared(){const c=JSON.parse(JSON.stringify(SHARED));cfg=c.cfg;games=c.games||[];unplaced=c.unplaced||[];built=!!c.built;changeLog=c.changeLog||[];stale=false;picks={};dDraft={};
+  wiz=STEPS.length-1;reached=STEPS.length-1;basedOn=SHARED.stamp;tab=built?'schedule':'setup';showErr=false;fixConfig();save();}
+function buildPage(shared){
+  const resetEl=document.head&&document.head.querySelector('style');const reset=resetEl?resetEl.textContent:'';
+  const css=document.getElementById('appStyle').textContent;const js=document.getElementById('appScript').textContent;
+  const data=JSON.stringify(shared).replace(/</g,'\\u003c');
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+reset+'</style></head><body>'
+    +'<title>Lineup Scheduler</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="'+FONT_URL+'">\n'
+    +'<style id="appStyle">'+css+'</style>\n<script type="application/json" id="sharedLeague">'+data+'<\/script>\n<script id="appScript">'+js+'<\/script>\n</body></html>';
+}
+async function doShare(btn){
+  if(!artifactApi){toast('Sharing isn\'t available in this view.');return;}
+  btn.disabled=true;btn.textContent='Publishing…';
+  const stamp=Date.now();const shared={stamp,cfg,games,unplaced,built,changeLog};
+  const prevBased=basedOn;basedOn=stamp;save();
+  try{await artifactApi.publish(buildPage(shared));toast('Published. Reloading…');}
+  catch(e){basedOn=prevBased;save();const code=e&&e.code;
+    if(code==='not_writer'||code==='not_granted'||code==='consent_required'||code==='capability_disabled'||code==='capability_removed'||code==='not_declared'){canShare=false;sharePanel=false;render();toast('Only the page owner can publish the league to the link.');}
+    else if(code==='conflict'){toast('The page was just updated. Reloading…');}
+    else if(code==='too_large'){btn.disabled=false;btn.textContent='Publish to the link';toast('This league is too large to publish into the page.');}
+    else if(code==='rate_limited'){btn.disabled=false;btn.textContent='Publish to the link';toast('Too many publishes in a row. Wait a minute and try again.');}
+    else{btn.disabled=false;btn.textContent='Publish to the link';toast('Couldn\'t publish right now. Try again in a minute.');}}
+}
+document.addEventListener('click',e=>{if(e.target.id==='shareBtn'){sharePanel=true;tab=tab||'setup';render();window.scrollTo({top:0});}});
+
+
+// ===== Save / open league files (website version) =====
+let filePanel=false, pendingFile=null;
+function slugify(x){return (String(x||'league').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'league');}
+function leagueFileJSON(all){const o={app:'gdx-scheduler',v:1,saved:new Date().toISOString(),league:{cfg,games,unplaced,built,changeLog}};if(all){o.coach=coach;o.ump=ump;}return JSON.stringify(o);}
+function downloadLeague(all){try{const blob=new Blob([leagueFileJSON(all)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=slugify(cfg.league)+(all?'-everything':'')+'.gdx.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500);toast('League file saved to your downloads');}catch(e){toast('Couldn\'t save the file in this browser.');}}
+function readLeagueFile(f){const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);if(!o||o.app!=='gdx-scheduler'||!o.league||!o.league.cfg)throw 0;pendingFile=o;filePanel=true;render();window.scrollTo({top:0});}catch(e){toast('That file isn\'t a GameDay Express league file.');}};r.onerror=()=>toast('That file couldn\'t be read.');r.readAsText(f);}
+function applyLeagueFile(o){const L=o.league;cfg=L.cfg;games=L.games||[];unplaced=L.unplaced||[];built=!!L.built;changeLog=L.changeLog||[];stale=false;picks={};dDraft={};showErr=false;fixConfig();
+  wiz=built?STEPS.length-1:0;reached=built?STEPS.length-1:0;tab=built?'schedule':'setup';
+  if(o.coach){coach=Object.assign({team:'',rosters:{},lineups:{},sel:{},duties:{},spots:{}},o.coach);saveCoach();}
+  if(o.ump){ump=Object.assign({umps:[],crew:{},day:'',lvl:'all'},o.ump);saveUmp();}
+  save();pendingFile=null;filePanel=false;render();window.scrollTo({top:0});toast('Opened '+(cfg.league||'league'));}
+function fileBarHtml(){if(!filePanel)return '';
+  if(pendingFile){const L=pendingFile.league;const n=(L.games||[]).length;const extra=[pendingFile.coach?'coach lineups and duties':'',pendingFile.ump?'officials and assignments':''].filter(Boolean);
+    return `<section class="card filecard"><h2>Open ${esc(L.cfg.league||'this league')}?</h2>
+      <p class="lead">This file has ${L.cfg.divisions?L.cfg.divisions.length:0} levels and ${n} scheduled games${extra.length?`, plus ${extra.join(' and ')}`:''}. Opening it replaces the league saved in this browser${extra.length?' and the matching Coaches Corner and officials data':''}.</p>
+      <div class="row"><button class="btn primary" data-act="fileOpenNow">Open this league</button><button class="btn" data-act="fileCancel">Cancel</button></div></section>`;}
+  return `<section class="card filecard"><h2>Save or open a league</h2>
+    <p class="lead">Your league is saved in this browser automatically. To move it to another computer, or to give it to coaches and officials, save it as a file and send it to them by email or text. They open it here with <b>Open a league file</b>.</p>
+    <div class="row"><button class="btn primary" data-act="fileSave">Save league file</button><button class="btn" data-act="fileSaveAll">Save everything</button>
+      <label class="btn filebtn">Open a league file<input type="file" id="leagueFileIn" accept=".json,application/json"></label>
+      <span class="spacer"></span><button class="btn link small" data-act="fileCancel">Close</button></div>
+    <p class="sub" style="margin:0"><b>Save league file</b> has your setup and schedule, which is what coaches and officials need. <b>Save everything</b> also includes this browser's Coaches Corner lineups and duties and officials' assignments, for moving your own work to another computer.</p></section>`;}
+document.addEventListener('click',e=>{if(e.target.id==='fileBtn'){filePanel=!filePanel;pendingFile=null;render();window.scrollTo({top:0});}});
+
+// ===== Render + events =====
+function render(){const focusId=document.activeElement&&document.activeElement.id;header();const v=document.getElementById('view');
+  v.innerHTML=fileBarHtml()+shareBarHtml()+(tab==='setup'?renderSetup():tab==='schedule'?renderSchedule():tab==='fair'?renderFair():tab==='coach'?renderCoach():tab==='ump'?renderUmp():renderRain());
+  const sb=document.getElementById('shareBtn');if(sb)sb.hidden=!canShare;
+  if(focusId){const el=document.getElementById(focusId);if(el&&v.contains(el))el.focus();}}
+function setTab(t){tab=t;render();window.scrollTo({top:0});}
+function touched(){if(built)stale=true;save();}
+function goStep(i){wiz=Math.max(0,Math.min(STEPS.length-1,i));reached=Math.max(reached,wiz);showErr=false;save();render();window.scrollTo({top:0});}
+
+function setCount(id,n){
+  if(id==='nlv'){n=Math.max(0,Math.min(12,n));while(cfg.divisions.length<n)cfg.divisions.push({id:newId('d'),name:'',teams:[],gamesPerTeam:12,days:[],latest:1200});
+    while(cfg.divisions.length>n){const d=cfg.divisions.pop();cfg.fields.forEach(f=>f.divisions=f.divisions.filter(x=>x!==d.id));cfg.conflicts.forEach(c=>c.teams=c.teams.map(t=>d.teams.includes(t)?'':t));}}
+  else if(id.startsWith('ntm')){const d=cfg.divisions[+id.slice(3)];n=Math.max(0,Math.min(30,n));while(d.teams.length<n)d.teams.push('');while(d.teams.length>n){const t=d.teams.pop();cfg.conflicts.forEach(c=>c.teams=c.teams.map(x=>x===t?'':x));}}
+  else if(id==='nfd'){n=Math.max(0,Math.min(20,n));while(cfg.fields.length<n)cfg.fields.push({id:newId('f'),name:W().Venue+' '+(cfg.fields.length+1),divisions:cfg.divisions.length===1?[cfg.divisions[0].id]:[]});cfg.fields.length=n;}
+  else if(id.startsWith('gpt')){cfg.divisions[+id.slice(3)].gamesPerTeam=Math.max(1,Math.min(40,n));}
+  else if(id==='mr'){cfg.rules.minRest=Math.max(0,Math.min(6,n));}
+  else if(id==='mw'){cfg.rules.maxPerWeek=Math.max(1,Math.min(7,n));}
+  touched();render();
+}
+
+document.querySelector('nav.tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)setTab(b.dataset.tab);});
+
+document.getElementById('view').addEventListener('change',e=>{
+  const el=e.target;
+  if(el.id==='uN'){uSetCount(parseInt(el.value,10)||0);return;}
+  if(el.dataset.un!=null){ump.umps[+el.dataset.un].name=el.value.trim();saveUmp();render();return;}
+  if(el.dataset.ulv!=null){const u=ump.umps.find(x=>x.id===el.dataset.ulv);u.levels=el.checked?[...new Set([...(u.levels||[]),el.value])]:(u.levels||[]).filter(x=>x!==el.value);saveUmp();render();return;}
+  if(el.dataset.udy!=null){const u=ump.umps.find(x=>x.id===el.dataset.udy);const d=+el.value;u.days=el.checked?[...new Set([...(u.days||[]),d])]:(u.days||[]).filter(x=>x!==d);saveUmp();render();return;}
+  if(el.dataset.upr!=null){const u=ump.umps.find(x=>x.id===el.dataset.upr);const o=ump.umps.find(x=>x.id===el.value);if(!u||!o)return;
+    u.partners=u.partners||[];o.partners=o.partners||[];
+    if(el.checked){if(!u.partners.includes(o.id))u.partners.push(o.id);if(!o.partners.includes(u.id))o.partners.push(u.id);}
+    else{u.partners=u.partners.filter(x=>x!==o.id);o.partners=o.partners.filter(x=>x!==u.id);}saveUmp();render();return;}
+  if(el.dataset.uft!=null){const [id,k]=el.dataset.uft.split('|');const u=ump.umps.find(x=>x.id===id);u[k]=el.value===''?null:+el.value;saveUmp();render();return;}
+  if(el.id==='uDay'){ump.day=el.value;saveUmp();render();return;}
+  if(el.id==='uLvl'){ump.lvl=el.value;saveUmp();render();return;}
+  if(el.dataset.uc!=null){const [gid,sl]=el.dataset.uc.split('|');const c=ump.crew[gid]||(ump.crew[gid]={n:2,ids:[]});c.ids[+sl]=el.value||'';saveUmp();render();return;}
+  if(/^dc\d+$/.test(el.id)){const D=cDuty(coach.team);D.list[+el.id.slice(2)].count=Math.max(1,Math.min(4,parseInt(el.value,10)||1));saveCoach();render();return;}
+  if(el.id==='dOn'){const D=cDuty(coach.team);D.on=el.checked;if(D.on&&!D.list.length)D.list=dutyPreset();saveCoach();render();return;}
+  if(el.dataset.dn!=null){cDuty(coach.team).list[+el.dataset.dn].name=el.value.trim();saveCoach();render();return;}
+  if(el.dataset.dside!=null){cDuty(coach.team).list[+el.dataset.dside].side=el.value;saveCoach();render();return;}
+  if(el.dataset.dwhen!=null){cDuty(coach.team).list[+el.dataset.dwhen].when=el.value;saveCoach();render();return;}
+  if(el.dataset.dx!=null){const D=cDuty(coach.team);D.excused=el.checked?[...new Set([...D.excused,el.dataset.dx])]:D.excused.filter(x=>x!==el.dataset.dx);saveCoach();render();return;}
+  if(el.dataset.ds!=null){const [g,du,sl]=el.dataset.ds.split('|');const D=cDuty(coach.team);const a=D.assign[g]||(D.assign[g]={});const arr=a[du]||(a[du]=[]);arr[+sl]=el.value||'';dConfirmClear=false;saveCoach();render();return;}
+  if(el.dataset.dun!=null&&el.value){const D=cDuty(coach.team);const g=el.dataset.dun;D.unavail[g]=[...new Set([...(D.unavail[g]||[]),el.value])];saveCoach();render();return;}
+  if(el.id==='cSpotNew')return;
+  if(el.id==='cN'||el.id==='cInn'){cSetCount(el.id,parseInt(el.value,10)||0);return;}
+  if(el.id==='cTeam'){coach.team=el.value;cConfirmClear=false;saveCoach();render();return;}
+  if(el.id==='cGame'){coach.sel[coach.team]=el.value;cConfirmClear=false;saveCoach();render();return;}
+  if(el.dataset.cp!=null){cRoster(coach.team)[+el.dataset.cp].name=el.value.trim();saveCoach();render();return;}
+  if(el.dataset.lu!=null){const t=coach.team;const k=cKey(t,cTeamGames(t));coach.sel[t]=k;const L=cGetLineup(t,k);if(el.value)L.grid[el.dataset.lu]=el.value;else delete L.grid[el.dataset.lu];cConfirmClear=false;saveCoach();render();return;}
+  if(['nlv','nfd','mr','mw'].includes(el.id)||/^(ntm|gpt)\d+$/.test(el.id)){setCount(el.id,parseInt(el.value,10)||0);return;}
+  if(el.id==='leagueFileIn'){const f=el.files&&el.files[0];if(f)readLeagueFile(f);el.value='';return;}
+  if(el.id==='lgLogo'){const f=el.files&&el.files[0];if(!f)return;if(!/^image\//.test(f.type)){toast('Pick an image file, like a PNG or JPG.');return;}
+    loadLogo(f).then(url=>{cfg.logo=url;save();render();toast('Logo added');}).catch(()=>toast('That image couldn\'t be read. Try a PNG or JPG.'));return;}
+  if(el.dataset.sport!=null){cfg.sport=el.dataset.sport;save();render();return;}
+  if(el.id==='lg'){cfg.league=el.value.trim();touched();render();return;}
+  if(el.dataset.date){const key=el.dataset.date;const cur=key==='start'?cfg.start:key==='end'?cfg.end:(cfg.noGame[+key.slice(2,-1)]||{})[key.endsWith('f')?'from':'to'];
+    const p=dDraft[key]||(cur?{y:cur.slice(0,4),m:cur.slice(5,7),d:cur.slice(8,10)}:{y:'',m:'',d:''});p[el.dataset.part]=el.value;let val='';
+    if(p.y&&p.m&&p.d){const max=new Date(Date.UTC(+p.y,+p.m,0)).getUTCDate();if(+p.d>max)p.d=String(max).padStart(2,'0');val=`${p.y}-${p.m}-${p.d}`;delete dDraft[key];}else dDraft[key]=p;
+    if(key==='start')cfg.start=val;else if(key==='end')cfg.end=val;else{const r=cfg.noGame[+key.slice(2,-1)];r[key.endsWith('f')?'from':'to']=val;if(key.endsWith('f')&&val&&(!r.to||r.to<val))r.to=val;syncBlackouts();}
+    touched();render();return;}
+  if(el.id==='bo'){const out=new Set();el.value.split(/\n|,/).map(x=>x.trim()).filter(Boolean).forEach(l=>{const m=l.match(/^(\d{4}-\d{2}-\d{2})(?:\s*(?:to|-|–)\s*(\d{4}-\d{2}-\d{2}))?$/);if(!m)return;let a=m[1],b=m[2]||m[1];let n=0;while(a<=b&&n<120){out.add(a);a=addDays(a,1);n++;}});cfg.blackouts=[...out];touched();render();return;}
+  if(el.dataset.lv!=null){cfg.divisions[+el.dataset.lv].name=el.value.trim();touched();render();return;}
+  if(el.dataset.tm!=null){const [i,j]=el.dataset.tm.split('_').map(Number);const d=cfg.divisions[i];const old=d.teams[j];const nw=el.value.trim();d.teams[j]=nw;
+    cfg.conflicts.forEach(c=>{c.teams=c.teams.map(x=>old&&x===old?nw:x);});touched();render();return;}
+  if(el.dataset.fd!=null){cfg.fields[+el.dataset.fd].name=el.value.trim();touched();render();return;}
+  if(el.dataset.fdv!=null){const f=cfg.fields[+el.dataset.fdv];f.divisions=el.checked?[...f.divisions,el.value]:f.divisions.filter(x=>x!==el.value);touched();render();return;}
+  if(el.dataset.gd!=null){const d=+el.dataset.gd;if(el.checked)cfg.dayTimes[d]=(d===6||d===0)?[540,660,780,900]:[1080,1200];else{delete cfg.dayTimes[d];cfg.makeupDays=cfg.makeupDays.filter(x=>x!==d);cfg.divisions.forEach(v=>v.days=v.days.filter(x=>x!==d));}touched();render();return;}
+  if(el.dataset.addtime!=null&&el.value){const d=+el.dataset.addtime;cfg.dayTimes[d]=[...new Set([...(cfg.dayTimes[d]||[]),+el.value])].sort((x,y)=>x-y);touched();render();return;}
+  if(el.dataset.times!=null){const d=+el.dataset.times;const ts=el.value.split(',').map(parseTime).filter(x=>x!=null).sort((a,b)=>a-b);cfg.dayTimes[d]=[...new Set(ts)];touched();render();return;}
+  if(el.dataset.mk!=null){const d=+el.dataset.mk;cfg.makeupDays=el.checked?[...cfg.makeupDays,d]:cfg.makeupDays.filter(x=>x!==d);if(el.checked)cfg.divisions.forEach(v=>v.days=v.days.filter(x=>x!==d));touched();render();return;}
+  if(el.id==='gl'){cfg.gameLength=Math.max(30,+el.value||120);touched();render();return;}
+  if(el.id==='lc'){const t=parseTime(el.value);if(t!=null)cfg.lateCutoff=t;touched();render();return;}
+  if(el.dataset.dvday!=null){const d=cfg.divisions[+el.dataset.dvday];const w=+el.value;d.days=el.checked?[...d.days,w]:d.days.filter(x=>x!==w);touched();render();return;}
+  if(el.dataset.own!=null){const d=cfg.divisions[+el.dataset.own];if(el.value==='own'){d.ownTimes=d.ownTimes&&d.ownTimes.length?d.ownTimes:[1080,1170];if(!d.gameLength)d.gameLength=90;}else delete d.ownTimes;touched();render();return;}
+  if(el.dataset.addown!=null&&el.value){const d=cfg.divisions[+el.dataset.addown];d.ownTimes=[...new Set([...(d.ownTimes||[]),+el.value])].sort((x,y)=>x-y);if(d.latest<Math.max(...d.ownTimes))d.latest=Math.max(...d.ownTimes);touched();render();return;}
+  if(el.dataset.glen!=null){const d=cfg.divisions[+el.dataset.glen];if(el.value)d.gameLength=+el.value;else delete d.gameLength;touched();render();return;}
+  if(el.dataset.lt!=null){cfg.divisions[+el.dataset.lt].latest=+el.value;touched();render();return;}
+  if(el.dataset.cfname!=null){cfg.conflicts[+el.dataset.cfname].name=el.value.trim();touched();render();return;}
+  if(el.dataset.cf!=null){cfg.conflicts[+el.dataset.cf].teams[+el.dataset.j]=el.value;touched();render();return;}
+  if(el.id==='bh'){cfg.rules.balanceHome=el.checked;touched();return;}
+  if(el.id==='btm'){cfg.rules.balanceTimes=el.checked;touched();return;}
+  if(el.id==='bfd'){cfg.rules.balanceFields=el.checked;touched();return;}
+  if(el.id==='fd'){filterDiv=el.value;filterTeam='all';render();return;}
+  if(el.id==='ft'){filterTeam=el.value;render();return;}
+  if(el.dataset.pick){picks[el.dataset.pick]=+el.value;render();return;}
+});
+// Enter in a text box moves to the next question
+document.getElementById('view').addEventListener('keydown',e=>{if(e.key==='Enter'&&tab==='setup'&&e.target.matches('input[type=text],input[type=number],input[type=date]')){e.preventDefault();e.target.blur();setTimeout(()=>{const b=document.querySelector('[data-act="next"]');if(b&&e.target.id==='lg')b.click();},0);}});
+
+document.getElementById('view').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+  if(a==='fileSave'){downloadLeague(false);return;}
+  if(a==='fileSaveAll'){downloadLeague(true);return;}
+  if(a==='fileCancel'){filePanel=false;pendingFile=null;render();return;}
+  if(a==='fileOpenNow'){if(pendingFile)applyLeagueFile(pendingFile);return;}
+  if(a==='doShare'){doShare(b);return;}
+  if(a==='closeShare'){sharePanel=false;render();return;}
+  if(a==='openShare'){sharePanel=true;render();window.scrollTo({top:0});return;}
+  if(a==='useShared'){applyShared();render();toast('Back to the shared version');return;}
+  if(a==='rmLogo'){delete cfg.logo;save();render();toast('Logo removed');return;}
+  if(a==='cnt'&&(b.dataset.for==='cN'||b.dataset.for==='cInn')){const inp=document.getElementById(b.dataset.for);cSetCount(b.dataset.for,(parseInt(inp.value,10)||0)+(+b.dataset.d));return;}
+  if(a==='cCopyTsv'){cCopyTsv();return;}
+  if(a==='cAddSpot'){const inp=document.getElementById('cSpotNew');let v=(inp&&inp.value||'').trim();if(!v){toast('Type a position name first');return;}const t=coach.team;const cur=cSpots(t).slice();if(/^B\d+$/.test(v))v=v+' ';let base=v,n=2;while(cur.includes(v))v=base+' '+(n++);cur.push(v);(coach.spots||(coach.spots={}))[t]=cur;saveCoach();render();return;}
+  if(a==='cRmSpot'){const t=coach.team;const cur=cSpots(t).slice();if(cur.length<=1){toast('Keep at least one position');return;}cur.splice(+b.dataset.i,1);(coach.spots||(coach.spots={}))[t]=cur;saveCoach();render();return;}
+  if(a==='cResetSpots'){delete coach.spots[coach.team];saveCoach();render();return;}
+  if(a==='cnt'&&b.dataset.for==='uN'){uSetCount((parseInt(document.getElementById('uN').value,10)||0)+(+b.dataset.d));return;}
+  if(a==='uEdit'){uOpen=uOpen===b.dataset.u?null:b.dataset.u;render();return;}
+  if(a==='uAllLv'){ump.umps.find(x=>x.id===b.dataset.u).levels=[];saveUmp();render();return;}
+  if(a==='uAllDays'){ump.umps.find(x=>x.id===b.dataset.u).days=[];saveUmp();render();return;}
+  if(a==='uPrev'||a==='uNext'){const ds=uDates();const i=ds.indexOf(ump.day)+(a==='uNext'?1:-1);if(ds[i]){ump.day=ds[i];saveUmp();render();}return;}
+  if(a==='uNextOpen'){const ds=uDates();const i=ds.indexOf(ump.day);const nx=ds.slice(i+1).concat(ds.slice(0,i+1)).find(d=>uOpenOn(d,ump.lvl)>0);if(nx){ump.day=nx;saveUmp();render();}return;}
+  if(a==='ucnt'){const c=ump.crew[b.dataset.g]||(ump.crew[b.dataset.g]={n:2,ids:[]});c.n=Math.max(0,Math.min(6,c.n+(+b.dataset.d)));saveUmp();render();return;}
+  if(a==='uSame'){const src=ump.crew[b.dataset.from];const c=ump.crew[b.dataset.g]||(ump.crew[b.dataset.g]={n:2,ids:[]});const ids=src.ids.slice(0,src.n).filter(Boolean);c.n=Math.max(c.n,ids.length);c.ids=ids.concat(Array(Math.max(0,c.n-ids.length)).fill(''));saveUmp();render();toast('Crew copied');return;}
+  if(a==='uAddPartner'){const c=ump.crew[b.dataset.g]||(ump.crew[b.dataset.g]={n:2,ids:[]});let i=-1;for(let k=0;k<c.n;k++){if(!c.ids[k]){i=k;break;}}if(i<0)return;c.ids[i]=b.dataset.u;saveUmp();render();toast('Partner added');return;}
+  if(a==='uCopy'){uCopySchedule(b.dataset.u);return;}
+  if(a==='uCopyDay'){uCopyDay();return;}
+  if(a==='cnt'&&/^dc\d+$/.test(b.dataset.for)){const D=cDuty(coach.team);const i=+b.dataset.for.slice(2);D.list[i].count=Math.max(1,Math.min(4,(D.list[i].count||1)+(+b.dataset.d)));saveCoach();render();return;}
+  if(a==='dAdd'){cDuty(coach.team).list.push({id:newId('u'),name:'',side:'both',when:'every',count:1});saveCoach();render();return;}
+  if(a==='dRm'){const D=cDuty(coach.team);const du=D.list.splice(+b.dataset.i,1)[0];for(const g in D.assign)delete D.assign[g][du.id];saveCoach();render();return;}
+  if(a==='dPreset'){cDuty(coach.team).list=dutyPreset();saveCoach();render();return;}
+  if(a==='dRandom'){const r=dutyRandomize(coach.team);dConfirmClear=false;saveCoach();render();toast(r.left?`Filled ${r.filled} slots. ${r.left} couldn't be filled; too few families available.`:`Filled ${r.filled} open slot${r.filled===1?'':'s'}`);return;}
+  if(a==='dCopy'){dutyCopy(coach.team);return;}
+  if(a==='dClear'){if(!dConfirmClear){dConfirmClear=true;render();return;}cDuty(coach.team).assign={};dConfirmClear=false;saveCoach();render();toast('All duties cleared');return;}
+  if(a==='dUnRm'){const D=cDuty(coach.team);D.unavail[b.dataset.g]=(D.unavail[b.dataset.g]||[]).filter(x=>x!==b.dataset.p);saveCoach();render();return;}
+  if(a==='cClear'){if(!cConfirmClear){cConfirmClear=true;render();return;}const t=coach.team;const L=cGetLineup(t,cKey(t,cTeamGames(t)));L.grid={};cConfirmClear=false;saveCoach();render();toast('Lineup cleared');return;}
+  if(a==='cCopyPrev'){const t=coach.team;const tg=cTeamGames(t);const k=cKey(t,tg);const all=cLineups(t);const idx=k==='practice'?tg.length:tg.findIndex(g=>g.id===k);
+    let src=null;for(let j=idx-1;j>=0;j--){if(cHasCells(all[tg[j].id])){src=all[tg[j].id];break;}}
+    if(!src&&k!=='practice'&&cHasCells(all.practice))src=all.practice;
+    if(!src){toast('No earlier lineup to copy yet');return;}
+    all[k]={innings:src.innings,grid:Object.assign({},src.grid)};coach.sel[t]=k;saveCoach();render();toast('Copied the last lineup. Adjust as needed.');return;}
+  if(a==='cnt'){const inp=document.getElementById(b.dataset.for);setCount(b.dataset.for,(parseInt(inp.value,10)||0)+(+b.dataset.d));return;}
+  if(a==='next'){const errs=stepErrors(STEPS[wiz].id);if(errs.length){showErr=true;render();return;}goStep(wiz+1);return;}
+  if(a==='prev'){goStep(wiz-1);return;}
+  if(a==='goStep'){goStep(+b.dataset.i);return;}
+  if(a==='allDays'){const d=cfg.divisions[+b.dataset.i];const gd=gameDays().filter(x=>!cfg.makeupDays.includes(x));d.days=b.dataset.on==='1'?gd.slice():[];touched();render();return;}
+  if(a==='allGameDays'){[1,2,3,4,5,6].forEach(d=>{if(cfg.dayTimes[d]===undefined)cfg.dayTimes[d]=d===6?[540,660,780,900]:[1080,1200];});touched();render();return;}
+  if(a==='rmOwn'){const d=cfg.divisions[+b.dataset.i];d.ownTimes=d.ownTimes.filter(t=>t!==+b.dataset.t);if(!d.ownTimes.length)delete d.ownTimes;touched();render();return;}
+  if(a==='rmTime'){const d=+b.dataset.d;cfg.dayTimes[d]=(cfg.dayTimes[d]||[]).filter(t=>t!==+b.dataset.t);touched();render();return;}
+  if(a==='copyWk'){const src=cfg.dayTimes[+b.dataset.d].slice();[1,2,3,4,5].forEach(d=>{if(cfg.dayTimes[d]!==undefined)cfg.dayTimes[d]=src.slice();});touched();render();toast('Copied to every weeknight with games');return;}
+  if(a==='addNg'){cfg.noGame=cfg.noGame||[];cfg.noGame.push({from:'',to:''});touched();render();return;}
+  if(a==='rmNg'){cfg.noGame.splice(+b.dataset.i,1);dDraft={};syncBlackouts();touched();render();return;}
+  if(a==='addConf'){cfg.conflicts.push({name:'',teams:['','']});touched();render();return;}
+  if(a==='addConfTeam'){cfg.conflicts[+b.dataset.i].teams.push('');touched();render();return;}
+  if(a==='rmConfTeam'){cfg.conflicts[+b.dataset.i].teams.splice(+b.dataset.j,1);touched();render();return;}
+  if(a==='rmConf'){cfg.conflicts.splice(+b.dataset.i,1);touched();render();return;}
+  if(a==='build'){const errs=stepErrors('review');if(errs.length){showErr=true;render();return;}
+    b.disabled=true;b.textContent='Building…';setTimeout(()=>{
+    const r=generateBest(cfg,25);games=r.games.map(g=>({...g}));unplaced=r.unplaced;built=true;stale=false;picks={};changeLog=[];showErr=false;save();setTab('schedule');toast(`Built ${games.length} games`);},30);return;}
+  if(a==='sample'){cfg=sampleConfig();fixConfig();dDraft={};games=[];unplaced=[];built=false;stale=false;picks={};changeLog=[];wiz=0;reached=STEPS.length-1;showErr=false;save();render();toast('Sample league filled in. Step through to see each answer.');return;}
+  if(a==='clear'){cfg=blankConfig();fixConfig();dDraft={};games=[];unplaced=[];built=false;stale=false;picks={};changeLog=[];wiz=0;reached=0;showErr=false;save();render();return;}
+  if(a==='goSetup')setTab('setup');
+  if(a==='rainDay'){let n=0;games.forEach(g=>{if(g.date===b.dataset.d&&g.status!=='postponed'){g.status='postponed';n++;}});save();toast(`${n} games postponed`);setTab('rain');}
+  if(a==='pp'){const g=games.find(x=>x.id===b.dataset.id);g.status='postponed';save();render();toast('Game postponed. Open '+W().rainTab+' to place it.');}
+  if(a==='unpp'){const g=games.find(x=>x.id===b.dataset.id);g.status=g.origDate?'rescheduled':'scheduled';delete picks[g.id];save();render();}
+  if(a==='apply'){const pp=games.filter(g=>g.status==='postponed').sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:x.time-y.time);
+    const prop=proposeMakeups(cfg,games,pp,null,picks);let n=0;
+    prop.forEach(p=>{if(p.choice==null)return;const o=p.options[p.choice];const g=p.game;
+      changeLog.push({div:g.div,home:g.home,away:g.away,fromDate:g.date,fromTime:g.time,date:o.date,time:o.time,field:fieldName(o.field)});
+      if(!g.origDate)g.origDate=g.date;Object.assign(g,{date:o.date,time:o.time,field:o.field,status:'rescheduled'});n++;});
+    picks={};save();render();toast(`${n} makeup${n===1?'':'s'} scheduled`);}
+  if(a==='copyMsg')copyText(directorsMessage());
+  if(a==='copyTsv'){const rows=[['Date','Day','Time',W().Venue,'Level','Away','Home','Status']];
+    games.slice().sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:x.time-y.time).forEach(g=>rows.push([g.date,DOW[dowOf(g.date)],fmtTime(g.time),fieldName(g.field),divName(g.div),g.away,g.home,g.status==='postponed'?'Postponed':g.status==='rescheduled'?'Makeup':'Scheduled']));
+    copyText(rows.map(r=>r.join('\t')).join('\n')).then(ok=>{if(ok)toast(`Copied ${rows.length-1} games. Paste into a sheet.`);});}
+});
+
+// boot: a scheduler starts at question 1
+loadCoach();loadUmp();
+const hadLocal=load();
+if(SHARED&&SHARED.cfg&&(!hadLocal||basedOn!==SHARED.stamp))applyShared();
+else if(!hadLocal){cfg=blankConfig();wiz=0;tab='setup';}
+fixConfig();render();
+(async()=>{try{if(!window.claude||!window.claude.use)return;artifactApi=await window.claude.use('artifact');if(!artifactApi)return;
+  const u=await window.claude.use('user');isEditor=u?await u.canEdit():true;canShare=isEditor;render();}catch(e){}})();
+
+</script>
+</body>
+</html>
