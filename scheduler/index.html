@@ -198,6 +198,7 @@ td.hot{color:var(--warn);font-weight:700}
 .opt{display:flex;gap:10px;align-items:flex-start;padding:7px 10px;border:1px solid var(--line);border-radius:6px;cursor:pointer;background:var(--surface)}
 .opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
 .opt input{margin-top:4px;accent-color:var(--accent)}
+.optlink{text-decoration:none;color:inherit}.optlink input{pointer-events:none}.optlink:hover{border-color:var(--accent)}
 .opt .k{font-size:12px;color:var(--muted)}
 .ppitem{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2)}
 .ppitem .title{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
@@ -538,7 +539,7 @@ function sampleConfig(){
 
 // ===== Page shell (kept in script so the page can republish itself) =====
 const FONT_URL='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap';
-const SHELL=`<div class="gdxbar"><div class="wrap"><a class="gdxlogo" href="/" aria-label="GameDay Express home">GAME<span>DAY</span> EXPRESS</a><span class="gdxsub">League Scheduler</span><span class="spacer"></span><a class="gdxback" href="/scheduler/tournament/">Tournament scheduler</a><a class="gdxback" href="/">← Sports portal</a></div></div>
+const SHELL=`<div class="gdxbar"><div class="wrap"><a class="gdxlogo" href="/" aria-label="GameDay Express home">GAME<span>DAY</span> EXPRESS</a><span class="gdxsub">League Scheduler</span><span class="spacer"></span><a class="gdxback" href="/">← Sports portal</a></div></div>
 <header class="top">
   <div class="wrap">
     <div class="brandrow">
@@ -573,6 +574,7 @@ let cfg, games=[], unplaced=[], built=false, stale=false, picks={}, changeLog=[]
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const divName=id=>(cfg.divisions.find(d=>d.id===id)||{}).name||'?';
 const fieldName=id=>(cfg.fields.find(f=>f.id===id)||{}).name||'?';
+const TOURNEY_URL='/scheduler/tournament/';
 const KEY='gdxSchedLeague1';
 function save(){try{localStorage.setItem(KEY,JSON.stringify({cfg,games,unplaced,built,stale,changeLog,wiz,reached,basedOn}));}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.cfg){({cfg,games,unplaced,built,stale,changeLog,wiz,reached}=s);basedOn=s.basedOn||null;changeLog=changeLog||[];wiz=wiz||0;reached=Math.max(reached||0,wiz);return true;}}catch(e){}return false;}
@@ -703,7 +705,7 @@ function stepBody(id){
       <span class="sub">${cfg.sport?`Wording follows ${SPORTS[cfg.sport].label.toLowerCase()}: ${W().venues}, ${W().periods} and ${W().officials}. You can still name your ${W().venues} anything.`:'Pick one so the app uses the right words, like courts or fields, and referees or umpires.'}</span></div>
     <div class="choice"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">What are you scheduling?</span>
       <label class="opt"><input type="radio" checked name="kind"><span><b>A league season</b><br><span class="k">Games spread over weeks, every team plays a set number of games</span></span></label>
-      <label class="opt dim"><input type="radio" disabled name="kind"><span><b>A weekend tournament</b><br><span class="k">Pool play and brackets. Coming in a later version.</span></span></label></div>`;
+      <a class="opt optlink" href="${TOURNEY_URL}" target="${TOURNEY_URL.startsWith('http')?'_blank':'_self'}" rel="noopener"><input type="radio" name="kind" tabindex="-1" aria-hidden="true"><span><b>A weekend tournament</b><br><span class="k">Pool play on day one, then a seeded bracket on day two. Opens the tournament scheduler.</span></span></a></div>`;
   case 'season':return `<div class="grid2"><div class="f">First game day${dateSel('start',cfg.start,'First game day')}</div><div class="f">Last game day${dateSel('end',cfg.end,'Last game day')}</div></div>
     <div class="f">Dates with no games (optional), like spring break or a holiday weekend</div>
     ${(cfg.noGame||[]).map((r,i)=>`<div class="row ngrow"><span class="sub">From</span>${dateSel('ng'+i+'f',r.from,'No games from')}<span class="sub">through</span>${dateSel('ng'+i+'t',r.to,'No games through')}<button class="btn link" data-act="rmNg" data-i="${i}">Remove</button></div>`).join('')}
