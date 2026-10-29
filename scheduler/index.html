@@ -323,7 +323,12 @@ function capacity(cfg){
 function generate(cfg,seed){
   const R=rng(seed);const slots=buildSlots(cfg).filter(s=>!s.makeup);
   // order: date, time, random field
-  slots.forEach(s=>s.r=R());slots.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time||a.r-b.r);
+  slots.forEach(s=>s.r=R());
+  if(cfg.rules.stackFields!==false){
+    // Fill one field's time slots before opening another, so light days use fewer fields and one crew can work back-to-back games.
+    const fi={};cfg.fields.forEach((f,i)=>fi[f.id]=i);
+    slots.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(fi[a.field]-fi[b.field])||a.time-b.time);
+  }else slots.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.time-b.time||a.r-b.r);
   let gid=0;const pools={};const divOf={};const lateTime={};const weeksFor={};
   for(const div of cfg.divisions){pools[div.id]=roundRobin(div.teams,div.gamesPerTeam).map(g=>({...g,id:'g'+(++gid),div:div.id}));div.teams.forEach(t=>divOf[t]=div.id);
     const own=slots.filter(s=>divAllowsSlot(cfg,div,s,false));
@@ -365,9 +370,50 @@ function generate(cfg,seed){
     }
   }
   const unplaced=[];for(const d in pools)for(const g of pools[d])unplaced.push({...g,div:d});
+  if(cfg.rules.stackFields!==false)consolidateFields(cfg,placed);
   return {games:placed,unplaced};
 }
 
+// Move a lone game on a field to an open slot on a field already in use that day,
+// so light nights use fewer fields and one crew can work back-to-back games.
+function consolidateFields(cfg,games){
+  const tcount=(team,t)=>games.filter(x=>x.status!=='postponed'&&(x.home===team||x.away===team)&&x.time===t&&dowOf(x.date)>=1&&dowOf(x.date)<=5).length;
+  const byBal=(g,ts)=>ts.slice().sort((a,b)=>(tcount(g.home,a)+tcount(g.away,a))-(tcount(g.home,b)+tcount(g.away,b)));
+  const fi={};cfg.fields.forEach((f,i)=>fi[f.id]=i);
+  const byDate={};for(const g of games){if(g.status==='postponed')continue;(byDate[g.date]=byDate[g.date]||[]).push(g);}
+  let moved=0;
+  for(const date in byDate){
+    let changed=true,guard=0;
+    while(changed&&guard++<20){changed=false;
+      const dg=byDate[date];const per={};dg.forEach(g=>(per[g.field]=per[g.field]||[]).push(g));
+      const fields=Object.keys(per).sort((a,b)=>per[b].length-per[a].length||fi[a]-fi[b]);
+      const singles=fields.filter(f=>per[f].length===1).sort((a,b)=>fi[b]-fi[a]);
+      for(const src of singles){const g=per[src][0];const div=cfg.divisions.find(d=>d.id===g.div);if(!div)continue;
+        const L=gLen(cfg,g);const dow=dowOf(date);const times=byBal(g,divTimesFor(cfg,div,dow).filter(t=>t<=div.latest));
+        const idx=makeIndex(cfg,games.filter(x=>x.status!=='postponed'&&x.id!==g.id));
+        let done=false;
+        for(const tgt of fields){if(tgt===src||done)continue;const f=cfg.fields.find(x=>x.id===tgt);if(!f||!f.divisions.includes(div.id))continue;
+          for(const t of times){
+            if(!fieldFree(cfg,idx,tgt,date,t,L))continue;
+            if(teamCanPlay(cfg,idx,g.home,date,t,null,L)||teamCanPlay(cfg,idx,g.away,date,t,null,L))continue;
+            g.field=tgt;g.time=t;moved++;changed=true;done=true;break;}
+          // Target has one game: try re-timing it so both fit back to back on that field.
+          if(!done&&per[tgt].length===1){const h=per[tgt][0];const hd=cfg.divisions.find(d=>d.id===h.div);const HL=gLen(cfg,h);
+            const htimes=byBal(h,divTimesFor(cfg,hd,dow).filter(t=>t<=hd.latest));
+            const idx2=makeIndex(cfg,games.filter(x=>x.status!=='postponed'&&x.id!==g.id&&x.id!==h.id));
+            outer:for(const th of htimes)for(const tg of times){
+              if(overlaps(th,HL,tg,L))continue;
+              if(!fieldFree(cfg,idx2,tgt,date,th,HL)||!fieldFree(cfg,idx2,tgt,date,tg,L))continue;
+              if(teamCanPlay(cfg,idx2,h.home,date,th,null,HL)||teamCanPlay(cfg,idx2,h.away,date,th,null,HL))continue;
+              const hh={...h,time:th};addToIndex(idx2,hh);
+              const bad=teamCanPlay(cfg,idx2,g.home,date,tg,null,L)||teamCanPlay(cfg,idx2,g.away,date,tg,null,L);
+              if(bad){const k=h.field+'|'+date;idx2.byFieldDate[k]=idx2.byFieldDate[k].filter(x=>x!==hh);for(const tm of [h.home,h.away]){idx2.byTeamDate[tm+'|'+date]=idx2.byTeamDate[tm+'|'+date].filter(x=>x!==hh);idx2.byTeam[tm]=idx2.byTeam[tm].filter(x=>x!==hh);}continue;}
+              h.time=th;g.field=tgt;g.time=tg;moved++;changed=true;done=true;break outer;}}}
+        if(done)break;}
+    }
+  }
+  return moved;
+}
 function fairness(cfg,games){
   const out={};
   for(const div of cfg.divisions){
@@ -431,6 +477,7 @@ function makeupOptions(cfg,games,game,fromDate,taken){
     const kind=s.makeup?'Makeup day':div.days.includes(s.dow)?(s.dow===6?'Regular Saturday':'Regular game night'):'Open night';
     const days=dayNum(s.date)-dayNum(game.origDate||game.date);
     let sc=days+(kind==='Open night'?5:0)+(kind==='Makeup day'?-3:0)+(s.time>=cfg.lateCutoff?0.5:0);
+    if(cfg.rules.stackFields!==false&&(idx.byFieldDate[s.field+'|'+s.date]||[]).length)sc-=1.5;
     opts.push({date:s.date,time:s.time,field:s.field,kind,score:sc});}
   opts.sort((a,b)=>a.score-b.score);
   // keep the best option per date/time, then top 5
@@ -447,7 +494,7 @@ function proposeMakeups(cfg,games,postponed,fromDate,picks){
   return res;
 }
 
-//module.exports={buildSlots,roundRobin,generate,generateBest,fairness,validate,capacity,makeupOptions,proposeMakeups,fmtTime,fmtDateLong,parseTime,addDays,dowOf};
+//module.exports={consolidateFields,buildSlots,roundRobin,generate,generateBest,fairness,validate,capacity,makeupOptions,proposeMakeups,fmtTime,fmtDateLong,parseTime,addDays,dowOf};
 
 // ===== Sample league (made-up data) =====
 function sampleConfig(){
@@ -702,6 +749,7 @@ function stepBody(id){
       <label class="chk" style="align-self:flex-start"><input type="checkbox" id="bh" ${cfg.rules.balanceHome?'checked':''}>Balance home and away games</label>
       <label class="chk" style="align-self:flex-start"><input type="checkbox" id="btm" ${cfg.rules.balanceTimes!==false?'checked':''}>Balance early and late weeknight starts, like 6:00 vs 8:00</label>
       <label class="chk" style="align-self:flex-start"><input type="checkbox" id="bfd" ${cfg.rules.balanceFields!==false?'checked':''}>Balance which ${W().venues} each team plays on</label>
+      <label class="chk" style="align-self:flex-start"><input type="checkbox" id="bsf" ${cfg.rules.stackFields!==false?'checked':''}>On lighter days, use as few ${W().venues} as possible, like 6:00 and 8:00 on one ${W().venue}, so there's less prep and one crew can work both games</label>
     </div>`;
   case 'review':{const ready=STEPS.slice(0,-1).every(s=>!stepErrors(s.id).length);const cap=ready?capacity(cfg):[];
     return `<div class="sumgrid">
@@ -713,7 +761,7 @@ function stepBody(id){
       ${sumRow(5,'Game days',gameDays().map(d=>`${DOW[d]}${cfg.makeupDays.includes(d)?' (makeups)':''}`).join(', ')||'—')}
       ${sumRow(6,'Level schedules',cfg.divisions.map(d=>`${esc(d.name)}: ${d.gamesPerTeam} games${d.ownTimes&&d.ownTimes.length?`, weeknights ${d.ownTimes.map(fmtTime).join(' & ')}`:''}${d.gameLength?`, ${d.gameLength} min`:''}`).join('<br>')||'—')}
       ${sumRow(7,'Shared coaches',cfg.conflicts.length?cfg.conflicts.map(c=>`${c.name?esc(c.name)+': ':''}${c.teams.map(esc).join(', ')}`).join('<br>'):'None')}
-      ${sumRow(8,'Rules',`${cfg.rules.minRest} day${cfg.rules.minRest===1?'':'s'} off between games · up to ${cfg.rules.maxPerWeek} a week${cfg.rules.balanceHome?' · balanced home/away':''}${cfg.rules.balanceTimes!==false?' · balanced start times':''}${cfg.rules.balanceFields!==false?' · balanced '+W().venues:''}`)}
+      ${sumRow(8,'Rules',`${cfg.rules.minRest} day${cfg.rules.minRest===1?'':'s'} off between games · up to ${cfg.rules.maxPerWeek} a week${cfg.rules.balanceHome?' · balanced home/away':''}${cfg.rules.balanceTimes!==false?' · balanced start times':''}${cfg.rules.balanceFields!==false?' · balanced '+W().venues:''}${cfg.rules.stackFields!==false?' · fewer '+W().venues+' on light days':''}`)}
     </div>
     ${ready?`<h3>Capacity check</h3><div class="cap">${cap.map(c=>`<div class="capbox ${c.ok?'':'bad'}"><b>${esc(c.name)}</b><span class="big">${c.need} games</span><small>${c.slots} open slots over ${c.weeks} weeks${c.ok?'':' · not enough room'}</small></div>`).join('')}</div>`:''}
     ${built?'<p class="sub" style="margin:0">Building again replaces the current schedule and any makeups.</p>':''}`;}
@@ -763,7 +811,7 @@ function renderSchedule(){
   }
   return `${statusBar()}
   <section class="card">
-    <div class="row"><h2>Season schedule</h2><span class="spacer"></span><button class="btn small" data-act="copyTsv">Copy for Excel or Google Sheets</button></div>
+    <div class="row"><h2>Season schedule</h2><span class="spacer"></span><button class="btn small" data-act="stackNow" title="Moves lone games so light days use fewer ${W().venues}">Pair up games on fewer ${W().venues}</button><button class="btn small" data-act="copyTsv">Copy for Excel or Google Sheets</button></div>
     <div class="row">
       <label class="f" style="flex:1 1 180px">Level<select id="fd"><option value="all">All levels</option>${cfg.divisions.map(d=>`<option value="${d.id}" ${filterDiv===d.id?'selected':''}>${esc(d.name)}</option>`).join('')}</select></label>
       <label class="f" style="flex:1 1 180px">Team<select id="ft"><option value="all">All teams</option>${teams.map(t=>`<option ${filterTeam===t?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
@@ -1349,6 +1397,7 @@ document.getElementById('view').addEventListener('change',e=>{
   if(el.id==='bh'){cfg.rules.balanceHome=el.checked;touched();return;}
   if(el.id==='btm'){cfg.rules.balanceTimes=el.checked;touched();return;}
   if(el.id==='bfd'){cfg.rules.balanceFields=el.checked;touched();return;}
+  if(el.id==='bsf'){cfg.rules.stackFields=el.checked;touched();render();return;}
   if(el.id==='fd'){filterDiv=el.value;filterTeam='all';render();return;}
   if(el.id==='ft'){filterTeam=el.value;render();return;}
   if(el.dataset.pick){picks[el.dataset.pick]=+el.value;render();return;}
@@ -1427,6 +1476,12 @@ document.getElementById('view').addEventListener('click',e=>{
       changeLog.push({div:g.div,home:g.home,away:g.away,fromDate:g.date,fromTime:g.time,date:o.date,time:o.time,field:fieldName(o.field)});
       if(!g.origDate)g.origDate=g.date;Object.assign(g,{date:o.date,time:o.time,field:o.field,status:'rescheduled'});n++;});
     picks={};save();render();toast(`${n} makeup${n===1?'':'s'} scheduled`);}
+  if(a==='stackNow'){const before=games.map(g=>({id:g.id,field:g.field,time:g.time}));const n=consolidateFields(cfg,games);
+    if(!n){toast('Already tight: no lone games could be paired up');return;}
+    const issues=validate(cfg,games);
+    if(issues.length){games.forEach(g=>{const o=before.find(x=>x.id===g.id);g.field=o.field;g.time=o.time;});toast('Pairing would break a rule, so nothing was moved');render();return;}
+    games.forEach(g=>{const o=before.find(x=>x.id===g.id);if(o.field!==g.field||o.time!==g.time)changeLog.push({div:g.div,home:g.home,away:g.away,fromDate:g.date,fromTime:o.time,date:g.date,time:g.time,field:fieldName(g.field)});});
+    save();render();toast(`Moved ${n} game${n===1?'':'s'} to share a ${W().venue}. Changes are listed under ${W().rainTab}.`);return;}
   if(a==='copyMsg')copyText(directorsMessage());
   if(a==='copyTsv'){const rows=[['Date','Day','Time',W().Venue,'Level','Away','Home','Status']];
     games.slice().sort((x,y)=>x.date<y.date?-1:x.date>y.date?1:x.time-y.time).forEach(g=>rows.push([g.date,DOW[dowOf(g.date)],fmtTime(g.time),fieldName(g.field),divName(g.div),g.away,g.home,g.status==='postponed'?'Postponed':g.status==='rescheduled'?'Makeup':'Scheduled']));
