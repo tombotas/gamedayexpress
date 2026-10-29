@@ -699,7 +699,7 @@ function stepBody(id){
       <div class="choice"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">League logo (optional)</span>
       <div class="row"><label class="btn small filebtn">${cfg.logo?'Change logo':'Add a logo'}<input type="file" id="lgLogo" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"></label>${cfg.logo?'<button class="btn link small" data-act="rmLogo">Remove</button>':''}</div>
       <span class="sub">PNG, JPG or SVG. It shows next to the league name at the top of every page.</span></div></div>
-    <label class="f">League name<input type="text" id="lg" value="${esc(cfg.league)}" placeholder="Type your league name" class="${showErr&&!cfg.league.trim()?'missing':''}" autocomplete="off"></label>
+    <label class="f">League or tournament name<input type="text" id="lg" value="${esc(cfg.league)}" placeholder="Type your league or tournament name" class="${showErr&&!cfg.league.trim()?'missing':''}" autocomplete="off"></label>
     <div class="choice"><span class="f" style="font-size:13px;font-weight:600;color:var(--muted)">Sport</span>
       <div class="days">${Object.entries(SPORTS).map(([k,v])=>`<label class="chk sportchip"><input type="radio" name="sport" id="sp_${k}" data-sport="${k}" ${cfg.sport===k?'checked':''}>${v.label}</label>`).join('')}</div>
       <span class="sub">${cfg.sport?`Wording follows ${SPORTS[cfg.sport].label.toLowerCase()}: ${W().venues}, ${W().periods} and ${W().officials}. You can still name your ${W().venues} anything.`:'Pick one so the app uses the right words, like courts or fields, and referees or umpires.'}</span></div>
