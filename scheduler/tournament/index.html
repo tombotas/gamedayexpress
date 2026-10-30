@@ -440,7 +440,7 @@ const TB_CATALOG={
   rd:{label:'Run differential, capped per game',short:'Run differential'},
   rapi:{label:'Fewest runs allowed per defensive inning',short:'Runs allowed per inning'},
   rspi:{label:'Most runs scored per offensive inning',short:'Runs scored per inning'}};
-function tRulesDefault(){return {rest:60,restBr:0,longExtra:30,sameOrg:true,tie:'half',ff:'avg',home:'seed',rdCap:8,innings:7,
+function tRulesDefault(){return {rest:0,restBr:0,longExtra:30,sameOrg:true,tie:'half',ff:'avg',home:'seed',rdCap:8,innings:7,
   tb:['rec','h2h2','h2h3','ra','rs','ra1','ra2','inn','poolwin','rd','rapi','rspi'].map((k,i)=>({k,on:i<8}))};}
 function tRules(T){const d=tRulesDefault();const r=Object.assign(d,T.rules||{});
   const have=new Set((r.tb||[]).map(x=>x.k));r.tb=(r.tb||[]).filter(x=>TB_CATALOG[x.k]);for(const x of d.tb)if(!have.has(x.k))r.tb.push({k:x.k,on:false});
@@ -689,8 +689,8 @@ function renderSetup(){
   </section>`;
   // rules
   h+=`<section class="card"><span class="secnum">Step 4</span><h2>Rules</h2>
-    <div class="grid2"><label class="f">Shortest break between a team's games, pool play${minSel('rRest',tRules(T).rest,[0,30,45,60,90,120,150,180],'data-rule="rest"',fmtMin)}</label>
-      <label class="f">Shortest break between a team's games, bracket play${minSel('rRestBr',tRules(T).restBr||0,[0,15,30,45,60,90],'data-rule="restBr"',v=>v?fmtMin(v):'None: next game as soon as a field is free')}</label>
+    <div class="grid2"><label class="f">Shortest break between a team's games, pool play${minSel('rRest',tRules(T).rest,[0,15,30,45,60,90,120,150,180],'data-rule="rest"',v=>v?fmtMin(v):'None: next game as soon as a field is free')}</label>
+      <label class="f">Shortest break between a team's games, bracket play${minSel('rRestBr',tRules(T).restBr||0,[0,15,30,45,60,90,120],'data-rule="restBr"',v=>v?fmtMin(v):'None: next game as soon as a field is free')}</label>
       <label class="f">Extra time for semifinals and championship (no time limit)${minSel('rLong',tRules(T).longExtra,[0,15,30,45,60],'data-rule="longExtra"',fmtMin)}</label></div>
     <label class="chk" style="align-self:flex-start"><input type="checkbox" id="rOrg" data-rule="sameOrg" ${tRules(T).sameOrg?'checked':''}>Keep two teams from one organization apart in their first bracket game (brackets of 8 or more)</label>
     ${renderRules()}
