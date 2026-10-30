@@ -379,10 +379,11 @@ function tBuildGames(T){
 // ---- Scheduling across shared fields ----
 function tSlot(T,g){const age=T.ages.find(a=>a.id===g.age);return (age.len||100)+(age.turn||20)+(tIsLong(g)?(tRules(T).longExtra||0):0);}
 function tFieldsFor(T,ageId){const f=T.fields.filter(f=>!f.ages||!f.ages.length||f.ages.includes(ageId));return f;}
-function tScheduleDay(T,list,date,from,to){
-  const rest=tRules(T).rest;
+function tScheduleDay(T,list,date,from,to,fixed){
+  fixed=fixed||[];const R=tRules(T);const rest=list.length&&list[0].phase==='bracket'?(R.restBr||0):R.rest;
   const fFree={};T.fields.forEach(f=>fFree[f.id]=from);
   const tFree={};const byId={};list.forEach(g=>byId[g.id]=g);
+  for(const g of fixed){byId[g.id]=g;if(g.time!=null&&g.field&&fFree[g.field]!=null)fFree[g.field]=Math.max(fFree[g.field],g.time+tSlot(T,g));}
   const ageUse={};const left=new Set(list.map(g=>g.id));const unplaced=[];
   const ready=g=>{let t=from;
     if(g.phase==='pool'){t=Math.max(t,tFree[g.home]||from,tFree[g.away]||from);}
@@ -410,6 +411,14 @@ function tSchedule(T){
   tNumber(games);
   return {games,unplaced:[...u1,...u2].map(g=>g.id)};
 }
+// Re-time day 2 games that have no score yet; games already played stay put. Scores are kept.
+function tRetimeBracket(T){
+  const br=T.games.filter(g=>g.phase==='bracket');const fixed=br.filter(tFinal);const list=br.filter(g=>!tFinal(g));
+  list.forEach(g=>{g.time=null;g.field=null;});
+  const u=tScheduleDay(T,list,T.day2,T.times.d2.from,T.times.d2.to,fixed);
+  T.unplaced=(T.unplaced||[]).filter(id=>{const g=T.games.find(x=>x.id===id);return g&&g.phase==='pool';}).concat(u.map(g=>g.id));
+  return u.length;
+}
 function tNumber(games){
   const fi=g=>g.field||'';
   games.slice().sort((a,b)=>(a.date<b.date?-1:a.date>b.date?1:0)||((a.time==null?1e9:a.time)-(b.time==null?1e9:b.time))||fi(a).localeCompare(fi(b),undefined,{numeric:true})).forEach((g,i)=>g.num=i+1);
@@ -431,7 +440,7 @@ const TB_CATALOG={
   rd:{label:'Run differential, capped per game',short:'Run differential'},
   rapi:{label:'Fewest runs allowed per defensive inning',short:'Runs allowed per inning'},
   rspi:{label:'Most runs scored per offensive inning',short:'Runs scored per inning'}};
-function tRulesDefault(){return {rest:60,longExtra:30,sameOrg:true,tie:'half',ff:'avg',home:'seed',rdCap:8,innings:7,
+function tRulesDefault(){return {rest:60,restBr:0,longExtra:30,sameOrg:true,tie:'half',ff:'avg',home:'seed',rdCap:8,innings:7,
   tb:['rec','h2h2','h2h3','ra','rs','ra1','ra2','inn','poolwin','rd','rapi','rspi'].map((k,i)=>({k,on:i<8}))};}
 function tRules(T){const d=tRulesDefault();const r=Object.assign(d,T.rules||{});
   const have=new Set((r.tb||[]).map(x=>x.k));r.tb=(r.tb||[]).filter(x=>TB_CATALOG[x.k]);for(const x of d.tb)if(!have.has(x.k))r.tb.push({k:x.k,on:false});
@@ -556,7 +565,7 @@ function tCheck(T){
   for(const g of T.games.filter(g=>g.phase==='bracket'&&g.time!=null))for(const r of [g.ra,g.rb])if(r.w){const f=T.games.find(x=>x.id===r.w);if(f&&f.time!=null&&f.time+tSlot(T,f)>g.time)out.push(`Game ${g.num} starts before Game ${f.num} (its feeder) is due to finish`);}
   return out;
 }
-//module.exports={tRules,tRulesDefault,tSchedule,tRank,tStats,tPoolPairs,tPools,tBracketGames,tSeedOrder,tFixOrgs,tSides,tWinner,tCheck,tFinal,tRoundName,tSlot,tAddDays};
+//module.exports={tRetimeBracket,tRules,tRulesDefault,tSchedule,tRank,tStats,tPoolPairs,tPools,tBracketGames,tSeedOrder,tFixOrgs,tSides,tWinner,tCheck,tFinal,tRoundName,tSlot,tAddDays};
 
 
 // ===== Page shell =====
@@ -680,7 +689,8 @@ function renderSetup(){
   </section>`;
   // rules
   h+=`<section class="card"><span class="secnum">Step 4</span><h2>Rules</h2>
-    <div class="grid2"><label class="f">Shortest break between a team's games${minSel('rRest',tRules(T).rest,[0,30,45,60,90,120,150,180],'data-rule="rest"',fmtMin)}</label>
+    <div class="grid2"><label class="f">Shortest break between a team's games, pool play${minSel('rRest',tRules(T).rest,[0,30,45,60,90,120,150,180],'data-rule="rest"',fmtMin)}</label>
+      <label class="f">Shortest break between a team's games, bracket play${minSel('rRestBr',tRules(T).restBr||0,[0,15,30,45,60,90],'data-rule="restBr"',v=>v?fmtMin(v):'None: next game as soon as a field is free')}</label>
       <label class="f">Extra time for semifinals and championship (no time limit)${minSel('rLong',tRules(T).longExtra,[0,15,30,45,60],'data-rule="longExtra"',fmtMin)}</label></div>
     <label class="chk" style="align-self:flex-start"><input type="checkbox" id="rOrg" data-rule="sameOrg" ${tRules(T).sameOrg?'checked':''}>Keep two teams from one organization apart in their first bracket game (brackets of 8 or more)</label>
     ${renderRules()}
@@ -745,11 +755,12 @@ function renderSchedule(){
   const issues=tCheck(T);const pool=T.games.filter(g=>g.phase==='pool');const done=pool.filter(tFinal).length;
   let h=`<section class="card"><div class="row"><h2>Schedule and scores</h2><span class="spacer"></span><button class="btn small" data-act="copyTsv">Copy for Excel or Google Sheets</button></div>
     <div class="statusbar"><span class="pill ${done===pool.length?'ok':''}">${done} of ${pool.length} pool games final</span>
-    ${T.unplaced.length?`<span class="pill bad">${T.unplaced.length} games didn't fit; add a field or a later last start</span>`:'<span class="pill ok">Every game has a time and field</span>'}
+    ${T.unplaced.length?`<span class="pill bad">${T.unplaced.length} game${T.unplaced.length===1?'':'s'} didn't fit: ${T.unplaced.map(id=>{const g=T.games.find(x=>x.id===id);return g?'Game '+g.num:'';}).join(', ')}</span>`:'<span class="pill ok">Every game has a time and field</span>'}
     ${issues.length?issues.map(x=>`<span class="pill bad">${esc(x)}</span>`).join(''):''}
     ${T.stale?'<span class="pill warn">Setup changed since this schedule was built</span>':''}</div>
     <div class="row"><label class="f">Day<select id="fDay"><option value="all">Both days</option><option value="pool" ${fDay==='pool'?'selected':''}>Day 1: pool play</option><option value="bracket" ${fDay==='bracket'?'selected':''}>Day 2: bracket</option></select></label>
       <label class="f">Age group<select id="fAge"><option value="all">All age groups</option>${T.ages.map(a=>`<option value="${a.id}" ${fAge===a.id?'selected':''}>${esc(a.name)}</option>`).join('')}</select></label></div>
+    ${T.unplaced.length||T.stale?`<div class="row"><button class="btn primary" data-act="retime">Re-time day 2</button><span class="sub">Fits the bracket games that have no score yet into day 2 using the current fields, times and breaks. Scores are kept and games already played stay put.${T.unplaced.some(id=>{const g=T.games.find(x=>x.id===id);return g&&g.phase==='pool';})?' Pool games that didn\'t fit need a later last start or another field, then a rebuild, or use Move.':''}</span></div>`:''}
     <p class="sub" style="margin:0">Type each team's runs when a game ends. Standings, seeds and the bracket update by themselves.</p></section>`;
   for(const ph of ['pool','bracket']){if(fDay!=='all'&&fDay!==ph)continue;
     const list=T.games.filter(g=>g.phase===ph&&(fAge==='all'||g.age===fAge)).sort((a,b)=>a.num-b.num);if(!list.length)continue;
@@ -877,7 +888,7 @@ V.addEventListener('change',e=>{const el=e.target;const d=el.dataset;
   if(d.tp){const [i,tid]=d.tp.split('|');const a=T.ages[+i];const pools=tPools(a);a.poolOf=a.poolOf||{};pools.forEach((p,k)=>p.forEach(t=>{if(a.poolOf[t]==null)a.poolOf[t]=k;}));a.poolOf[tid]=+el.value;touched();render();return;}
   if(d.fn!=null){T.fields[+d.fn].name=el.value.trim();touched();render();return;}
   if(d.fa!=null){const f=T.fields[+d.fa];f.ages=el.checked?[...new Set([...f.ages,el.value])]:f.ages.filter(x=>x!==el.value);touched();render();return;}
-  if(d.rule){const R=tRules(T);R[d.rule]=el.type==='checkbox'?el.checked:+el.value;if(d.rule==='rest'||d.rule==='longExtra')touched();else save();render();return;}
+  if(d.rule){const R=tRules(T);R[d.rule]=el.type==='checkbox'?el.checked:+el.value;if(d.rule==='rest'||d.rule==='longExtra'||d.rule==='restBr')touched();else save();render();return;}
   if(d.rules){tRules(T)[d.rules]=el.value;save();render();return;}
   if(d.tbon!=null){tRules(T).tb[+d.tbon].on=el.checked;save();render();return;}
   if(el.id==='rsName'){rsName=el.value;return;}
@@ -909,6 +920,7 @@ V.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)retu
   if(a==='rsUse'){const nmv=document.getElementById('rsPick').value;const o=ruleSets()[nmv];if(!o)return;Object.assign(tRules(T),JSON.parse(JSON.stringify(o)));tRules(T);save();render();toast(`Using ${nmv}`);return;}
   if(a==='rsDel'){const nmv=document.getElementById('rsPick').value;if(b.dataset.sure!==nmv){b.dataset.sure=nmv;b.textContent='Click again to delete '+nmv;return;}const o=ruleSets();delete o[nmv];saveRuleSets(o);render();toast(`Deleted ${nmv}`);return;}
   if(a==='swapHome'){const g=T.games.find(x=>x.id===b.dataset.g);g.homeSide=g.homeSide==='b'?'a':'b';const t=g.sa;g.sa=g.sh;g.sh=t;save();render();return;}
+  if(a==='retime'){const n=tRetimeBracket(T);save();render();toast(n?`${n} bracket game${n===1?'':'s'} still don't fit. Try a later last start on day 2.`:'Day 2 re-timed. Every bracket game fits.');return;}
   if(a==='lsMore'){const g=T.games.find(x=>x.id===b.dataset.g);g.ls=g.ls||{a:[],h:[]};const n=Math.max(7,g.ls.a.length,g.ls.h.length);g.ls.a[n]=g.ls.a[n]==null?'':g.ls.a[n];g.ls.h[n]=g.ls.h[n]==null?'':g.ls.h[n];render();return;}
   if(a==='mv'){mvOpen=mvOpen===b.dataset.g?null:b.dataset.g;render();return;}
   if(a==='copyTsv'){copyText(tsv()).then(ok=>{if(ok)toast('Schedule copied. Paste it into a sheet.');});return;}
