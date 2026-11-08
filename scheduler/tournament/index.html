@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tournament Scheduler | GameDay Express</title>
-<meta name="description" content="Free tournament scheduler from GameDay Express: pool play, seeding and tiebreakers you can set, and a seeded bracket across shared fields, over 1 to 7 days.">
+<meta name="description" content="Free tournament scheduler from GameDay Express: pool play, seeding and tiebreakers you can set, and a seeded bracket across shared fields, over 1 to 14 days.">
 <meta name="theme-color" content="#e8341a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DTHGH6C7GR"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-DTHGH6C7GR");</script>
@@ -383,7 +383,7 @@ function tBuildGames(T){
 // ---- Scheduling across shared fields ----
 function tSlot(T,g){const age=T.ages.find(a=>a.id===g.age);return (age.len||100)+(age.turn||20)+(tIsLong(g)?(tRules(T).longExtra||0):0);}
 function tFieldsFor(T,ageId){const f=T.fields.filter(f=>!f.ages||!f.ages.length||f.ages.includes(ageId));return f;}
-// Days: T.days=[{date,from,to,kind:'pool'|'bracket'|'both'}], 1 to 7, in date order.
+// Days: T.days=[{date,from,to,kind:'pool'|'bracket'|'both'}], 1 to 14, in date order.
 function tDays(T){
   if(!T.days||!T.days.length){const d=[];if(T.day1||T.times)d.push({date:T.day1||'',from:(T.times&&T.times.d1||{}).from||480,to:(T.times&&T.times.d1||{}).to||1200,kind:'pool'});
     if(T.day2||T.times)d.push({date:T.day2||'',from:(T.times&&T.times.d2||{}).from||480,to:(T.times&&T.times.d2||{}).to||1140,kind:'bracket'});
@@ -708,8 +708,8 @@ function setupErrors(){const e=[];
   return e;}
 function renderSetup(){
   let h='';
-  if(!T.ages.length&&!T.name)h+=`<section class="card sharecard"><h2>Start a tournament</h2><p class="lead">Set up a tournament of 1 to 7 days: pool play first, then a seeded bracket, using the default seeding and tiebreaker rules, which you can change in step 4. Every team makes the bracket.</p><div class="row"><button class="btn primary" data-act="sample">Load a sample tournament</button><span class="sub">or fill in the steps below</span></div></section>`;
-  h+=`<section class="card"><span class="secnum">Step 1</span><div class="row"><h2>Name and days</h2><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">Days${countInput('nDays',T.days.length,1,7,'Number of days')}</label></div>
+  if(!T.ages.length&&!T.name)h+=`<section class="card sharecard"><h2>Start a tournament</h2><p class="lead">Set up a tournament of 1 to 14 days: pool play first, then a seeded bracket, using the default seeding and tiebreaker rules, which you can change in step 4. Every team makes the bracket.</p><div class="row"><button class="btn primary" data-act="sample">Load a sample tournament</button><span class="sub">or fill in the steps below</span></div></section>`;
+  h+=`<section class="card"><span class="secnum">Step 1</span><div class="row"><h2>Name and days</h2><span class="spacer"></span><label class="f" style="flex-direction:row;align-items:center;gap:8px">Days${countInput('nDays',T.days.length,1,14,'Number of days')}</label></div>
     <label class="f">Tournament name<input type="text" id="tName" value="${esc(T.name)}" placeholder="Type a name, like Pearland Fall Classic" class="${showErr&&!T.name.trim()?'missing':''}"></label>
     <p class="sub" style="margin:0">For each day, pick what's played. Pool play has to finish before the bracket starts; on a day with both, each age group's bracket starts after its pool games.</p>
     <div class="dayrows">${T.days.map((d,i)=>`<div class="dayrow"><span class="dn">Day ${i+1}</span><label class="f">Date${dateSel('dy'+i,d.date,'Day '+(i+1)+' date')}</label>
@@ -902,7 +902,7 @@ function build(){const errs=setupErrors();if(errs.length){showErr=true;render();
   const r=tSchedule(T);T.games=r.games;T.unplaced=r.unplaced;T.seeds={};T.tieOrder={};T.built=true;T.stale=false;confirmBuild=false;showErr=false;save();tab='schedule';render();window.scrollTo({top:0});
   toast(r.unplaced.length?`Built, but ${r.unplaced.length} games didn't fit`:`Built ${r.games.length} games`);}
 function setCount(id,n){
-  if(id==='nDays'){n=Math.max(1,Math.min(7,n));const D=T.days;
+  if(id==='nDays'){n=Math.max(1,Math.min(14,n));const D=T.days;
     while(D.length<n){const last=D[D.length-1];D.push({date:last&&last.date?tAddDays(last.date,1):'',from:480,to:1140,kind:'bracket'});if(D.length>1&&D[D.length-2].kind==='bracket')D[D.length-2].kind='pool';}
     while(D.length>n){D.pop();if(D.length&&!D.some(tBrDay))D[D.length-1].kind=D.length===1?'both':'bracket';}
     if(n===1&&D[0].kind!=='both')D[0].kind='both';touched();render();return;}
