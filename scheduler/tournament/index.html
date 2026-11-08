@@ -595,7 +595,7 @@ function tCheck(T){
 
 
 // ===== Page shell =====
-const SHELL=`<div class="gdxbar"><div class="wrap"><a class="gdxlogo" href="/" aria-label="GameDay Express home">GAME<span>DAY</span> EXPRESS</a><span class="gdxsub">Tournament Scheduler</span><span class="spacer"></span><a class="gdxback" href="/scheduler/">League scheduler</a><a class="gdxback" href="/">← Sports portal</a></div></div>
+const SHELL=`<div class="gdxbar"><div class="wrap"><a class="gdxlogo" href="/" aria-label="GameDay Express home">GAME<span>DAY</span> EXPRESS</a><span class="gdxsub">Tournament Scheduler</span><span class="spacer"></span><a class="gdxback" href="/scheduler/">All leagues and tournaments</a><a class="gdxback" href="/">← Sports portal</a></div></div>
 <header class="top">
   <div class="wrap">
     <div class="brandrow">
@@ -620,7 +620,27 @@ const SHELL=`<div class="gdxbar"><div class="wrap"><a class="gdxlogo" href="/" a
 document.getElementById('appScript').insertAdjacentHTML('beforebegin',SHELL);
 
 // ===== State =====
-const KEY_T='gdxSiteTourney1';
+// ===== GameDay Express: list of leagues and tournaments saved in this browser =====
+const IDX_KEY='gdxSchedIndex1';
+function idxRead(){try{const a=JSON.parse(localStorage.getItem(IDX_KEY)||'[]');return Array.isArray(a)?a:[];}catch(e){return [];}}
+function idxWrite(a){try{localStorage.setItem(IDX_KEY,JSON.stringify(a));}catch(e){}}
+function idxTouch(item){const a=idxRead();const i=a.findIndex(x=>x.id===item.id);if(i>=0)a[i]=Object.assign(a[i],item);else a.push(item);idxWrite(a);}
+function gdxNewId(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function gdxPageId(p){let id='';try{id=new URLSearchParams(location.search).get('id')||'';}catch(e){}
+  if(id==='new'||!/^[A-Za-z0-9_-]{1,40}$/.test(id)){id=gdxNewId(p);try{history.replaceState(null,'',location.pathname+'?id='+id);}catch(e){}}return id;}
+// One-time move of the single league and tournament saved before multi-league support
+(function gdxMigrate(){try{const ls=localStorage;
+  const L=ls.getItem('gdxSchedLeague1');if(L){const s=JSON.parse(L);const id=gdxNewId('L');ls.setItem('gdxL_'+id,L);
+    const c=ls.getItem('gdxSchedCoach1');if(c)ls.setItem('gdxL_'+id+'_c',c);const u=ls.getItem('gdxSchedUmp1');if(u)ls.setItem('gdxL_'+id+'_u',u);
+    const cfg=s&&s.cfg||{};idxTouch({id,kind:'league',name:cfg.league||'Untitled league',sport:cfg.sport||'',start:cfg.start||'',end:cfg.end||'',games:(s.games||[]).length,levels:(cfg.divisions||[]).length,updated:Date.now()});
+    ['gdxSchedLeague1','gdxSchedCoach1','gdxSchedUmp1'].forEach(k=>ls.removeItem(k));}
+  const T=ls.getItem('gdxSiteTourney1');if(T){const t=JSON.parse(T)||{};const id=gdxNewId('T');ls.setItem('gdxT_'+id,T);
+    const days=t.days||[];idxTouch({id,kind:'tournament',name:t.name||'Untitled tournament',sport:'',start:(days[0]||{}).date||t.day1||'',end:(days[days.length-1]||{}).date||t.day2||'',games:(t.games||[]).length,levels:(t.ages||[]).length,updated:Date.now()});
+    ls.removeItem('gdxSiteTourney1');}
+}catch(e){}})();
+
+const GDX_ID=gdxPageId('T');
+const KEY_T='gdxT_'+GDX_ID;
 let T=null,tab='setup',fAge='all',fDay='all',lsOpen=null,mvOpen=null,confirmBuild=false,confirmSeed=null,showErr=false,filePanel=false,pendingFile=null;
 let dDraft={};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -975,10 +995,13 @@ V.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)retu
   if(a==='fileSave'){downloadT();return;}
   if(a==='fileCancel'){filePanel=false;pendingFile=null;render();return;}
   if(a==='fileOpenNow'){T=Object.assign(blankT(),pendingFile.T);if(!pendingFile.T.days)T.days=null;tDays(T);tRules(T);pendingFile=null;filePanel=false;save();tab=T.built?'schedule':'setup';render();toast('Opened '+(T.name||'tournament'));return;}
-  if(a==='newT'){if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Click again: this clears the current tournament';return;}T=blankT();filePanel=false;tab='setup';save();render();return;}
+  if(a==='newT'){location.href='/scheduler/tournament/?id=new';return;if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Click again: this clears the current tournament';return;}T=blankT();filePanel=false;tab='setup';save();render();return;}
 });
 if(!load())T=blankT();
+function gdxIndexSync(){try{if(!(T.name||'').trim()&&!T.built)return;const ds=(T.days||[]).filter(d=>d.date);idxTouch({id:GDX_ID,kind:'tournament',name:T.name||'Untitled tournament',sport:'',start:(ds[0]||{}).date||'',end:(ds[ds.length-1]||{}).date||'',games:(T.games||[]).length,levels:(T.ages||[]).length,updated:Date.now()});}catch(e){}}
+save=(f=>function(){f.apply(this,arguments);gdxIndexSync();})(save);
 tab=T.built?'schedule':'setup';
+try{const pf=sessionStorage.getItem('gdxPendingFile');if(pf){const o=JSON.parse(pf);if(o&&o.app==='gdx-tournament'&&o.T){sessionStorage.removeItem('gdxPendingFile');T=Object.assign(blankT(),o.T);if(!o.T.days)T.days=null;tDays(T);tRules(T);save();tab=T.built?'schedule':'setup';}}}catch(e){}
 render();
 </script>
 </body>
